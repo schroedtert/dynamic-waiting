@@ -24,11 +24,10 @@
 
  	<obstacle id="0">
     	<polygon>
-        	<vertex px="0" py="1"/>
-        	<vertex px="1" py="1"/>
-			<vertex px="1" py="-1"/>
-        	<vertex px="0" py="-1"/>
-        	<vertex px="0" py="1"/>
+        	<vertex px="-1" py="-1"/>
+        	<vertex px="1" py="-1"/>
+			<vertex px="1" py="1"/>
+        	<vertex px="-1" py="1"/>
     	</polygon>
 	</obstacle>
 

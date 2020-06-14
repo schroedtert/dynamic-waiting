@@ -12,6 +12,9 @@ from IO import *
 from geometry import Geometry
 from grid import Grid
 import skfmm
+import plotting as plot
+
+from pedestrian import Pedestrian
 
 from pedestrian import Pedestrian
 
@@ -102,7 +105,7 @@ def get_neighbors(geometry: Geometry, grid: Grid, cell:[int, int]):
         possibleNeigbors.append([i - 1, j + 1])
 
     for posNeighbor in possibleNeigbors:
-        x,y = grid.getCoordinates(posNeighbor[0], posNeighbor[1])
+        x, y = grid.getCoordinates(posNeighbor[0], posNeighbor[1])
         if geometry.isInGeometry(x, y):
             neighbors.append(posNeighbor)
 
@@ -112,7 +115,11 @@ def get_neighbors(geometry: Geometry, grid: Grid, cell:[int, int]):
 
 def run_simulation(file, numPeds, maxSteps=1, cellSize=0.4):
     geometry, grid = init(file, cellSize)
-    create_peds(numPeds, geometry, grid)
+    # create_peds(numPeds, geometry, grid)
+    # plot.plot_voronoi_peds(geometry, grid, geometry.peds)
+    # plot.plot_geometry_peds(geometry, grid, geometry.peds)
+
+
     # peds = {}
     # peds[0] = ped
     # print(peds[0] = ped)
@@ -120,7 +127,12 @@ def run_simulation(file, numPeds, maxSteps=1, cellSize=0.4):
     # init_static_ff(geometry, grid)
 
     doorDistance = compute_door_distance(geometry, grid)
-    plot_prob_field(geometry, grid, doorDistance)
+    plot.plot_prob_field(geometry, grid, doorDistance)
+
+    wallDistance = compute_wall_distance(geometry, grid)
+    plot.plot_prob_field(geometry, grid, wallDistance)
+
+    # plot_prob_field(geometry, grid, doorDistance)
     # plot_geometry_peds(geometry, grid, geometry.peds)
     # foo = get_neighbors(geometry, grid, [10, 20])
     # plot_marked_zells(geometry, grid, foo)

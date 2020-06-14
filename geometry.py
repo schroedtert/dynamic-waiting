@@ -53,20 +53,22 @@ class Geometry:
         poly = sg.Polygon(points)
         self.floor = sg.PolygonWithHoles(poly, holes)
         self.boundingbox = poly.bbox()
-        self.isInGeometry(5., 0.)
 
-    def isInGeometry(self, x: float, y:float) -> bool:
-        draw(sg.Point2(x, y), color='purple')
-        # draw(self.floor)
-        draw(self.floor.outer_boundary(), polygon_with_holes=self.floor, facecolor='lightblue', point_color='red')
+        draw(self.floor)
         plt.show()
 
-        poly = self.floor.outer_boundary()
-        if poly.oriented_side(sg.Point2(x, y)) == sg.Sign.NEGATIVE:
-            print("negative")
-        else:
-            print("positive")
-        return 1 > 0
+
+    def isInGeometry(self, x: float, y: float) -> bool:
+        # check if on floor
+        point = sg.Point2(x, y)
+        if self.floor.outer_boundary().oriented_side(point) == sg.Sign.NEGATIVE:
+            # check if in any of hole
+            for hole in self.floor.holes:
+                if hole.oriented_side(point) == sg.Sign.POSITIVE:
+                    return False
+            return True
+        return False
+
 
     def getBoundingBox(self):
         return self.boundingbox.xmin(), self.boundingbox.ymin(), self.boundingbox.xmax(), self.boundingbox.ymax()

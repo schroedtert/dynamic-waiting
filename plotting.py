@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 from typing import Dict, List
 import pandas as pd
+import skgeom as sg
+from skgeom.draw import draw
 
 
 def plot_geometry(geometry:Geometry):
@@ -54,38 +56,51 @@ def plot_geometry_grid(geometry: Geometry, grid: Grid):
 
     plt.show()
 
+
 def plot_geometry_peds(geometry: Geometry, grid: Grid, peds: Dict[int, Pedestrian]):
-        plt.figure()
-        for key, polygon in geometry.bounds.items():
-            x, y = polygon.exterior.xy
-            plt.plot(x, y, color='black')
+    # draw(geometry.floor)
+    draw(geometry.floor, alpha=0.1)
 
-        for key, obstacle in geometry.obstacles.items():
-            x, y = obstacle.exterior.xy
-            plt.fill(x, y, alpha=0.1, fc='gray', ec='none')
-            plt.plot(x, y, color='gray')
+    for key, door in geometry.doors.items():
+        draw(door, color='red', alpha=0.5)
 
-        for key, door in geometry.doors.items():
-            x, y = door.coords.xy
-            plt.plot(x, y, color='red')
-
-        for key, ped in peds.items():
-            x = grid.gridX[ped.i()][ped.j()]
-            y = grid.gridY[ped.i()][ped.j()]
-
-            plt.plot(x, y, color='blue', markersize='8', marker='o')
-        plt.show()
+    for key, ped in peds.items():
+        x = grid.gridX[ped.i()][ped.j()]
+        y = grid.gridY[ped.i()][ped.j()]
+        point = sg.Point2(x, y)
+        draw(point, color='black')
+        # plt.figure()
+        # for key, polygon in geometry.bounds.items():
+        #     x, y = polygon.exterior.xy
+        #     plt.plot(x, y, color='black')
+        #
+        # for key, obstacle in geometry.obstacles.items():
+        #     x, y = obstacle.exterior.xy
+        #     plt.fill(x, y, alpha=0.1, fc='gray', ec='none')
+        #     plt.plot(x, y, color='gray')
+        #
+        # for key, door in geometry.doors.items():
+        #     x, y = door.coords.xy
+        #     plt.plot(x, y, color='red')
+        #
+        # for key, ped in peds.items():
+        #     x = grid.gridX[ped.i()][ped.j()]
+        #     y = grid.gridY[ped.i()][ped.j()]
+        #
+        #     plt.plot(x, y, color='blue', markersize='8', marker='o')
+    plt.show()
 
 def plot_marked_zells(geometry: Geometry, grid: Grid, marked_cells: [[int, int]]):
+    print(marked_cells)
     plt.figure()
-    for key, polygon in geometry.bounds.items():
-        x, y = polygon.exterior.xy
-        plt.plot(x, y, color='black')
-
-    for key, obstacle in geometry.obstacles.items():
-        x, y = obstacle.exterior.xy
-        plt.fill(x, y, alpha=0.1, fc='gray', ec='none')
-        plt.plot(x, y, color='gray')
+    # for key, polygon in geometry.bounds.items():
+    #     x, y = polygon.exterior.xy
+    #     plt.plot(x, y, color='black')
+    #
+    # for key, obstacle in geometry.obstacles.items():
+    #     x, y = obstacle.exterior.xy
+    #     plt.fill(x, y, alpha=0.1, fc='gray', ec='none')
+    #     plt.plot(x, y, color='gray')
 
     # for key, door in geometry.doors.items():
     #     x, y = door.coords.xy
@@ -93,7 +108,7 @@ def plot_marked_zells(geometry: Geometry, grid: Grid, marked_cells: [[int, int]]
     for cell in marked_cells:
         x,y = grid.getCoordinates(cell[0], cell[1])
         cellsize = grid.cellsize
-        rect = plt.Rectangle((x-0.5*cellsize, y-0.5*cellsize), cellsize, cellsize, fill=False)
+        rect = plt.Rectangle((x-0.5*cellsize, y-0.5*cellsize), cellsize, cellsize, fill=True)
         ax = plt.gca()
         ax.add_patch(rect)
 
@@ -102,19 +117,41 @@ def plot_marked_zells(geometry: Geometry, grid: Grid, marked_cells: [[int, int]]
 def plot_prob_field(geometry: Geometry, grid: Grid, probField):
     plt.figure()
     # plt.contour(grid.gridX, grid.gridY, phi, [0], linewidths=(3), colors='black')
-    for key, polygon in geometry.bounds.items():
-        x, y = polygon.exterior.xy
-        plt.plot(x, y, color='black')
+    # for key, door in geometry.doors.items():
+    #     draw(door, color='red', alpha=0.5)
 
-    for key, obstacle in geometry.obstacles.items():
-        x, y = obstacle.exterior.xy
-        plt.fill(x, y, alpha=0.1, fc='gray', ec='none')
-        plt.plot(x, y, color='gray')
-
-    for key, door in geometry.doors.items():
-        x, y = door.coords.xy
-        plt.plot(x, y, color='red')
-
-    plt.contour(grid.gridX, grid.gridY, probField)
+    plt.contourf(grid.gridX, grid.gridY, probField)
     plt.colorbar()
+    # plt.imshow(probField, origin='lower')
+    plt.show()
+
+def plot_voronoi_peds(geometry, grid, peds):
+    vdiag = sg.voronoi.VoronoiDiagram()
+
+    for key, ped in peds.items():
+        x = grid.gridX[ped.i()][ped.j()]
+        y = grid.gridY[ped.i()][ped.j()]
+        point = sg.Point2(x, y)
+        vdiag.insert(point)
+        plt.scatter(x, y)
+
+    # print(vdiag)
+    # print(vdiag.sites)
+    # for vertix in vdiag.vertices:
+    #     print(vertix)
+    #     draw(vertix)
+
+        # source, target = he.source(), he.target()
+        # if source and target:
+        #     plt.plot([source.point().x(), target.point().x()], [source.point().y(), target.point().y()])
+
+    # plt.scatter(npoints[:, 0], npoints[:, 1])
+
+    plt.axis('equal')
+    plt.gca().set_adjustable("box")
+    # plt.gca().set_xlim([-10.5, 10.5])
+    # plt.gca().set_ylim([-10, 10])
+
+    draw(geometry.floor, alpha=0.1)
+
     plt.show()

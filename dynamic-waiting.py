@@ -10,10 +10,10 @@ import random
 from lib import run_simulation
 
 def main():
-    random.seed(1)
+    random.seed(5)
     file = open('geometries/simplified.xml', 'r')
     # plot_geometry(geometry)
-    run_simulation(file, 1)
+    run_simulation(file, 20)
 
 if __name__ == '__main__':
     main()
