@@ -1,115 +1,72 @@
 from dataclasses import dataclass
-from shapely.geometry import Polygon, LineString, Point
 from typing import Dict, List
 
-from pedestrian import Pedestrian
+import skgeom as sg
 
+from pedestrian import Pedestrian
+from IO import read_geometry
+
+from collections import OrderedDict
 import numpy as np
+from matplotlib import pyplot as plt
+from skgeom.draw import draw
 
 @dataclass
 class Geometry:
     '''Class for managing the geometry.'''
-    bounds: Dict[int, Polygon]
-    obstacles: Dict[int, Polygon]
-    doors: Dict[int, LineString]
+    walls: List[sg.Segment2]
+    floor: sg.PolygonWithHoles
+    doors: Dict[int, sg.Segment2]
     peds: Dict[int, Pedestrian]
+    boundingbox: sg.Bbox2
+
+    # parameterized constructor
+    def __init__(self, filename):
+        self.walls = []
+        self.floor = None
+        self.doors = {}
+        self.peds = {}
+
+        walls, obstacles, doors = read_geometry(filename)
+
+        points = []
+        for wall in walls:
+            p1 = sg.Point2(wall[0][0], wall[0][1])
+            p2 = sg.Point2(wall[1][0], wall[1][1])
+            self.walls.append(sg.Segment2(p1, p2))
+            points.append(p1)
+        list(OrderedDict.fromkeys(points))
+
+        for key, door in doors.items():
+            p1 = sg.Point2(door[0][0], door[0][1])
+            p2 = sg.Point2(door[1][0], door[1][1])
+            self.doors[key] = sg.Segment2(p1, p2)
+
+        holes = []
+        for key, obstacle in obstacles.items():
+            hole_points = []
+            for point in obstacle:
+                hole_points.append(sg.Point2(point[0], point[1]))
+            holes.append(sg.Polygon(hole_points))
+
+        # create polygon
+        poly = sg.Polygon(points)
+        self.floor = sg.PolygonWithHoles(poly, holes)
+        self.boundingbox = poly.bbox()
+        self.isInGeometry(5., 0.)
 
     def isInGeometry(self, x: float, y:float) -> bool:
-        isInRoom = False
+        draw(sg.Point2(x, y), color='purple')
+        # draw(self.floor)
+        draw(self.floor.outer_boundary(), polygon_with_holes=self.floor, facecolor='lightblue', point_color='red')
+        plt.show()
 
-        p = Point(x, y)
-        for key, room in self.bounds.items():
-            if room.contains(p):
-                isInRoom = True
-                break
+        poly = self.floor.outer_boundary()
+        if poly.oriented_side(sg.Point2(x, y)) == sg.Sign.NEGATIVE:
+            print("negative")
+        else:
+            print("positive")
+        return 1 > 0
 
-        if isInRoom:
-            for key, obstacle in self.obstacles.items():
-                if obstacle.contains(p):
-                    return False
-            return True
-
-        return False
-
-@dataclass
-class Grid:
-    '''Class holding the grid information'''
-    gridX: np.ndarray
-    gridY: np.ndarray
-    dimX: int
-    dimY: int
-    cellsize: float
-
-    def getOutsideCells(self, geometry: Geometry):
-        outsideCells = []
-        for i in range(self.dimX):
-            for j in range(self.dimY):
-                x, y = self.getCoordinates(i, j)
-                if not geometry.isInGeometry(x,y):
-                    outsideCells.append([i, j])
-
-        return outsideCells
-
-
-    def getInsideCells(self, geometry: Geometry):
-        insideCells = []
-        for i in range(self.dimX):
-            for j in range(self.dimY):
-                x, y = self.getCoordinates(i, j)
-                if geometry.isInGeometry(x,y):
-                    insideCells.append([i, j])
-
-        return insideCells
-
-
-    def getWallCells(self, geometry: Geometry):
-        wallCells = []
-        # for i in range(self.dimX):
-        #     for j in range(self.dimY):
-                # for key, door in geometry.doors.items():
-                #     x, y = self.getCoordinates(i, j)
-                #     p = Point(x,y)
-                #     if door.distance(p) < 1e-5:
-                #         wallCells.append([i, j])
-
-        return wallCells
-
-    def getDoorCells(self, geometry: Geometry):
-        doorCells = []
-        for i in range(self.dimX):
-            for j in range(self.dimY):
-                for key, door in geometry.doors.items():
-                    x, y = self.getCoordinates(i, j)
-                    p = Point(x,y)
-                    if door.distance(p) < 1e-5:
-                        doorCells.append([i, j])
-
-        print(doorCells)
-        return doorCells
-
-    def getCoordinates(self, i: int, j: int):
-        if 0 <= i < self.dimX and 0 <= j < self.dimY:
-            return [self.gridX[i][j], self.gridY[i][j]]
-
-        return [float("inf"), float("inf")]
-
-    def create(geometry: Geometry, cellsize=0.5):
-        minx = float("inf")
-        miny = float("inf")
-        maxx = -float("inf")
-        maxy = -float("inf")
-
-        for key, room in geometry.bounds.items():
-            tmpminx, tmpminy, tmpmaxx, tmpmaxy = room.bounds
-            minx = min(minx, tmpminx)
-            miny = min(miny, tmpminy)
-            maxx = max(maxx, tmpmaxx)
-            maxy = max(maxy, tmpmaxy)
-
-        x = np.arange(minx - cellsize, maxx + 2 * cellsize, cellsize)
-        y = np.arange(miny - cellsize, maxy + 2 * cellsize, cellsize)
-
-        xv, yv = np.meshgrid(x, y, indexing='ij')
-        dimX = len(x)
-        dimY = len(y)
-        return Grid(xv, yv, dimX, dimY, cellsize)
+    def getBoundingBox(self):
+        return self.boundingbox.xmin(), self.boundingbox.ymin(), self.boundingbox.xmax(), self.boundingbox.ymax()
