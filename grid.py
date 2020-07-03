@@ -106,6 +106,18 @@ class Grid:
         
         return walls - self.getDoorCells(geometry)
 
+    def getEdgeCells(self, geometry: Geometry):
+        edges = np.zeros_like(self.gridX)
+        for i in range(self.dimX):
+            for j in range(self.dimY):
+                for edge in geometry.edges:
+                    x, y = self.getCoordinates(i, j)
+                    p = sg.Point2(x, y)
+                    if sg.squared_distance(edge, p) < (0.5 * self.cellsize) ** 2:
+                        edges[i][j] = 1
+
+        return edges
+
     def getDoorCells(self, geometry: Geometry):
         doors = np.zeros_like(self.gridX)
         for i in range(self.dimX):

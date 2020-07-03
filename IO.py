@@ -8,7 +8,8 @@ def read_geometry(filename):
     obstacles = read_obstacle(root)
     walls = read_subroom_walls(root)
     doors = read_doors(root)
-    return walls, obstacles, doors
+    edges = read_subroom_edges(root)
+    return walls, obstacles, doors, edges
 
 
 def read_doors(root):
@@ -48,6 +49,23 @@ def read_obstacle(xml_doc):
 
     return obstacles
 
+def read_subroom_edges(xml_doc):
+    n_wall = 0
+    edge_segments = []
+    for s_num, s_elem in enumerate(xml_doc.getElementsByTagName('subroom')):
+        for p_num, p_elem in enumerate(s_elem.getElementsByTagName('edge')):
+            n_wall = n_wall + 1
+            n_vertex = len(p_elem.getElementsByTagName('vertex'))
+
+            edge_points = []
+            for v_num, v_elem in enumerate(p_elem.getElementsByTagName('vertex')):
+                x = float(p_elem.getElementsByTagName('vertex')[v_num].attributes['px'].value)
+                y = float(p_elem.getElementsByTagName('vertex')[v_num].attributes['py'].value)
+                edge_points.append([x, y])
+
+            edge_segments.append([edge_points[0], edge_points[1]])
+
+    return edge_segments
 
 def read_subroom_walls(xml_doc):
     n_wall = 0

@@ -1,4 +1,4 @@
-import itertools as it # for cartesian product
+import itertools as it  # for cartesian product
 import time
 import random
 import os
@@ -74,7 +74,8 @@ def compute_door_distance(geometry: Geometry, grid: Grid):
 
 def compute_wall_distance(geometry: Geometry, grid: Grid):
     wall = grid.getWallCells(geometry)
-
+    edges = grid.getEdgeCells(geometry)
+    wall = wall - edges
     return compute_distance_fmm(geometry, grid, wall)
 
 

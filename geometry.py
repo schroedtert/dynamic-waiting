@@ -15,6 +15,7 @@ from skgeom.draw import draw
 class Geometry:
     '''Class for managing the geometry.'''
     walls: List[sg.Segment2]
+    edges: List[sg.Segment2]
     floor: sg.PolygonWithHoles
     doors: Dict[int, sg.Segment2]
     peds: Dict[int, Pedestrian]
@@ -26,8 +27,9 @@ class Geometry:
         self.floor = None
         self.doors = {}
         self.peds = {}
+        self.edges = []
 
-        walls, obstacles, doors = read_geometry(filename)
+        walls, obstacles, doors, edges = read_geometry(filename)
 
         points = []
         for wall in walls:
@@ -36,6 +38,11 @@ class Geometry:
             self.walls.append(sg.Segment2(p1, p2))
             points.append(p1)
         list(OrderedDict.fromkeys(points))
+
+        for edge in edges:
+            p1 = sg.Point2(edge[0][0], edge[0][1])
+            p2 = sg.Point2(edge[1][0], edge[1][1])
+            self.edges.append(sg.Segment2(p1, p2))
 
         for key, door in doors.items():
             p1 = sg.Point2(door[0][0], door[0][1])
@@ -53,9 +60,6 @@ class Geometry:
         poly = sg.Polygon(points)
         self.floor = sg.PolygonWithHoles(poly, holes)
         self.boundingbox = poly.bbox()
-
-        draw(self.floor)
-        plt.show()
 
 
     def isInGeometry(self, x: float, y: float) -> bool:
