@@ -120,9 +120,9 @@ def plot_prob_field(geometry: Geometry, grid: Grid, probField):
     # for key, door in geometry.doors.items():
     #     draw(door, color='red', alpha=0.5)
 
-    # plt.contourf(grid.gridX, grid.gridY, probField)
-    # plt.colorbar()
-    plt.imshow(probField, origin='lower')
+    plt.contourf(grid.gridX, grid.gridY, probField)
+    plt.colorbar()
+    # plt.imshow(probField, origin='lower')
     plt.show()
 
 def plot_voronoi_peds(geometry, grid, peds):
