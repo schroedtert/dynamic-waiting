@@ -47,30 +47,30 @@ def create_peds(numPeds: int, geometry: Geometry, grid:Grid):
                 # print("{:02d} {:5.2f} {:5.2f}".format(index, x, y))
                 break
 
-
-def compute_door_distance(geometry: Geometry, grid: Grid):
+def compute_distance_fmm(geometry: Geometry, grid: Grid, start):
     phi = -1 * np.ones_like(grid.gridX)
-    doorCells = grid.getDoorCells(geometry)
 
-    for doorCell in doorCells:
-        phi[doorCell[0]][doorCell[1]] = 1
+    inside = grid.getInsideCells(geometry)
+    outside = grid.getOutsideCells(geometry)
+    doors = grid.getDoorCells(geometry)
 
-    phi[grid.gridX > 10] = 1
-
-    outsideCells = grid.getOutsideCells(geometry)
-
-    outsideMask = np.full(grid.gridX.shape, True)
-    for outside in outsideCells:
-        outsideMask[outside[0]][outside[1]] = False
-
-    phi = np.ma.MaskedArray(phi, outsideMask)
+    phi = inside - start
+    mask = np.logical_and(outside == 1, start != 1)
+    mask = np.logical_and(mask, doors != 1)
+    phi = np.ma.MaskedArray(phi, mask)
     d = skfmm.distance(phi, dx=grid.cellsize)
+
     return d
 
+def compute_door_distance(geometry: Geometry, grid: Grid):
+    doors = grid.getDoorCells(geometry)
+
+    return compute_distance_fmm(geometry, grid, doors)
 
 def compute_wall_distance(geometry: Geometry, grid: Grid):
+    wall = grid.getWallCells(geometry)
 
-    return
+    return compute_distance_fmm(geometry, grid, wall)
 
 
 def compute_static_ff(geometry: Geometry, grid: Grid):
