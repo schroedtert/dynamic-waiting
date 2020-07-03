@@ -53,11 +53,16 @@ def compute_distance_fmm(geometry: Geometry, grid: Grid, start):
     inside = grid.getInsideCells(geometry)
     outside = grid.getOutsideCells(geometry)
     doors = grid.getDoorCells(geometry)
-
+    peds = grid.getPedCells(geometry)
     phi = inside - start
     mask = np.logical_and(outside == 1, start != 1)
     mask = np.logical_and(mask, doors != 1)
+    mask = np.logical_or(mask, peds == 1)
     phi = np.ma.MaskedArray(phi, mask)
+
+    plt.figure()
+    plt.contourf(grid.gridX, grid.gridY, phi)
+    plt.show()
     d = skfmm.distance(phi, dx=grid.cellsize)
 
     return d
@@ -115,7 +120,7 @@ def get_neighbors(geometry: Geometry, grid: Grid, cell:[int, int]):
 
 def run_simulation(file, numPeds, maxSteps=1, cellSize=0.4):
     geometry, grid = init(file, cellSize)
-    # create_peds(numPeds, geometry, grid)
+    create_peds(numPeds, geometry, grid)
     # plot.plot_voronoi_peds(geometry, grid, geometry.peds)
     # plot.plot_geometry_peds(geometry, grid, geometry.peds)
 
