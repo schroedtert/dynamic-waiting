@@ -11,6 +11,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from skgeom.draw import draw
 
+
 @dataclass
 class Geometry:
     '''Class for managing the geometry.'''
@@ -61,7 +62,6 @@ class Geometry:
         self.floor = sg.PolygonWithHoles(poly, holes)
         self.boundingbox = poly.bbox()
 
-
     def isInGeometry(self, x: float, y: float) -> bool:
         # check if on floor
         point = sg.Point2(x, y)
@@ -72,7 +72,6 @@ class Geometry:
                     return False
             return True
         return False
-
 
     def getBoundingBox(self):
         return self.boundingbox.xmin(), self.boundingbox.ymin(), self.boundingbox.xmax(), self.boundingbox.ymax()

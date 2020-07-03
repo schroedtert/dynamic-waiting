@@ -29,12 +29,11 @@ def init(file, cellSize):
     return geometry, grid
 
 
-def create_peds(numPeds: int, geometry: Geometry, grid:Grid):
-
+def create_peds(numPeds: int, geometry: Geometry, grid: Grid):
     for index in range(numPeds):
         while True:
-            i = random.randint(0, grid.gridX.shape[0]-1)
-            j = random.randint(0, grid.gridY.shape[1]-1)
+            i = random.randint(0, grid.gridX.shape[0] - 1)
+            j = random.randint(0, grid.gridY.shape[1] - 1)
             occupied = False
             for id, ped in geometry.peds.items():
                 if ped.i() == i and ped.j() == j:
@@ -47,8 +46,9 @@ def create_peds(numPeds: int, geometry: Geometry, grid:Grid):
                 # print("{:02d} {:5.2f} {:5.2f}".format(index, x, y))
                 break
 
-def compute_distance_fmm(geometry: Geometry, grid: Grid, start):
-    phi = -1 * np.ones_like(grid.gridX)
+
+def compute_distance_fmm(geometry: Geometry, grid: Grid, start, with_peds=True):
+    # phi = -1 * np.ones_like(grid.gridX)
 
     inside = grid.getInsideCells(geometry)
     outside = grid.getOutsideCells(geometry)
@@ -69,6 +69,7 @@ def compute_door_distance(geometry: Geometry, grid: Grid):
 
     return compute_distance_fmm(geometry, grid, doors)
 
+
 def compute_wall_distance(geometry: Geometry, grid: Grid):
     wall = grid.getWallCells(geometry)
     edges = grid.getEdgeCells(geometry)
@@ -83,17 +84,20 @@ def compute_ped_distance(geometry: Geometry, grid: Grid):
 
 def compute_static_ff(geometry: Geometry, grid: Grid):
     staticFF = np.empty(grid.gridY.shape)
-    staticFF = np.sqrt(grid.gridX.shape[0]**2 + grid.gridX.shape[1])
+    staticFF = np.sqrt(grid.gridX.shape[0] ** 2 + grid.gridX.shape[1])
 
     return staticFF
+
 
 def init_dynamic_ff():
     return
 
+
 def compute_dynamic_ff():
     return
 
-def get_neighbors(geometry: Geometry, grid: Grid, cell:[int, int]):
+
+def get_neighbors(geometry: Geometry, grid: Grid, cell: [int, int]):
     """
      von Neumann neighborhood
     """
@@ -121,12 +125,12 @@ def get_neighbors(geometry: Geometry, grid: Grid, cell:[int, int]):
     random.shuffle(neighbors)
     return neighbors
 
+
 def run_simulation(file, numPeds, maxSteps=1, cellSize=0.4):
     geometry, grid = init(file, cellSize)
     create_peds(numPeds, geometry, grid)
     # plot.plot_voronoi_peds(geometry, grid, geometry.peds)
     # plot.plot_geometry_peds(geometry, grid, geometry.peds)
-
 
     # peds = {}
     # peds[0] = ped

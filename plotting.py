@@ -9,7 +9,7 @@ import skgeom as sg
 from skgeom.draw import draw
 
 
-def plot_geometry(geometry:Geometry):
+def plot_geometry(geometry: Geometry):
     plt.figure()
     for key, polygon in geometry.bounds.items():
         x, y = polygon.exterior.xy
@@ -25,6 +25,7 @@ def plot_geometry(geometry:Geometry):
         plt.plot(x, y, color='red')
 
     plt.show()
+
 
 def plot_geometry_grid(geometry: Geometry, grid: Grid):
     plt.figure()
@@ -48,9 +49,9 @@ def plot_geometry_grid(geometry: Geometry, grid: Grid):
 
     for i in range(grid.dimX):
         for j in range(grid.dimY):
-            x,y = grid.getCoordinates(i, j)
+            x, y = grid.getCoordinates(i, j)
             cellsize = grid.cellsize
-            rect = plt.Rectangle((x-0.5*cellsize, y-0.5*cellsize), cellsize, cellsize, fill=False)
+            rect = plt.Rectangle((x - 0.5 * cellsize, y - 0.5 * cellsize), cellsize, cellsize, fill=False)
             ax = plt.gca()
             ax.add_patch(rect)
 
@@ -90,6 +91,7 @@ def plot_geometry_peds(geometry: Geometry, grid: Grid, peds: Dict[int, Pedestria
         #     plt.plot(x, y, color='blue', markersize='8', marker='o')
     plt.show()
 
+
 def plot_marked_zells(geometry: Geometry, grid: Grid, marked_cells: [[int, int]]):
     print(marked_cells)
     plt.figure()
@@ -106,13 +108,14 @@ def plot_marked_zells(geometry: Geometry, grid: Grid, marked_cells: [[int, int]]
     #     x, y = door.coords.xy
     #     plt.plot(x, y, color='red')
     for cell in marked_cells:
-        x,y = grid.getCoordinates(cell[0], cell[1])
+        x, y = grid.getCoordinates(cell[0], cell[1])
         cellsize = grid.cellsize
-        rect = plt.Rectangle((x-0.5*cellsize, y-0.5*cellsize), cellsize, cellsize, fill=True)
+        rect = plt.Rectangle((x - 0.5 * cellsize, y - 0.5 * cellsize), cellsize, cellsize, fill=True)
         ax = plt.gca()
         ax.add_patch(rect)
 
     plt.show()
+
 
 def plot_prob_field(geometry: Geometry, grid: Grid, probField):
     plt.figure()
@@ -124,6 +127,7 @@ def plot_prob_field(geometry: Geometry, grid: Grid, probField):
     plt.colorbar()
     # plt.imshow(probField, origin='lower')
     plt.show()
+
 
 def plot_voronoi_peds(geometry, grid, peds):
     vdiag = sg.voronoi.VoronoiDiagram()
@@ -141,9 +145,9 @@ def plot_voronoi_peds(geometry, grid, peds):
     #     print(vertix)
     #     draw(vertix)
 
-        # source, target = he.source(), he.target()
-        # if source and target:
-        #     plt.plot([source.point().x(), target.point().x()], [source.point().y(), target.point().y()])
+    # source, target = he.source(), he.target()
+    # if source and target:
+    #     plt.plot([source.point().x(), target.point().x()], [source.point().y(), target.point().y()])
 
     # plt.scatter(npoints[:, 0], npoints[:, 1])
 

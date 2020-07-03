@@ -4,6 +4,7 @@ import skgeom as sg
 
 from geometry import Geometry
 
+
 @dataclass
 class Grid:
     '''Class holding the grid information'''
@@ -12,7 +13,6 @@ class Grid:
     dimX: int
     dimY: int
     cellsize: float
-
 
     def __init__(self, geometry: Geometry, cellsize=0.5):
         minx, miny, maxx, maxy = geometry.getBoundingBox()
@@ -34,24 +34,22 @@ class Grid:
         obstacleCells = []
         return obstacleCells
 
-
     def getOutsideCells(self, geometry: Geometry):
         outside = np.zeros_like(self.gridX)
         for i in range(self.dimX):
             for j in range(self.dimY):
                 x, y = self.getCoordinates(i, j)
-                if not geometry.isInGeometry(x,y):
+                if not geometry.isInGeometry(x, y):
                     outside[i][j] = 1
 
         return outside
-
 
     def getInsideCells(self, geometry: Geometry):
         inside = np.zeros_like(self.gridX)
         for i in range(self.dimX):
             for j in range(self.dimY):
                 x, y = self.getCoordinates(i, j)
-                if geometry.isInGeometry(x,y):
+                if geometry.isInGeometry(x, y):
                     inside[i][j] = 1
 
         return inside
@@ -66,12 +64,12 @@ class Grid:
 
         for i in range(self.dimX):
             for j in range(self.dimY):
-                    x, y = self.getCoordinates(i, j)
-                    p = sg.Point2(x,y)
+                x, y = self.getCoordinates(i, j)
+                p = sg.Point2(x, y)
 
-                    for pos in pedPositions:
-                        if sg.squared_distance(pos, p) < (0.5 * self.cellsize) ** 2:
-                            peds[i][j] = 1
+                for pos in pedPositions:
+                    if sg.squared_distance(pos, p) < (0.5 * self.cellsize) ** 2:
+                        peds[i][j] = 1
 
         return peds
 
@@ -80,9 +78,10 @@ class Grid:
         wallSegments = []
 
         for i in range(len(geometry.floor.outer_boundary().coords)):
-            next = (i + 1)%len(geometry.floor.outer_boundary().coords)
+            next = (i + 1) % len(geometry.floor.outer_boundary().coords)
             p1 = sg.Point2(geometry.floor.outer_boundary().coords[i][0], geometry.floor.outer_boundary().coords[i][1])
-            p2 = sg.Point2(geometry.floor.outer_boundary().coords[next][0], geometry.floor.outer_boundary().coords[next][1])
+            p2 = sg.Point2(geometry.floor.outer_boundary().coords[next][0],
+                           geometry.floor.outer_boundary().coords[next][1])
             wall = sg.Segment2(p1, p2)
             wallSegments.append(wall)
 
@@ -100,10 +99,10 @@ class Grid:
             for j in range(self.dimY):
                 for wall in wallSegments:
                     x, y = self.getCoordinates(i, j)
-                    p = sg.Point2(x,y)
-                    if sg.squared_distance(wall, p) < (0.5*self.cellsize)**2:
+                    p = sg.Point2(x, y)
+                    if sg.squared_distance(wall, p) < (0.5 * self.cellsize) ** 2:
                         walls[i][j] = 1
-        
+
         return walls - self.getDoorCells(geometry)
 
     def getEdgeCells(self, geometry: Geometry):
@@ -124,8 +123,8 @@ class Grid:
             for j in range(self.dimY):
                 for key, door in geometry.doors.items():
                     x, y = self.getCoordinates(i, j)
-                    p = sg.Point2(x,y)
-                    if sg.squared_distance(door, p) < (0.5*self.cellsize)**2:
+                    p = sg.Point2(x, y)
+                    if sg.squared_distance(door, p) < (0.5 * self.cellsize) ** 2:
                         doors[i][j] = 1
 
         return doors

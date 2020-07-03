@@ -3,6 +3,7 @@ import numpy as np
 # parsing xml files
 from xml.dom.minidom import parse
 
+
 def read_geometry(filename):
     root = parse(filename)
     obstacles = read_obstacle(root)
@@ -49,6 +50,7 @@ def read_obstacle(xml_doc):
 
     return obstacles
 
+
 def read_subroom_edges(xml_doc):
     n_wall = 0
     edge_segments = []
@@ -66,6 +68,7 @@ def read_subroom_edges(xml_doc):
             edge_segments.append([edge_points[0], edge_points[1]])
 
     return edge_segments
+
 
 def read_subroom_walls(xml_doc):
     n_wall = 0
@@ -92,23 +95,22 @@ def read_subroom_walls(xml_doc):
 
 def geo_limits(geo_xml):
     geometry_wall = read_subroom_walls(geo_xml)
-    geominX=1000
-    geomaxX=-1000
-    geominY=1000
-    geomaxY=-1000
+    geominX = 1000
+    geomaxX = -1000
+    geominY = 1000
+    geomaxY = -1000
     Xmin = []
     Ymin = []
     Xmax = []
     Ymax = []
     for k in geometry_wall.keys():
-        Xmin.append(np.min(geometry_wall[k][:,0]))
-        Ymin.append(np.min(geometry_wall[k][:,1]))
-        Xmax.append(np.max(geometry_wall[k][:,0]))
-        Ymax.append(np.max(geometry_wall[k][:,1]))
+        Xmin.append(np.min(geometry_wall[k][:, 0]))
+        Ymin.append(np.min(geometry_wall[k][:, 1]))
+        Xmax.append(np.max(geometry_wall[k][:, 0]))
+        Ymax.append(np.max(geometry_wall[k][:, 1]))
 
     geominX = np.min(Xmin)
     geomaxX = np.max(Xmax)
     geominY = np.min(Ymin)
     geomaxY = np.max(Ymax)
     return geominX, geomaxX, geominY, geomaxY
-
