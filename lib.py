@@ -37,6 +37,11 @@ def create_peds(numPeds: int, geometry: Geometry, grid: Grid):
 def run_simulation(file, numPeds, maxSteps=1, cellSize=0.4):
     geometry, grid = init(file, cellSize)
     create_peds(numPeds, geometry, grid)
+
+    for key, ped in geometry.peds.items():
+        x, y = grid.getCoordinates(ped.i(), ped.j())
+        geometry.visibleArea(x, y)
+
     ca = CA(geometry, grid)
     for step in range(maxSteps):
         ca.compute_step(geometry, grid)

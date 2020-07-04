@@ -1,9 +1,12 @@
+import random
 from dataclasses import dataclass
+
 import numpy as np
 import skgeom as sg
 
 from geometry import Geometry
 
+moore = False
 
 @dataclass
 class Grid:
@@ -117,6 +120,18 @@ class Grid:
 
         return edges
 
+    def getDangerCells(self, geometry: Geometry):
+        edges = np.zeros_like(self.gridX)
+        for i in range(self.dimX):
+            for j in range(self.dimY):
+                for edge in geometry.edges:
+                    x, y = self.getCoordinates(i, j)
+                    p = sg.Point2(x, y)
+                    if sg.squared_distance(edge, p) < 1:
+                        edges[i][j] = 1
+
+        return edges
+
     def getDoorCells(self, geometry: Geometry):
         doors = np.zeros_like(self.gridX)
         for i in range(self.dimX):
@@ -134,3 +149,31 @@ class Grid:
             return [self.gridX[i][j], self.gridY[i][j]]
 
         return [float("inf"), float("inf")]
+
+    def getNeighbors(self, geometry: Geometry, cell: [int, int]):
+        """
+         von Neumann neighborhood
+        """
+        neighbors = []
+        i, j = cell
+
+        possibleNeigbors = []
+        possibleNeigbors.append([i + 1, j])
+        possibleNeigbors.append([i - 1, j])
+        possibleNeigbors.append([i, j + 1])
+        possibleNeigbors.append([i, j - 1])
+
+        if (moore):
+            possibleNeigbors.append([i + 1, j - 1])
+            possibleNeigbors.append([i - 1, j - 1])
+            possibleNeigbors.append([i + 1, j + 1])
+            possibleNeigbors.append([i - 1, j + 1])
+
+        for posNeighbor in possibleNeigbors:
+            x, y = self.getCoordinates(posNeighbor[0], posNeighbor[1])
+            if geometry.isInGeometry(x, y):
+                neighbors.append(posNeighbor)
+
+        # not shuffling significantly alters the simulation...
+        random.shuffle(neighbors)
+        return neighbors

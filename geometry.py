@@ -1,15 +1,12 @@
+from collections import OrderedDict
 from dataclasses import dataclass
 from typing import Dict, List
 
 import skgeom as sg
-
-from pedestrian import Pedestrian
-from IO import read_geometry
-
-from collections import OrderedDict
-import numpy as np
 from matplotlib import pyplot as plt
-from skgeom.draw import draw
+
+from IO import read_geometry
+from pedestrian import Pedestrian
 
 
 @dataclass
@@ -21,6 +18,7 @@ class Geometry:
     doors: Dict[int, sg.Segment2]
     peds: Dict[int, Pedestrian]
     boundingbox: sg.Bbox2
+    arr: sg.arrangement.Arrangement
 
     # parameterized constructor
     def __init__(self, filename):
@@ -29,6 +27,7 @@ class Geometry:
         self.doors = {}
         self.peds = {}
         self.edges = []
+        self.arr = sg.arrangement.Arrangement()
 
         walls, obstacles, doors, edges = read_geometry(filename)
 
@@ -36,7 +35,9 @@ class Geometry:
         for wall in walls:
             p1 = sg.Point2(wall[0][0], wall[0][1])
             p2 = sg.Point2(wall[1][0], wall[1][1])
-            self.walls.append(sg.Segment2(p1, p2))
+            wall = sg.Segment2(p1, p2)
+            self.walls.append(wall)
+            self.arr.insert(wall)
             points.append(p1)
         list(OrderedDict.fromkeys(points))
 
@@ -57,10 +58,23 @@ class Geometry:
                 hole_points.append(sg.Point2(point[0], point[1]))
             holes.append(sg.Polygon(hole_points))
 
+            for i in range(len(hole_points)):
+                p1 = hole_points[i]
+                p2 = hole_points[(i + 1) % len(hole_points)]
+                hole_wall = sg.Segment2(p1, p2)
+                self.arr.insert(hole_wall)
+
         # create polygon
         poly = sg.Polygon(points)
         self.floor = sg.PolygonWithHoles(poly, holes)
         self.boundingbox = poly.bbox()
+
+        # create arrangement
+
+        # for he in self.arr.halfedges:
+        #     sg.draw.draw(he.curve())
+        # plt.show()
+        return
 
     def isInGeometry(self, x: float, y: float) -> bool:
         # check if on floor
@@ -75,3 +89,20 @@ class Geometry:
 
     def getBoundingBox(self):
         return self.boundingbox.xmin(), self.boundingbox.ymin(), self.boundingbox.xmax(), self.boundingbox.ymax()
+
+    def visibleArea(self, x: float, y: float):
+
+        vs = sg.RotationalSweepVisibility(self.arr)
+        q = sg.Point2(x, y)
+        face = self.arr.find(q)
+        vx = vs.compute_visibility(q, face)
+
+        for he in self.arr.halfedges:
+            sg.draw.draw(he.curve(), visible_point=False)
+        for v in vx.halfedges:
+            sg.draw.draw(v.curve(), color='red', visible_point=False)
+
+        sg.draw.draw(q, color='magenta')
+
+        plt.show()
+        return

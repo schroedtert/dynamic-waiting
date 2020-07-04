@@ -3,7 +3,6 @@ import skfmm
 from IO import *
 from geometry import Geometry
 from grid import Grid
-from plotting import plot_prob_field
 
 
 def compute_distance_fmm(geometry: Geometry, grid: Grid, start, with_peds=True):
@@ -19,8 +18,8 @@ def compute_distance_fmm(geometry: Geometry, grid: Grid, start, with_peds=True):
     if with_peds:
         mask = np.logical_or(mask, peds == 1)
     phi = np.ma.MaskedArray(phi, mask)
-
-    return skfmm.distance(phi, dx=grid.cellsize)
+    distance = skfmm.distance(phi, dx=grid.cellsize)
+    return np.ma.filled(distance, np.inf)
 
 
 def compute_door_distance(geometry: Geometry, grid: Grid):
@@ -31,11 +30,7 @@ def compute_door_distance(geometry: Geometry, grid: Grid):
 
 def compute_wall_distance(geometry: Geometry, grid: Grid):
     wall = grid.getWallCells(geometry)
-    plot_prob_field(geometry, grid, wall)
-
     edges = grid.getEdgeCells(geometry)
-    plot_prob_field(geometry, grid, edges)
-
     wall = wall - edges
     return compute_distance_fmm(geometry, grid, wall)
 
@@ -43,3 +38,8 @@ def compute_wall_distance(geometry: Geometry, grid: Grid):
 def compute_ped_distance(geometry: Geometry, grid: Grid):
     peds = grid.getPedCells(geometry)
     return compute_distance_fmm(geometry, grid, peds, False)
+
+
+def compute_danger_distance(geometry: Geometry, grid: Grid):
+    danger = grid.getDangerCells(geometry)
+    return compute_distance_fmm(geometry, grid, danger)
