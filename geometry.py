@@ -1,13 +1,12 @@
 from collections import OrderedDict
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Final
 
 import skgeom as sg
 from matplotlib import pyplot as plt
 
 from IO import read_geometry
 from pedestrian import Pedestrian
-
 
 @dataclass
 class Geometry:
@@ -69,11 +68,8 @@ class Geometry:
         self.floor = sg.PolygonWithHoles(poly, holes)
         self.boundingbox = poly.bbox()
 
-        # create arrangement
-
-        # for he in self.arr.halfedges:
-        #     sg.draw.draw(he.curve())
-        # plt.show()
+        sg.draw.draw(self.floor)
+        plt.show()
         return
 
     def isInGeometry(self, x: float, y: float) -> bool:
@@ -100,6 +96,7 @@ class Geometry:
         for v in vx.halfedges:
             points.append(v.curve().source())
 
+        points.reverse()
         poly = sg.Polygon(points)
 
         return poly

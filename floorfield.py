@@ -13,6 +13,8 @@ from pedestrian import Pedestrian
 
 from scipy.spatial import Voronoi, voronoi_plot_2d
 
+from plotting import plot_prob_field
+
 # for wall distance
 wall_b = 5
 wall_c = 5
@@ -82,7 +84,7 @@ def compute_static_ff(geometry: Geometry, grid: Grid):
     # # staticFF = np.sqrt(grid.gridX.shape[0] ** 2 + grid.gridX.shape[1])
 
     doorDistance = compute_door_distance(geometry, grid)
-    # plot_prob_field(geometry, grid, 1-doorDistance)
+    plot_prob_field(geometry, grid, doorDistance)
 
     return 1 - doorDistance
 
@@ -155,10 +157,10 @@ def computeFFforPed(geometry: Geometry, grid: Grid, ped: Pedestrian, ff):
         px, py = grid.getCoordinates(neighbor[0], neighbor[1])
         points.append([px, py])
 
-    points.append([0, 1000])
-    points.append([0, -1000])
-    points.append([1000, 0])
-    points.append([-1000, 0])
+    points.append([0, 1000000])
+    points.append([0, -1000000])
+    points.append([1000000, 0])
+    points.append([-1000000, 0])
 
     vor = Voronoi(points)
 
@@ -166,23 +168,33 @@ def computeFFforPed(geometry: Geometry, grid: Grid, ped: Pedestrian, ff):
     for region in vor.regions:
         if not -1 in region:
             polygon = [vor.vertices[i] for i in region]
+            # print(polygon)
+            # polygon.reverse()
+            # print(polygon)
 
             if (len(polygon) > 0):
                 polygons.append(sg.Polygon(polygon))
 
     visibleArea = geometry.visibleArea(x, y)
-    # print(visibleArea.__class__)
-    # l = dir(visibleArea)
-    # print(l)
+    print(visibleArea.__class__)
+    l = dir(visibleArea)
+    print(l)
     #
     # print(visibleArea.orientation() == sg.Sign.CLOCKWISE)
     # print(visibleArea.area())
     #
     # print("")
+    # print("visibleArea: {}".format(visibleArea.orientation() == sg.Sign.CLOCKWISE))
+    # print(visibleArea)
 
-    visibleArea.reverse_orientation()
+    # visibleArea.reverse_orientation()
+    # print("visibleArea: {}".format(visibleArea.reverse_orientation() == sg.Sign.CLOCKWISE))
+    # print(visibleArea)
+
     for polygon in polygons:
-        polygon.reverse_orientation()
+        # polygon.reverse_orientation()
+        for i in polygon.vertices:
+            print(i)
         sg.draw.draw(polygon, facecolor='red')
         print("polygon: {}".format(visibleArea.orientation() == sg.Sign.CLOCKWISE))
         print(polygon)

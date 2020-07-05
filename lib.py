@@ -10,9 +10,9 @@ logfile = 'log.dat'
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
-def init(file, cellSize):
+def init(file):
     geometry = Geometry(file)
-    grid = Grid(geometry, cellSize)
+    grid = Grid(geometry)
     return geometry, grid
 
 
@@ -34,8 +34,8 @@ def create_peds(numPeds: int, geometry: Geometry, grid: Grid):
                 break
 
 
-def run_simulation(file, numPeds, maxSteps=1, cellSize=0.4):
-    geometry, grid = init(file, cellSize)
+def run_simulation(file, numPeds, maxSteps=1):
+    geometry, grid = init(file)
     create_peds(numPeds, geometry, grid)
 
     for key, ped in geometry.peds.items():

@@ -2,7 +2,9 @@ import numpy as np
 
 # parsing xml files
 from xml.dom.minidom import parse
+from typing import Final
 
+MTOMM: Final = 1000
 
 def read_geometry(filename):
     root = parse(filename)
@@ -23,8 +25,8 @@ def read_doors(root):
 
         points = []
         for v_num, v_elem in enumerate(t_elem.getElementsByTagName('vertex')):
-            vertex_x = float(t_elem.getElementsByTagName('vertex')[v_num].attributes['px'].value)
-            vertex_y = float(t_elem.getElementsByTagName('vertex')[v_num].attributes['py'].value)
+            vertex_x = MTOMM * float(t_elem.getElementsByTagName('vertex')[v_num].attributes['px'].value)
+            vertex_y = MTOMM * float(t_elem.getElementsByTagName('vertex')[v_num].attributes['py'].value)
             points.append([vertex_x, vertex_y])
 
         doors[id] = points
@@ -42,8 +44,8 @@ def read_obstacle(xml_doc):
         points = []
         for p_num, p_elem in enumerate(o_elem.getElementsByTagName('polygon')):
             for v_num, v_elem in enumerate(p_elem.getElementsByTagName('vertex')):
-                vertex_x = float(p_elem.getElementsByTagName('vertex')[v_num].attributes['px'].value)
-                vertex_y = float(p_elem.getElementsByTagName('vertex')[v_num].attributes['py'].value)
+                vertex_x = MTOMM * float(p_elem.getElementsByTagName('vertex')[v_num].attributes['px'].value)
+                vertex_y = MTOMM * float(p_elem.getElementsByTagName('vertex')[v_num].attributes['py'].value)
                 points.append([vertex_x, vertex_y])
 
         obstacles[id] = points
@@ -61,8 +63,8 @@ def read_subroom_edges(xml_doc):
 
             edge_points = []
             for v_num, v_elem in enumerate(p_elem.getElementsByTagName('vertex')):
-                x = float(p_elem.getElementsByTagName('vertex')[v_num].attributes['px'].value)
-                y = float(p_elem.getElementsByTagName('vertex')[v_num].attributes['py'].value)
+                x = MTOMM * float(p_elem.getElementsByTagName('vertex')[v_num].attributes['px'].value)
+                y = MTOMM * float(p_elem.getElementsByTagName('vertex')[v_num].attributes['py'].value)
                 edge_points.append([x, y])
 
             edge_segments.append([edge_points[0], edge_points[1]])
@@ -80,8 +82,8 @@ def read_subroom_walls(xml_doc):
                 n_vertex = len(p_elem.getElementsByTagName('vertex'))
 
                 for v_num, v_elem in enumerate(p_elem.getElementsByTagName('vertex')):
-                    x = float(p_elem.getElementsByTagName('vertex')[v_num].attributes['px'].value)
-                    y = float(p_elem.getElementsByTagName('vertex')[v_num].attributes['py'].value)
+                    x = MTOMM * float(p_elem.getElementsByTagName('vertex')[v_num].attributes['px'].value)
+                    y = MTOMM * float(p_elem.getElementsByTagName('vertex')[v_num].attributes['py'].value)
                     wall_points.append([x, y])
 
     wall_segments = []
@@ -95,10 +97,10 @@ def read_subroom_walls(xml_doc):
 
 def geo_limits(geo_xml):
     geometry_wall = read_subroom_walls(geo_xml)
-    geominX = 1000
-    geomaxX = -1000
-    geominY = 1000
-    geomaxY = -1000
+    geominX = MTOMM * 1000
+    geomaxX = MTOMM * -1000
+    geominY = MTOMM * 1000
+    geomaxY = MTOMM * -1000
     Xmin = []
     Ymin = []
     Xmax = []

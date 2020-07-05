@@ -5,8 +5,13 @@ import numpy as np
 import skgeom as sg
 
 from geometry import Geometry
+from IO import MTOMM
 
 moore = False
+
+CELLSIZE = 0.5 * MTOMM
+THRESHOLD = 0.5 * CELLSIZE
+
 
 @dataclass
 class Grid:
@@ -17,11 +22,11 @@ class Grid:
     dimY: int
     cellsize: float
 
-    def __init__(self, geometry: Geometry, cellsize=0.5):
+    def __init__(self, geometry: Geometry):
         minx, miny, maxx, maxy = geometry.getBoundingBox()
 
-        x = np.arange(minx - cellsize, maxx + 2 * cellsize, cellsize)
-        y = np.arange(miny - cellsize, maxy + 2 * cellsize, cellsize)
+        x = np.arange(minx - CELLSIZE, maxx + 2 * CELLSIZE, CELLSIZE)
+        y = np.arange(miny - CELLSIZE, maxy + 2 * CELLSIZE, CELLSIZE)
 
         xv, yv = np.meshgrid(x, y, indexing='ij')
         dimX = len(x)
@@ -31,7 +36,7 @@ class Grid:
         self.gridY = yv
         self.dimX = dimX
         self.dimY = dimY
-        self.cellsize = cellsize
+        self.cellsize = CELLSIZE
 
     def getObstacleCells(self, geometry: Geometry):
         obstacleCells = []
@@ -71,7 +76,7 @@ class Grid:
                 p = sg.Point2(x, y)
 
                 for pos in pedPositions:
-                    if sg.squared_distance(pos, p) < (0.5 * self.cellsize) ** 2:
+                    if sg.squared_distance(pos, p) < (THRESHOLD) ** 2:
                         peds[i][j] = 1
 
         return peds
@@ -103,7 +108,7 @@ class Grid:
                 for wall in wallSegments:
                     x, y = self.getCoordinates(i, j)
                     p = sg.Point2(x, y)
-                    if sg.squared_distance(wall, p) < (0.5 * self.cellsize) ** 2:
+                    if sg.squared_distance(wall, p) < (THRESHOLD) ** 2:
                         walls[i][j] = 1
 
         return walls - self.getDoorCells(geometry)
@@ -115,7 +120,7 @@ class Grid:
                 for edge in geometry.edges:
                     x, y = self.getCoordinates(i, j)
                     p = sg.Point2(x, y)
-                    if sg.squared_distance(edge, p) < (0.5 * self.cellsize) ** 2:
+                    if sg.squared_distance(edge, p) < (THRESHOLD) ** 2:
                         edges[i][j] = 1
 
         return edges
@@ -139,7 +144,7 @@ class Grid:
                 for key, door in geometry.doors.items():
                     x, y = self.getCoordinates(i, j)
                     p = sg.Point2(x, y)
-                    if sg.squared_distance(door, p) < (0.5 * self.cellsize) ** 2:
+                    if sg.squared_distance(door, p) < (THRESHOLD) ** 2:
                         doors[i][j] = 1
 
         return doors
