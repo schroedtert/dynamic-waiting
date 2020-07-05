@@ -95,14 +95,11 @@ class Geometry:
         q = sg.Point2(x, y)
         face = self.arr.find(q)
         vx = vs.compute_visibility(q, face)
+        points = []
 
-        for he in self.arr.halfedges:
-            sg.draw.draw(he.curve(), visible_point=False)
         for v in vx.halfedges:
-            sg.draw.draw(v.curve(), color='red', visible_point=False)
+            points.append(v.curve().source())
 
-        sg.draw.draw(q, color='magenta')
+        poly = sg.Polygon(points)
 
-        plt.show()
-
-        return vx
+        return poly

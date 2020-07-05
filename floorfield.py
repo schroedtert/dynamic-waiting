@@ -4,11 +4,14 @@ from pprint import pprint
 import matplotlib.pyplot as plt
 import numpy as np
 import skgeom as sg
+from skgeom import boolean_set
 
 from distanceCalculator import compute_door_distance
 from geometry import Geometry
 from grid import Grid
 from pedestrian import Pedestrian
+
+from scipy.spatial import Voronoi, voronoi_plot_2d
 
 # for wall distance
 wall_b = 5
@@ -143,207 +146,97 @@ def init_dynamic_ff():
 
 def computeFFforPed(geometry: Geometry, grid: Grid, ped: Pedestrian, ff):
     x, y = grid.getCoordinates(ped.i(), ped.j())
-    print("ped: ({}, {})".format(x, y))
-    sg.draw.draw(sg.Point2(x, y))
+
     neighbors = grid.getNeighbors(geometry, ped.pos)
-    vdiag = sg.voronoi.VoronoiDiagram()
 
     points = []
-    vdiag.insert(sg.Point2(x, y))
+    points.append([x, y])
     for neighbor in neighbors:
         px, py = grid.getCoordinates(neighbor[0], neighbor[1])
-        vdiag.insert(sg.Point2(px, py))
         points.append([px, py])
 
+    points.append([0, 1000])
+    points.append([0, -1000])
+    points.append([1000, 0])
+    points.append([-1000, 0])
+
+    vor = Voronoi(points)
+
+    polygons = []
+    for region in vor.regions:
+        if not -1 in region:
+            polygon = [vor.vertices[i] for i in region]
+
+            if (len(polygon) > 0):
+                polygons.append(sg.Polygon(polygon))
+
+    visibleArea = geometry.visibleArea(x, y)
+    # print(visibleArea.__class__)
+    # l = dir(visibleArea)
+    # print(l)
+    #
+    # print(visibleArea.orientation() == sg.Sign.CLOCKWISE)
+    # print(visibleArea.area())
+    #
+    # print("")
+
+    visibleArea.reverse_orientation()
+    for polygon in polygons:
+        polygon.reverse_orientation()
+        sg.draw.draw(polygon, facecolor='red')
+        print("polygon: {}".format(visibleArea.orientation() == sg.Sign.CLOCKWISE))
+        print(polygon)
+
+        sg.draw.draw(visibleArea, facecolor='blue', alpha=0.2)
+        print("visibleArea: {}".format(visibleArea.orientation() == sg.Sign.CLOCKWISE))
+        print(visibleArea)
+
+        plt.show()
+
+        # poly = sg.PolygonSet([polygon])
+        vis = sg.boolean_set.intersect(polygon, visibleArea)
+        sg.draw.draw(vis)
+        # sg.draw.draw(geometry.floor)
+        # sg.draw.draw(visibleArea, facecolor="red", alpha=0.2)
+        plt.axis('equal')
+        plt.gca().set_adjustable("box")
+        plt.gca().set_xlim([-10, 10])
+        plt.gca().set_ylim([-5, 5])
+
+        plt.show()
+    a = 1
+    # plt.axis('equal')
+    # plt.gca().set_adjustable("box")
+    # plt.gca().set_xlim([4, 6])
+    # plt.gca().set_ylim([-3, -1])
+    #
+    # plt.show()
+
+    # for region in vor.regions:
+    #     polygon = vor.vertices[region]
+    #     print(polygon)
+    #     print("")
+    # regions, vertices = voronoi_finite_polygons_2d(vor)    # vor = Voronoi(points)
+
+    # fig = voronoi_plot_2d(vor)
+    # plt.show()
+    #
+    # print(vor.regions)
+    #
+    # for region in vor.regions:
+    #     pr = []
+    #     for i in region:
+    #         if i >= 0:
+    #             print(vor.vertices[i])
+    #         # pr.append()
+    #     print("")
     # vdiag.insert(sg.Point2(1000, 1000))
     # vdiag.insert(sg.Point2(-1000, 1000))
     # vdiag.insert(sg.Point2(1000, -1000))
     # vdiag.insert(sg.Point2(-1000, -1000))
-    vdiag.insert(sg.Point2(0, 1000))
-    vdiag.insert(sg.Point2(-1000, 0))
-    vdiag.insert(sg.Point2(0, -1000))
-    vdiag.insert(sg.Point2(1000, -0))
+    # vdiag.insert(sg.Point2(0, 1000))
+    # vdiag.insert(sg.Point2(-1000, 0))
+    # vdiag.insert(sg.Point2(0, -1000))
+    # vdiag.insert(sg.Point2(1000, -0))
 
-    # points.append(vertex.point())
-    # sg.draw.draw(vertex.point())
-
-    # print(np.array([(float(v.x()), float(v.y())) for v in vertex]))
-    # sg.draw.draw(sg.Polygon(points))
-    # plt.show()
-
-    #     print(vertix)
-    #     sg.draw.draw(sg.Polygon(vertix))
-    # points = []
-    # for he in vdiag.edges:
-    #     source, target = he.source(), he.target()
-    #     if source and target:
-    #         points.append(source.point())
-    #         points.append(target.point())
-    #
-    # sg.draw.draw(sg.Polygon(points))
-    # plt.show()
-
-    # print("{} -> {}".format(source.point(), target.point()))
-    # plt.plot([source.point().x(), target.point().x()], [source.point().y(), target.point().y()])
-    #
-    # # plt.scatter(points[:, 0], points[:, 1])
-    #
-    # plt.axis('equal')
-    # plt.gca().set_adjustable("box")
-    # plt.gca().set_xlim([-10, 10])
-    # plt.gca().set_ylim([-10, 10])
-
-    # print("faces: {}".format(vdiag.number_of_faces()))
-    # print([method_name for method_name in dir(vdiag.sites)
-    #           if callable(getattr(vdiag.sites, method_name))])
-    #
-    # for site in vdiag.sites:
-    #     print(type(site).__name__)
-    #     object_methods = [method_name for method_name in dir(site)
-    #                       if callable(getattr(site, method_name))]
-    #     print(object_methods)
-    #     print("")
-    #
-
-    num = 0
-    for he in vdiag.edges:
-        source, target = he.source(), he.target()
-        if source and target:
-            num = num + 1
-            plt.plot([source.point().x(), target.point().x()], [source.point().y(), target.point().y()])
-
-            plt.axis('equal')
-            plt.gca().set_adjustable("box")
-            # plt.gca().set_xlim([2.5, 7.5])
-            # plt.gca().set_ylim([-5, 0])
-            plt.show()
-
-    print(num)
-
-    print(vdiag.__class__)
-    l = dir(vdiag)
-    pprint(l, indent=2)
-
-    print(nth(vdiag.vertices, 0).__class__)
-    l = dir(nth(vdiag.vertices, 0))
-    pprint(l, indent=2)
-
-    print(nth(vdiag.edges, 0).__class__)
-    l = dir(nth(vdiag.edges, 0))
-    pprint(l, indent=2)
-
-    print(nth(vdiag.finite_edges, 0).__class__)
-    l = dir(nth(vdiag.finite_edges, 0))
-    pprint(l, indent=2)
-
-    print(nth(vdiag.sites, 0).__class__)
-    l = dir(nth(vdiag.sites, 0))
-    pprint(l, indent=2)
-
-    print("#vertices: {}".format(vdiag.number_of_vertices()))
-    print("#edges:    {}".format(vdiag.number_of_halfedges()))
-    print("#faces:    {}".format(vdiag.number_of_faces()))
-    # print(vdiag.vertices)
-    # print([method_name for method_name in dir(vdiag.vertices)
-    #           if callable(getattr(vdiag.vertices, method_name))])
-    #
-
-    for edge in vdiag.edges:
-        print(edge.next())
-        print("")
-
-    for i in range(vdiag.number_of_faces()):
-        vertex = nth(vdiag.vertices, i)
-        edge = nth(vdiag.edges, i)
-        edge.curve()
-        site = nth(vdiag.sites, i)
-        print(site)
-        print(vertex.point())
-        if (geometry.isInGeometry(site.x(), site.y())):
-            sg.draw.draw(site)
-            while i < 10:
-                source, target = edge.source(), edge.target()
-                if source and target:
-                    sg.draw.draw(sg.Segment2(source.point(), target.point()))
-                edge = edge.next()
-                i = i + 1
-            plt.axis('equal')
-            plt.gca().set_adjustable("box")
-            # plt.gca().set_xlim([-10, 10])
-            # plt.gca().set_ylim([-10, 10])
-            plt.show()
-            print("")
-
-    # for edge in vdiag.edges:
-    #     print(edge)
-    #     i = 0
-    #     while i < 5:
-    #         source, target = edge.source(), edge.target()
-    #         if source and target:
-    #             sg.draw.draw(sg.Segment2(source.point(), target.point()))
-    #         edge = edge.next()
-    #         i = i+1
-    #     plt.show()
-
-    # for vertex in vdiag.vertices:
-    #     # print(vertex.__class__)
-    #     # l = dir(vertex)
-    #     # pprint(l, indent=2)
-    #     sg.draw.draw(vertex.point())
-    # plt.axis('equal')
-    # plt.gca().set_adjustable("box")
-    # plt.gca().set_xlim([2.5, 7.5])
-    # plt.gca().set_ylim([-5, 0])
-    #
-    # plt.show()
-
-    # source, target = he.source(), he.target()
-    # if source and target:
-    #     points.append(source.point())
-    #     points.append(target.point())
-
-    a = 1
-    #     print("vertex: {}".format(vertex.point()))
-    #     object_methods = [method_name for method_name in dir(vertex)
-    #                       if callable(getattr(vertex, method_name))]
-    #     print(object_methods)
-    #     print("")
-    #
-    # print("halfedges: {}".format(vdiag.number_of_halfedges()))
-    # print([method_name for method_name in dir(vdiag.edges)
-    #           if callable(getattr(vdiag.edges, method_name))])
-    # plt.show()
-    # for edge in vdiag.edges:
-    #     i = 0
-    #     pppp = []
-    #     while i<10:
-    #         source, target = edge.source(), edge.target()
-    #         if source and target:
-    #             print("{} -> {}".format(source.point(), target.point()))
-    #             pppp.append(source.point())
-    #             pppp.append(target.point())
-    #         edge = edge.next()
-    #         i = i +1
-    #
-    #     sg.draw.draw(sg.Polygon(pppp))
-    #     plt.show()
-    #     print("")
-    #
-    #     # object_methods = [method_name for method_name in dir(edge)
-    #     #                   if callable(getattr(edge, method_name))]
-    #     # print(object_methods)
-    #
-    #     # print(edge.segment())
-    #
-    # pp = []
-    # for vertex in vdiag.vertices:
-    #     pp.append(vertex.point())
-    #
-    # sg.draw.draw(sg.Polygon(pp[0:5]))
-    # plt.axis('equal')
-    # plt.gca().set_adjustable("box")
-    # plt.gca().set_xlim([-10, 10])
-    # plt.gca().set_ylim([-10, 10])
-    #
-    # plt.show()
     return

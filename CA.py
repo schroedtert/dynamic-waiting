@@ -2,6 +2,7 @@ from geometry import Geometry
 from geometry import Geometry
 from grid import Grid
 
+from floorfield import *
 
 class CA:
     staticFF = None
