@@ -14,6 +14,7 @@ class CA:
         filterFF = compute_filter_ff(geometry, grid)
         combined = compute_overall_ff(geometry, grid, self.staticFF, dynamicFF, filterFF)
 
-        # for key, ped in geometry.peds.items():
+        for key, ped in geometry.peds.items():
+            computeFFforPed(geometry, grid, ped, combined)
 
         return

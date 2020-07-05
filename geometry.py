@@ -91,7 +91,6 @@ class Geometry:
         return self.boundingbox.xmin(), self.boundingbox.ymin(), self.boundingbox.xmax(), self.boundingbox.ymax()
 
     def visibleArea(self, x: float, y: float):
-
         vs = sg.RotationalSweepVisibility(self.arr)
         q = sg.Point2(x, y)
         face = self.arr.find(q)
@@ -105,4 +104,5 @@ class Geometry:
         sg.draw.draw(q, color='magenta')
 
         plt.show()
-        return
+
+        return vx
