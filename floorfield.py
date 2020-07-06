@@ -14,6 +14,7 @@ from pedestrian import Pedestrian
 from scipy.spatial import Voronoi, voronoi_plot_2d
 
 from plotting import plot_prob_field
+from shapely.geometry import Polygon
 
 # for wall distance
 wall_b = 5
@@ -84,7 +85,7 @@ def compute_static_ff(geometry: Geometry, grid: Grid):
     # # staticFF = np.sqrt(grid.gridX.shape[0] ** 2 + grid.gridX.shape[1])
 
     doorDistance = compute_door_distance(geometry, grid)
-    plot_prob_field(geometry, grid, doorDistance)
+    # plot_prob_field(geometry, grid, doorDistance)
 
     return 1 - doorDistance
 
@@ -168,87 +169,23 @@ def computeFFforPed(geometry: Geometry, grid: Grid, ped: Pedestrian, ff):
     for region in vor.regions:
         if not -1 in region:
             polygon = [vor.vertices[i] for i in region]
-            # print(polygon)
-            # polygon.reverse()
-            # print(polygon)
-
             if (len(polygon) > 0):
                 polygons.append(sg.Polygon(polygon))
 
     visibleArea = geometry.visibleArea(x, y)
-    print(visibleArea.__class__)
-    l = dir(visibleArea)
-    print(l)
-    #
-    # print(visibleArea.orientation() == sg.Sign.CLOCKWISE)
-    # print(visibleArea.area())
-    #
-    # print("")
-    # print("visibleArea: {}".format(visibleArea.orientation() == sg.Sign.CLOCKWISE))
-    # print(visibleArea)
-
-    # visibleArea.reverse_orientation()
-    # print("visibleArea: {}".format(visibleArea.reverse_orientation() == sg.Sign.CLOCKWISE))
-    # print(visibleArea)
+    vis = Polygon(visibleArea.coords)
 
     for polygon in polygons:
-        # polygon.reverse_orientation()
-        for i in polygon.vertices:
-            print(i)
-        sg.draw.draw(polygon, facecolor='red')
-        print("polygon: {}".format(visibleArea.orientation() == sg.Sign.CLOCKWISE))
-        print(polygon)
-
+        p = Polygon(polygon.coords)
+        inter = p.intersection(vis)
+        points = []
+        for ppp in inter.exterior.coords:
+            points.append([ppp[0], ppp[1]])
+        intersection = sg.Polygon(points)
+        sg.draw.draw(geometry.floor, alpha=0.2)
         sg.draw.draw(visibleArea, facecolor='blue', alpha=0.2)
-        print("visibleArea: {}".format(visibleArea.orientation() == sg.Sign.CLOCKWISE))
-        print(visibleArea)
-
-        plt.show()
-
-        # poly = sg.PolygonSet([polygon])
-        vis = sg.boolean_set.intersect(polygon, visibleArea)
-        sg.draw.draw(vis)
-        # sg.draw.draw(geometry.floor)
-        # sg.draw.draw(visibleArea, facecolor="red", alpha=0.2)
+        sg.draw.draw(intersection, facecolor='red')
         plt.axis('equal')
         plt.gca().set_adjustable("box")
-        plt.gca().set_xlim([-10, 10])
-        plt.gca().set_ylim([-5, 5])
-
         plt.show()
-    a = 1
-    # plt.axis('equal')
-    # plt.gca().set_adjustable("box")
-    # plt.gca().set_xlim([4, 6])
-    # plt.gca().set_ylim([-3, -1])
-    #
-    # plt.show()
-
-    # for region in vor.regions:
-    #     polygon = vor.vertices[region]
-    #     print(polygon)
-    #     print("")
-    # regions, vertices = voronoi_finite_polygons_2d(vor)    # vor = Voronoi(points)
-
-    # fig = voronoi_plot_2d(vor)
-    # plt.show()
-    #
-    # print(vor.regions)
-    #
-    # for region in vor.regions:
-    #     pr = []
-    #     for i in region:
-    #         if i >= 0:
-    #             print(vor.vertices[i])
-    #         # pr.append()
-    #     print("")
-    # vdiag.insert(sg.Point2(1000, 1000))
-    # vdiag.insert(sg.Point2(-1000, 1000))
-    # vdiag.insert(sg.Point2(1000, -1000))
-    # vdiag.insert(sg.Point2(-1000, -1000))
-    # vdiag.insert(sg.Point2(0, 1000))
-    # vdiag.insert(sg.Point2(-1000, 0))
-    # vdiag.insert(sg.Point2(0, -1000))
-    # vdiag.insert(sg.Point2(1000, -0))
-
     return

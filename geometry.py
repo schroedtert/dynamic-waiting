@@ -96,7 +96,6 @@ class Geometry:
         for v in vx.halfedges:
             points.append(v.curve().source())
 
-        points.reverse()
         poly = sg.Polygon(points)
 
         return poly
