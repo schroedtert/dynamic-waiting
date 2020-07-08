@@ -6,7 +6,7 @@ import numpy as np
 import skgeom as sg
 from skgeom import boolean_set
 
-from distanceCalculator import compute_door_distance
+from distanceCalculator import compute_door_distance, compute_wall_distance, compute_edge_distance, compute_ped_distance
 from geometry import Geometry
 from grid import Grid
 from pedestrian import Pedestrian
@@ -17,8 +17,8 @@ from plotting import plot_prob_field
 from shapely.geometry import Polygon
 
 # for wall distance
-wall_b = 5
-wall_c = 5
+wall_b = 2
+wall_c = 0.5
 
 # for ped distance
 ped_b = 5
@@ -38,19 +38,8 @@ def normalize(field):
     sum = np.nansum(field)
     return field / sum
 
-
 def distance_to_prob_inc(distanceField, b, c):
-    # b = 10
-    # c = 0.5
-    # x = np.linspace(-1, 10, 200)
-    # y = 1-(np.exp(-b*np.exp(-c*x)))
-    # plt.plot(x, y)
-    # plt.show()
-    # foo =
-    # return
-
-    # return np.exp(-np.exp(-0.5*distanceField))
-    return np.exp(-b * np.exp(-c * distanceField))
+    return np.exp(-b * np.exp(-c * (distanceField / 1000)))
 
 
 def distance_to_prob_dec(distanceField, b, c):
@@ -58,36 +47,33 @@ def distance_to_prob_dec(distanceField, b, c):
 
 
 def compute_static_ff(geometry: Geometry, grid: Grid):
-    # doorDistance = compute_door_distance(geometry, grid)
-    # # plot_prob_field(geometry, grid, doorDistance)
-    # doorProb = distance_to_prob_inc(doorDistance, door_b, door_c)
-    # # plot_prob_field(geometry, grid, doorProb)
-    # doorProbNormalized = normalize(doorDistance)
-    # # plot_prob_field(geometry, grid, doorProbNormalized)
-    #
-    # # wallDistance = compute_wall_distance(geometry, grid)
-    # # plot_prob_field(geometry, grid, wallDistance)
-    # # wallProb = distance_to_prob_dec(wallDistance, wall_b, wall_c)
-    # # plot_prob_field(geometry, grid, wallProb)
-    # # wallProbNormalized = normalize(wallProb)
-    # wallProbNormalized = np.zeros_like(grid.gridX)
-    #
-    # # plot_prob_field(geometry, grid, wallProbNormalized)
-    #
-    # # dangerDistance = compute_danger_distance(geometry, grid)
-    # # plot_prob_field(geometry, grid, dangerDistance)
-    #
-    # static = doorProbNormalized + wallProbNormalized
-    # staticNormalized = normalize(static)
-    # # plot_prob_field(geometry, grid, static)
-    #
-    # # staticFF = np.empty(grid.gridY.shape)
-    # # staticFF = np.sqrt(grid.gridX.shape[0] ** 2 + grid.gridX.shape[1])
-
+    # compute door probability: further is better
     doorDistance = compute_door_distance(geometry, grid)
-    # plot_prob_field(geometry, grid, doorDistance)
+    doorProb = distance_to_prob_inc(doorDistance, door_b, door_c)
+    plot_prob_field(geometry, grid, doorProb)
 
-    return 1 - doorDistance
+    # compute wall probability: closer is better
+    wallDistance = compute_wall_distance(geometry, grid)
+    wallProb = distance_to_prob_dec(wallDistance, wall_b, wall_c)
+    plot_prob_field(geometry, grid, wallProb)
+
+    # compute distance to edges: closer is better
+    exitDistance = compute_edge_distance(geometry, grid)
+    exitProb = distance_to_prob_dec(exitDistance, 10, 1)
+    plot_prob_field(geometry, grid, exitProb)
+
+    # compute distance to edges: further is better
+    # TODO check if maybe as filter
+    dangerDistance = compute_edge_distance(geometry, grid)
+    dangerProb = distance_to_prob_inc(dangerDistance, 5, 5)
+    plot_prob_field(geometry, grid, dangerProb)
+
+    # sum everything up for static FF
+    static = 1 * doorProb + 5 * wallProb + 1 * dangerProb + 1 * exitProb
+    static = normalize(static)
+    plot_prob_field(geometry, grid, static)
+
+    return static
 
 
 def compute_dynamic_ff(geometry: Geometry, grid: Grid):
@@ -118,46 +104,17 @@ def init_dynamic_ff():
     return
 
 
-# def get_neighbors(geometry: Geometry, grid: Grid, cell: [int, int]):
-#     """
-#      von Neumann neighborhood
-#     """
-#     neighbors = []
-#     i, j = cell
-#
-#     possibleNeigbors = []
-#     possibleNeigbors.append([i + 1, j])
-#     possibleNeigbors.append([i - 1, j])
-#     possibleNeigbors.append([i, j + 1])
-#     possibleNeigbors.append([i, j - 1])
-#
-#     if (moore):
-#         possibleNeigbors.append([i + 1, j - 1])
-#         possibleNeigbors.append([i - 1, j - 1])
-#         possibleNeigbors.append([i + 1, j + 1])
-#         possibleNeigbors.append([i - 1, j + 1])
-#
-#     for posNeighbor in possibleNeigbors:
-#         x, y = grid.getCoordinates(posNeighbor[0], posNeighbor[1])
-#         if geometry.isInGeometry(x, y):
-#             neighbors.append(posNeighbor)
-#
-#     # not shuffling significantly alters the simulation...
-#     random.shuffle(neighbors)
-#     return neighbors
-
-
 def computeFFforPed(geometry: Geometry, grid: Grid, ped: Pedestrian, ff):
     x, y = grid.getCoordinates(ped.i(), ped.j())
-
+    origin = sg.Point2(x, y)
     neighbors = grid.getNeighbors(geometry, ped.pos)
 
     points = []
-    points.append([x, y])
     for neighbor in neighbors:
         px, py = grid.getCoordinates(neighbor[0], neighbor[1])
         points.append([px, py])
 
+    # dummy points for voronoi computation
     points.append([0, 1000000])
     points.append([0, -1000000])
     points.append([1000000, 0])
@@ -166,14 +123,24 @@ def computeFFforPed(geometry: Geometry, grid: Grid, ped: Pedestrian, ff):
     vor = Voronoi(points)
 
     polygons = []
-    for region in vor.regions:
+    for i in range(len(vor.regions)):
+        region = vor.regions[i]
         if not -1 in region:
             polygon = [vor.vertices[i] for i in region]
             if (len(polygon) > 0):
+                # print(sg.Polygon(polygon))
+                # print(sg.Point2(vor.points[i][0], vor.points[i][1]))
+                # polygons[sg.Point2(vor.points[i][0], vor.points[i][1])] = sg.Polygon(polygon)
+                # print("")
                 polygons.append(sg.Polygon(polygon))
 
+    print(polygons)
     visibleArea = geometry.visibleArea(x, y)
     vis = Polygon(visibleArea.coords)
+
+    doorDistance = compute_door_distance(geometry, grid)
+    doorDistance = np.ma.filled(doorDistance, 0)
+    plot_prob_field(geometry, grid, doorDistance)
 
     for polygon in polygons:
         p = Polygon(polygon.coords)
@@ -188,4 +155,13 @@ def computeFFforPed(geometry: Geometry, grid: Grid, ped: Pedestrian, ff):
         plt.axis('equal')
         plt.gca().set_adjustable("box")
         plt.show()
+
+        inside = grid.getInsidePolygonCells(intersection)
+        # f = inside * doorDistance
+        # plot_prob_field(geometry, grid, f)
+        insideIntersection = grid.getWeightedDistanceCells(geometry, intersection, sg.Point2(x, y))
+
+        plot_prob_field(geometry, grid, insideIntersection)
+        insideIntersection[np.isnan(insideIntersection)] = 0
+
     return

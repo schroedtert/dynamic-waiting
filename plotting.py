@@ -125,6 +125,8 @@ def plot_prob_field(geometry: Geometry, grid: Grid, probField):
 
     plt.contourf(grid.gridX, grid.gridY, probField)
     plt.colorbar()
+    plt.axis('equal')
+
     # plt.imshow(probField, origin='lower')
     plt.show()
 

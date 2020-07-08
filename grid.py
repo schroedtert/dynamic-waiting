@@ -163,6 +163,7 @@ class Grid:
         i, j = cell
 
         possibleNeigbors = []
+        possibleNeigbors.append([i, j])
         possibleNeigbors.append([i + 1, j])
         possibleNeigbors.append([i - 1, j])
         possibleNeigbors.append([i, j + 1])
@@ -182,3 +183,25 @@ class Grid:
         # not shuffling significantly alters the simulation...
         random.shuffle(neighbors)
         return neighbors
+
+    def getInsidePolygonCells(self, polygon: sg.Polygon):
+        inside = np.zeros_like(self.gridX)
+        for i in range(self.dimX):
+            for j in range(self.dimY):
+                x, y = self.getCoordinates(i, j)
+                if polygon.oriented_side(sg.Point2(x, y)) == sg.Sign.NEGATIVE:
+                    inside[i][j] = 1
+
+        return inside
+
+    def getWeightedDistanceCells(self, geometry: Geometry, polygon: sg.Polygon, point: sg.Point2):
+        inside = self.getInsideCells(geometry)
+        for i in range(self.dimX):
+            for j in range(self.dimY):
+                x, y = self.getCoordinates(i, j)
+                p = sg.Point2(x, y)
+                if polygon.oriented_side(p) == sg.Sign.NEGATIVE:
+                    inside[i][j] = np.sqrt(sg.squared_distance(p, point))
+                else:
+                    inside[i][j] = np.nan
+        return inside
