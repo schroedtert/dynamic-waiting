@@ -16,6 +16,6 @@ class CA:
         combined = compute_overall_ff(geometry, grid, self.staticFF, dynamicFF, filterFF)
 
         for key, ped in geometry.peds.items():
-            computeFFforPed(geometry, grid, ped, combined)
+            compute_prob_neighbors(geometry, grid, ped, combined)
 
         return

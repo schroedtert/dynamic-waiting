@@ -8,7 +8,7 @@ from skgeom import boolean_set
 
 from distanceCalculator import compute_door_distance, compute_wall_distance, compute_edge_distance, compute_ped_distance
 from geometry import Geometry
-from grid import Grid
+from grid import Grid, Neighbors
 from pedestrian import Pedestrian
 
 from scipy.spatial import Voronoi, voronoi_plot_2d
@@ -38,38 +38,39 @@ def normalize(field):
     sum = np.nansum(field)
     return field / sum
 
-def distance_to_prob_inc(distanceField, b, c):
-    return np.exp(-b * np.exp(-c * (distanceField / 1000)))
+
+def distance_to_prob_inc(distance_field, b, c):
+    return np.exp(-b * np.exp(-c * (distance_field / 1000)))
 
 
-def distance_to_prob_dec(distanceField, b, c):
-    return 1 - distance_to_prob_inc(distanceField, b, c)
+def distance_to_prob_dec(distance_field, b, c):
+    return 1 - distance_to_prob_inc(distance_field, b, c)
 
 
 def compute_static_ff(geometry: Geometry, grid: Grid):
     # compute door probability: further is better
-    doorDistance = compute_door_distance(geometry, grid)
-    doorProb = distance_to_prob_inc(doorDistance, door_b, door_c)
-    plot_prob_field(geometry, grid, doorProb)
+    door_distance = compute_door_distance(geometry, grid)
+    door_prob = distance_to_prob_inc(door_distance, door_b, door_c)
+    # plot_prob_field(geometry, grid, door_prob)
 
     # compute wall probability: closer is better
-    wallDistance = compute_wall_distance(geometry, grid)
-    wallProb = distance_to_prob_dec(wallDistance, wall_b, wall_c)
-    plot_prob_field(geometry, grid, wallProb)
+    wall_distance = compute_wall_distance(geometry, grid)
+    wall_prob = distance_to_prob_dec(wall_distance, wall_b, wall_c)
+    # plot_prob_field(geometry, grid, wall_prob)
 
     # compute distance to edges: closer is better
-    exitDistance = compute_edge_distance(geometry, grid)
-    exitProb = distance_to_prob_dec(exitDistance, 10, 1)
-    plot_prob_field(geometry, grid, exitProb)
+    exit_distance = compute_edge_distance(geometry, grid)
+    exit_prob = distance_to_prob_dec(exit_distance, 10, 1)
+    # plot_prob_field(geometry, grid, exit_prob)
 
     # compute distance to edges: further is better
     # TODO check if maybe as filter
-    dangerDistance = compute_edge_distance(geometry, grid)
-    dangerProb = distance_to_prob_inc(dangerDistance, 5, 5)
-    plot_prob_field(geometry, grid, dangerProb)
+    danger_distance = compute_edge_distance(geometry, grid)
+    danger_prob = distance_to_prob_inc(danger_distance, 5, 5)
+    # plot_prob_field(geometry, grid, danger_prob)
 
     # sum everything up for static FF
-    static = 1 * doorProb + 5 * wallProb + 1 * dangerProb + 1 * exitProb
+    static = 1 * door_prob + 5 * wall_prob + 1 * danger_prob + 1 * exit_prob
     static = normalize(static)
     plot_prob_field(geometry, grid, static)
 
@@ -104,64 +105,81 @@ def init_dynamic_ff():
     return
 
 
-def computeFFforPed(geometry: Geometry, grid: Grid, ped: Pedestrian, ff):
+def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, ff):
+    prob = {Neighbors.self: 0., Neighbors.left: 0., Neighbors.top: 0., Neighbors.right: 0., Neighbors.bottom: 0.}
+
+    # compute visible area
     x, y = grid.getCoordinates(ped.i(), ped.j())
-    origin = sg.Point2(x, y)
-    neighbors = grid.getNeighbors(geometry, ped.pos)
+    visible_area = geometry.visibleArea(x, y)
+    vis = Polygon(visible_area.coords)
 
-    points = []
-    for neighbor in neighbors:
-        px, py = grid.getCoordinates(neighbor[0], neighbor[1])
-        points.append([px, py])
+    # compute voronoi polygons of neighbors
+    neighbor_voronoi_polygons = compute_voronoi_neighbors(geometry, grid, ped)
 
-    # dummy points for voronoi computation
-    points.append([0, 1000000])
-    points.append([0, -1000000])
-    points.append([1000000, 0])
-    points.append([-1000000, 0])
-
-    vor = Voronoi(points)
-
-    polygons = []
-    for i in range(len(vor.regions)):
-        region = vor.regions[i]
-        if not -1 in region:
-            polygon = [vor.vertices[i] for i in region]
-            if (len(polygon) > 0):
-                # print(sg.Polygon(polygon))
-                # print(sg.Point2(vor.points[i][0], vor.points[i][1]))
-                # polygons[sg.Point2(vor.points[i][0], vor.points[i][1])] = sg.Polygon(polygon)
-                # print("")
-                polygons.append(sg.Polygon(polygon))
-
-    print(polygons)
-    visibleArea = geometry.visibleArea(x, y)
-    vis = Polygon(visibleArea.coords)
-
-    doorDistance = compute_door_distance(geometry, grid)
-    doorDistance = np.ma.filled(doorDistance, 0)
-    plot_prob_field(geometry, grid, doorDistance)
-
-    for polygon in polygons:
+    # sum up every cell in neighbor polygon to neighbor cell
+    # sum is weighted by distance, closer = more important
+    for key, polygon in neighbor_voronoi_polygons.items():
         p = Polygon(polygon.coords)
         inter = p.intersection(vis)
         points = []
         for ppp in inter.exterior.coords:
             points.append([ppp[0], ppp[1]])
         intersection = sg.Polygon(points)
-        sg.draw.draw(geometry.floor, alpha=0.2)
-        sg.draw.draw(visibleArea, facecolor='blue', alpha=0.2)
-        sg.draw.draw(intersection, facecolor='red')
-        plt.axis('equal')
-        plt.gca().set_adjustable("box")
-        plt.show()
 
-        inside = grid.getInsidePolygonCells(intersection)
-        # f = inside * doorDistance
-        # plot_prob_field(geometry, grid, f)
-        insideIntersection = grid.getWeightedDistanceCells(geometry, intersection, sg.Point2(x, y))
+        weighted_distance = grid.getWeightedDistanceCells(geometry, intersection, sg.Point2(x, y))
+        weighted_prob_neighbor = distance_to_prob_dec(weighted_distance, 30, 0.01)
+        plot_prob_field(geometry, grid, weighted_prob_neighbor)
+        weighted_prob_neighbor[np.isnan(weighted_prob_neighbor)] = 0
+        prob[key] = np.average(weighted_prob_neighbor)
+        # TODO prob[Neighbors.self] need to get higher value
+    print(prob)
 
-        plot_prob_field(geometry, grid, insideIntersection)
-        insideIntersection[np.isnan(insideIntersection)] = 0
+    small = np.zeros([3, 3])
+    small[1, 1] = prob[Neighbors.self]
+    small[0, 1] = prob[Neighbors.left]
+    small[1, 0] = prob[Neighbors.top]
+    small[2, 1] = prob[Neighbors.right]
+    small[1, 2] = prob[Neighbors.bottom]
 
+    # x = np.arange(0, 3)
+    # y = np.arange(0, 3)
+    # xv, yv = np.meshgrid(x, y, sparse=False, indexing='ij')
+    # plt.figure()
+    # plt.contourf(xv, yv, small)
+    # plt.colorbar()
+    # plt.axis('equal')
+    # plt.show()
     return
+
+
+def compute_voronoi_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian):
+    neighbors = grid.getNeighbors(geometry, ped.pos)
+
+    points = {}
+    for key, neighbor in neighbors.items():
+        if neighbor is not None:
+            px, py = grid.getCoordinates(neighbor[0], neighbor[1])
+            points[key] = [px, py]
+
+    # dummy points for voronoi computation
+    points[1000] = [0, 1000000]
+    points[2000] = [0, -1000000]
+    points[3000] = [1000000, 0]
+    points[4000] = [-1000000, 0]
+
+    points_list = list(points.values())
+    vor = Voronoi(list(points.values()))
+
+    polygons = {Neighbors.self: None, Neighbors.left: None, Neighbors.top: None, Neighbors.right: None,
+                Neighbors.bottom: None}
+
+    for i in vor.point_region:
+        region = vor.regions[i]
+        if not -1 in region:
+            polygon = [vor.vertices[i] for i in region]
+            if len(polygon) > 0:
+                key = list(points.keys())[
+                    list(points.values()).index(points_list[np.where(vor.point_region == i)[0][0]])]
+                polygons[key] = sg.Polygon(polygon)
+
+    return polygons

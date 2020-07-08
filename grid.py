@@ -7,11 +7,18 @@ import skgeom as sg
 from geometry import Geometry
 from IO import MTOMM
 
+from enum import Enum
 moore = False
-
 CELLSIZE = 0.5 * MTOMM
 THRESHOLD = 0.5 * CELLSIZE
 
+
+class Neighbors(Enum):
+    self = 0
+    left = 1
+    top = 2
+    right = 3
+    bottom = 4
 
 @dataclass
 class Grid:
@@ -159,29 +166,24 @@ class Grid:
         """
          von Neumann neighborhood
         """
-        neighbors = []
+        neighbors = {}
         i, j = cell
 
-        possibleNeigbors = []
-        possibleNeigbors.append([i, j])
-        possibleNeigbors.append([i + 1, j])
-        possibleNeigbors.append([i - 1, j])
-        possibleNeigbors.append([i, j + 1])
-        possibleNeigbors.append([i, j - 1])
+        possibleNeigbors = {}
+        possibleNeigbors[Neighbors.self] = [i, j]
+        possibleNeigbors[Neighbors.left] = [i - 1, j]
+        possibleNeigbors[Neighbors.top] = [i, j + 1]
+        possibleNeigbors[Neighbors.right] = [i + 1, j]
+        possibleNeigbors[Neighbors.bottom] = [i, j - 1]
 
-        if (moore):
-            possibleNeigbors.append([i + 1, j - 1])
-            possibleNeigbors.append([i - 1, j - 1])
-            possibleNeigbors.append([i + 1, j + 1])
-            possibleNeigbors.append([i - 1, j + 1])
-
-        for posNeighbor in possibleNeigbors:
+        for key, posNeighbor in possibleNeigbors.items():
             x, y = self.getCoordinates(posNeighbor[0], posNeighbor[1])
             if geometry.isInGeometry(x, y):
-                neighbors.append(posNeighbor)
+                neighbors[key] = posNeighbor
+            else:
+                neighbors[key] = None
 
         # not shuffling significantly alters the simulation...
-        random.shuffle(neighbors)
         return neighbors
 
     def getInsidePolygonCells(self, polygon: sg.Polygon):
