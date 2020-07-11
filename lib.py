@@ -5,6 +5,7 @@ from CA import CA
 from geometry import Geometry
 from grid import Grid
 from pedestrian import Pedestrian
+from plotting import *
 
 logfile = 'log.dat'
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -34,7 +35,7 @@ def create_peds(numPeds: int, geometry: Geometry, grid: Grid):
                 break
 
 
-def run_simulation(file, numPeds, maxSteps=1):
+def run_simulation(file, numPeds, maxSteps=100):
     geometry, grid = init(file)
     create_peds(numPeds, geometry, grid)
 
@@ -45,7 +46,7 @@ def run_simulation(file, numPeds, maxSteps=1):
     ca = CA(geometry, grid)
     for step in range(maxSteps):
         ca.compute_step(geometry, grid)
-
+        plot_geometry_peds(geometry, grid, geometry.peds)
     # plot.plot_voronoi_peds(geometry, grid, geometry.peds)
     # plot.plot_geometry_peds(geometry, grid, geometry.peds)
 

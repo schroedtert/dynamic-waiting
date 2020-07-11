@@ -45,6 +45,7 @@ class Grid:
         self.dimY = dimY
         self.cellsize = CELLSIZE
 
+
     def getObstacleCells(self, geometry: Geometry):
         obstacleCells = []
         return obstacleCells
@@ -161,6 +162,10 @@ class Grid:
             return [self.gridX[i][j], self.gridY[i][j]]
 
         return [float("inf"), float("inf")]
+
+    def getIndices(self, x: float, y: float):
+
+        return
 
     def getNeighbors(self, geometry: Geometry, cell: [int, int]):
         """

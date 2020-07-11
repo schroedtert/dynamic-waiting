@@ -72,7 +72,7 @@ def compute_static_ff(geometry: Geometry, grid: Grid):
     # sum everything up for static FF
     static = 1 * door_prob + 5 * wall_prob + 1 * danger_prob + 1 * exit_prob
     static = normalize(static)
-    plot_prob_field(geometry, grid, static)
+    # plot_prob_field(geometry, grid, static)
 
     return static
 
@@ -128,28 +128,24 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, ff):
 
         weighted_distance = grid.getWeightedDistanceCells(geometry, intersection, sg.Point2(x, y))
         weighted_prob_neighbor = distance_to_prob_dec(weighted_distance, 30, 0.01)
-        plot_prob_field(geometry, grid, weighted_prob_neighbor)
+        # plot_prob_field(geometry, grid, weighted_prob_neighbor)
         weighted_prob_neighbor[np.isnan(weighted_prob_neighbor)] = 0
         prob[key] = np.average(weighted_prob_neighbor)
         # TODO prob[Neighbors.self] need to get higher value
-    print(prob)
+    # print(prob)
 
-    small = np.zeros([3, 3])
-    small[1, 1] = prob[Neighbors.self]
-    small[0, 1] = prob[Neighbors.left]
-    small[1, 0] = prob[Neighbors.top]
-    small[2, 1] = prob[Neighbors.right]
-    small[1, 2] = prob[Neighbors.bottom]
+    # prob_neighbors = np.zeros([3, 3])
+    # prob_neighbors[1, 1] = prob[Neighbors.self]
+    # prob_neighbors[0, 1] = prob[Neighbors.left]
+    # prob_neighbors[1, 0] = prob[Neighbors.top]
+    # prob_neighbors[2, 1] = prob[Neighbors.right]
+    # prob_neighbors[1, 2] = prob[Neighbors.bottom]
 
-    # x = np.arange(0, 3)
-    # y = np.arange(0, 3)
-    # xv, yv = np.meshgrid(x, y, sparse=False, indexing='ij')
-    # plt.figure()
-    # plt.contourf(xv, yv, small)
-    # plt.colorbar()
-    # plt.axis('equal')
-    # plt.show()
-    return
+    foo = sum(prob.values())
+    for key, p in prob.items():
+        prob[key] = p / foo
+
+    return prob
 
 
 def compute_voronoi_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian):

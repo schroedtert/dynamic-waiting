@@ -11,3 +11,6 @@ class Pedestrian:
 
     def j(self):
         return self.pos[1]
+
+    def set_pos(self, new_pos):
+        self.pos = new_pos
