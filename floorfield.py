@@ -105,12 +105,12 @@ def init_dynamic_ff():
     return
 
 
-def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, ff):
+def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floorfield):
     prob = {Neighbors.self: 0., Neighbors.left: 0., Neighbors.top: 0., Neighbors.right: 0., Neighbors.bottom: 0.}
 
     # compute visible area
-    x, y = grid.getCoordinates(ped.i(), ped.j())
-    visible_area = geometry.visibleArea(x, y)
+    x, y = grid.get_coordinates(ped.i(), ped.j())
+    visible_area = geometry.visible_area(x, y)
     vis = Polygon(visible_area.coords)
 
     # compute voronoi polygons of neighbors
@@ -126,11 +126,13 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, ff):
             points.append([ppp[0], ppp[1]])
         intersection = sg.Polygon(points)
 
-        weighted_distance = grid.getWeightedDistanceCells(geometry, intersection, sg.Point2(x, y))
+        weighted_distance = grid.get_weighted_distance_cells(geometry, intersection, sg.Point2(x, y))
         weighted_prob_neighbor = distance_to_prob_dec(weighted_distance, 30, 0.01)
-        # plot_prob_field(geometry, grid, weighted_prob_neighbor)
-        weighted_prob_neighbor[np.isnan(weighted_prob_neighbor)] = 0
-        prob[key] = np.average(weighted_prob_neighbor)
+
+        combination = weighted_prob_neighbor * floorfield
+        # plot_prob_field(geometry, grid, weighted_prob_neighbor*combination)
+        combination[np.isnan(combination)] = 0
+        prob[key] = np.average(combination)
         # TODO prob[Neighbors.self] need to get higher value
     # print(prob)
 
@@ -141,20 +143,20 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, ff):
     # prob_neighbors[2, 1] = prob[Neighbors.right]
     # prob_neighbors[1, 2] = prob[Neighbors.bottom]
 
-    foo = sum(prob.values())
+    # normalize
+    normalization_factor = sum(prob.values())
     for key, p in prob.items():
-        prob[key] = p / foo
-
+        prob[key] = p / normalization_factor
     return prob
 
 
 def compute_voronoi_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian):
-    neighbors = grid.getNeighbors(geometry, ped.pos)
+    neighbors = grid.get_neighbors(geometry, ped.pos)
 
     points = {}
     for key, neighbor in neighbors.items():
         if neighbor is not None:
-            px, py = grid.getCoordinates(neighbor[0], neighbor[1])
+            px, py = grid.get_coordinates(neighbor[0], neighbor[1])
             points[key] = [px, py]
 
     # dummy points for voronoi computation

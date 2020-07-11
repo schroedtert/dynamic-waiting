@@ -6,19 +6,20 @@ from grid import Grid
 
 from plotting import *
 
+
 def compute_distance_fmm(geometry: Geometry, grid: Grid, start, with_peds=True):
     # phi = -1 * np.ones_like(grid.gridX)
 
-    inside = grid.getInsideCells(geometry)
+    inside = grid.get_inside_cells(geometry)
     # plot_prob_field(geometry, grid, np.ma.MaskedArray(np.ones_like(grid.gridX), inside))
 
-    outside = grid.getOutsideCells(geometry)
+    outside = grid.get_outside_cells(geometry)
     # plot_prob_field(geometry, grid, np.ma.MaskedArray(np.ones_like(grid.gridX), outside))
 
-    doors = grid.getDoorCells(geometry)
+    doors = grid.get_door_cells(geometry)
     # plot_prob_field(geometry, grid, np.ma.MaskedArray(np.ones_like(grid.gridX), doors))
 
-    peds = grid.getPedCells(geometry)
+    peds = grid.get_ped_cells(geometry)
     # plot_prob_field(geometry, grid, np.ma.MaskedArray(np.ones_like(grid.gridX), peds))
 
     phi = inside - start
@@ -41,24 +42,24 @@ def compute_distance_fmm(geometry: Geometry, grid: Grid, start, with_peds=True):
 
 
 def compute_door_distance(geometry: Geometry, grid: Grid):
-    doors = grid.getDoorCells(geometry)
+    doors = grid.get_door_cells(geometry)
 
     return compute_distance_fmm(geometry, grid, doors)
 
 
 def compute_wall_distance(geometry: Geometry, grid: Grid):
-    wall = grid.getWallCells(geometry)
-    edges = grid.getEdgeCells(geometry)
+    wall = grid.get_wall_cells(geometry)
+    edges = grid.get_edge_cells(geometry)
     wall = wall - edges
     return compute_distance_fmm(geometry, grid, wall)
 
 
 def compute_ped_distance(geometry: Geometry, grid: Grid):
-    peds = grid.getPedCells(geometry)
+    peds = grid.get_ped_cells(geometry)
     return compute_distance_fmm(geometry, grid, peds, False)
 
 
 def compute_edge_distance(geometry: Geometry, grid: Grid):
-    danger = grid.getDangerCells(geometry)
+    danger = grid.get_danger_cells(geometry)
     return compute_distance_fmm(geometry, grid, danger)
     # return danger

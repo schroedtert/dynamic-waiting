@@ -17,8 +17,8 @@ def init(file):
     return geometry, grid
 
 
-def create_peds(numPeds: int, geometry: Geometry, grid: Grid):
-    for index in range(numPeds):
+def create_peds(num_peds: int, geometry: Geometry, grid: Grid):
+    for index in range(num_peds):
         while True:
             i = random.randint(0, grid.gridX.shape[0] - 1)
             j = random.randint(0, grid.gridY.shape[1] - 1)
@@ -28,23 +28,23 @@ def create_peds(numPeds: int, geometry: Geometry, grid: Grid):
                     occupied = True
                     break
 
-            x, y = grid.getCoordinates(i, j)
-            if not occupied and geometry.isInGeometry(x, y):
+            x, y = grid.get_coordinates(i, j)
+            if not occupied and geometry.is_in_geometry(x, y):
                 geometry.peds[index] = Pedestrian([i, j])
                 # print("{:02d} {:5.2f} {:5.2f}".format(index, x, y))
                 break
 
 
-def run_simulation(file, numPeds, maxSteps=100):
+def run_simulation(file, num_peds, max_steps=100):
     geometry, grid = init(file)
-    create_peds(numPeds, geometry, grid)
+    create_peds(num_peds, geometry, grid)
 
     for key, ped in geometry.peds.items():
-        x, y = grid.getCoordinates(ped.i(), ped.j())
-        geometry.visibleArea(x, y)
+        x, y = grid.get_coordinates(ped.i(), ped.j())
+        geometry.visible_area(x, y)
 
     ca = CA(geometry, grid)
-    for step in range(maxSteps):
+    for step in range(max_steps):
         ca.compute_step(geometry, grid)
         plot_geometry_peds(geometry, grid, geometry.peds)
     # plot.plot_voronoi_peds(geometry, grid, geometry.peds)
@@ -55,7 +55,6 @@ def run_simulation(file, numPeds, maxSteps=100):
     # print(peds[0] = ped)
     # plot_geometry_grid(geometry, grid)
     # init_static_ff(geometry, grid)
-
 
     # plot_prob_field(geometry, grid, doorDistance)
     # plot_geometry_peds(geometry, grid, geometry.peds)

@@ -21,19 +21,21 @@ class CA:
         next_step = {}
         for key, ped in geometry.peds.items():
             prob_neighbor = compute_prob_neighbors(geometry, grid, ped, combined)
-            next_step[key] = self.compute_next_step(ped, prob_neighbor)
+            next_step[key] = self.compute_next_step(prob_neighbor)
             self.apply_step(geometry, grid, next_step)
         return
 
-    def compute_next_step(self, ped: Pedestrian, prob):
+    @staticmethod
+    def compute_next_step(prob):
         keys = list(prob.keys())
         probs = list(prob.values())
 
         draw = choice(keys, 1, p=probs)
         return draw
 
-    def apply_step(self, geometry: Geometry, grid: Grid, next_step):
+    @staticmethod
+    def apply_step(geometry: Geometry, grid: Grid, next_step):
         # TODO collision detection
         for key, step in next_step.items():
-            neighbors = grid.getNeighbors(geometry, geometry.peds[key].pos)
+            neighbors = grid.get_neighbors(geometry, geometry.peds[key].pos)
             geometry.peds[key].pos = neighbors[step[0]]

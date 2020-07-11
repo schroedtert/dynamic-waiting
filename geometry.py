@@ -8,6 +8,7 @@ from matplotlib import pyplot as plt
 from IO import read_geometry
 from pedestrian import Pedestrian
 
+
 @dataclass
 class Geometry:
     '''Class for managing the geometry.'''
@@ -72,7 +73,7 @@ class Geometry:
         plt.show()
         return
 
-    def isInGeometry(self, x: float, y: float) -> bool:
+    def is_in_geometry(self, x: float, y: float) -> bool:
         # check if on floor
         point = sg.Point2(x, y)
         if self.floor.outer_boundary().oriented_side(point) == sg.Sign.NEGATIVE:
@@ -83,10 +84,10 @@ class Geometry:
             return True
         return False
 
-    def getBoundingBox(self):
+    def get_bounding_box(self):
         return self.boundingbox.xmin(), self.boundingbox.ymin(), self.boundingbox.xmax(), self.boundingbox.ymax()
 
-    def visibleArea(self, x: float, y: float):
+    def visible_area(self, x: float, y: float):
         vs = sg.RotationalSweepVisibility(self.arr)
         q = sg.Point2(x, y)
         face = self.arr.find(q)

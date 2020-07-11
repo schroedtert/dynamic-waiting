@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 @dataclass
 class Pedestrian:
-    '''Class containing ped information'''
+    """Class containing ped information"""
     pos: [int, int]
 
     def i(self):
