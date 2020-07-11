@@ -6,6 +6,7 @@ from geometry import Geometry
 from grid import Grid
 from pedestrian import Pedestrian
 from plotting import *
+from trajectory import Trajectory
 
 logfile = 'log.dat'
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -35,18 +36,19 @@ def create_peds(num_peds: int, geometry: Geometry, grid: Grid):
                 break
 
 
-def run_simulation(file, num_peds, max_steps=100):
+def run_simulation(file, num_peds, max_steps=10):
     geometry, grid = init(file)
     create_peds(num_peds, geometry, grid)
 
-    for key, ped in geometry.peds.items():
-        x, y = grid.get_coordinates(ped.i(), ped.j())
-        geometry.visible_area(x, y)
-
     ca = CA(geometry, grid)
+
+    traj = Trajectory()
     for step in range(max_steps):
         ca.compute_step(geometry, grid)
-        plot_geometry_peds(geometry, grid, geometry.peds)
+        # plot_geometry_peds(geometry, grid, geometry.peds)
+        traj.add_step(step, grid, geometry.peds)
+
+    plot_trajectories(geometry, grid, traj)
     # plot.plot_voronoi_peds(geometry, grid, geometry.peds)
     # plot.plot_geometry_peds(geometry, grid, geometry.peds)
 

@@ -7,7 +7,7 @@ from typing import Dict, List
 import pandas as pd
 import skgeom as sg
 from skgeom.draw import draw
-
+from trajectory import Trajectory
 
 def plot_geometry(geometry: Geometry):
     plt.figure()
@@ -130,9 +130,24 @@ def plot_voronoi_peds(geometry, grid, peds):
 
     plt.axis('equal')
     plt.gca().set_adjustable("box")
-    # plt.gca().set_xlim([-10.5, 10.5])
-    # plt.gca().set_ylim([-10, 10])
 
     draw(geometry.floor, alpha=0.1)
 
+    plt.show()
+
+
+def plot_trajectories(geometry: Geometry, grid: Grid, trajectory: Trajectory):
+    plt.figure()
+
+    # plot trajectories
+    for ped_id in trajectory.traj.id.unique():
+        df = trajectory.traj.loc[trajectory.traj['id'] == ped_id]
+        df = df.sort_values('step')
+        df.plot(x='x', y='y', color='red')
+
+    # plot floor
+    draw(geometry.floor, alpha=0.1)
+
+    plt.axis('equal')
+    plt.gca().set_adjustable("box")
     plt.show()
