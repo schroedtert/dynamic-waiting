@@ -7,6 +7,7 @@ from grid import Grid
 from pedestrian import Pedestrian
 from plotting import *
 from trajectory import Trajectory
+from constants import *
 
 logfile = 'log.dat'
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -33,7 +34,7 @@ def create_peds(num_peds: int, geometry: Geometry, grid: Grid):
 
             x, y = grid.get_coordinates(i, j)
             if not occupied and geometry.is_in_geometry(x, y):
-                geometry.peds[index] = Pedestrian([i, j])
+                geometry.peds[index] = Pedestrian([i, j], Neighbors.left)
                 break
 
 

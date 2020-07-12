@@ -7,16 +7,7 @@ import skgeom as sg
 from geometry import Geometry
 from constants import *
 
-from enum import Enum
 moore = False
-
-
-class Neighbors(Enum):
-    self = 0
-    left = 1
-    top = 2
-    right = 3
-    bottom = 4
 
 
 @dataclass

@@ -10,7 +10,7 @@ from distanceCalculator import compute_door_distance, compute_wall_distance, com
 from geometry import Geometry
 from grid import Grid, Neighbors
 from pedestrian import Pedestrian
-
+from constants import *
 from scipy.spatial import Voronoi, voronoi_plot_2d
 
 from plotting import plot_prob_field
@@ -37,6 +37,13 @@ def nth(iterable, n, default=None):
 def normalize(field):
     sum = np.nansum(field)
     return field / sum
+
+
+def normalize_dict(field):
+    normalization_factor = sum(field.values())
+    for key, p in field.items():
+        field[key] = p / normalization_factor
+    return field
 
 
 def distance_to_prob_inc(distance_field, b, c):
@@ -152,6 +159,14 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
             # TODO prob[Neighbors.self] need to get higher value
             # for example: sum of surrounding cells prob
             prob[key] = np.average(combination)
+
+    # weight cells by moving direction
+    weights = {}
+    for key, p in prob.items():
+        weights[key] = weighted_neighbors[ped.direction][key]
+    weights = normalize_dict(weights)
+    for key, p in prob.items():
+        prob[key] = p * weights[key]
 
     # normalize
     normalization_factor = sum(prob.values())
