@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 
 from IO import read_geometry
 from pedestrian import Pedestrian
-
+from constants import *
 
 @dataclass
 class Geometry:
@@ -81,6 +81,9 @@ class Geometry:
             for hole in self.floor.holes:
                 if hole.oriented_side(point) == sg.Sign.POSITIVE:
                     return False
+                for edge in hole.edges:
+                    if sg.squared_distance(edge, point) < THRESHOLD ** 2:
+                        return False
             return True
         return False
 

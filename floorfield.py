@@ -82,13 +82,14 @@ def compute_dynamic_ff(geometry: Geometry, grid: Grid):
 
 
 def compute_filter_ff(geometry: Geometry, grid: Grid):
+
     # pedDistance = compute_ped_distance(geometry, grid)
     # plot_prob_field(geometry, grid, pedDistance)
     # pedProb = distance_to_prob_inc(pedDistance, ped_b, ped_c)
     # plot_prob_field(geometry, grid, pedProb)
     # pedProbNormalized = normalize(pedProb)
     # plot_prob_field(geometry, grid, pedProbNormalized)
-    return np.ones_like(grid.gridX)
+    return grid.get_inside_cells(geometry) - grid.get_wall_cells(geometry)
 
 
 def compute_overall_ff(geometry: Geometry, grid: Grid, staticFF, dynamicFF, filterFF):
@@ -106,7 +107,12 @@ def init_dynamic_ff():
 
 
 def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floorfield):
-    prob = {Neighbors.self: 0., Neighbors.left: 0., Neighbors.top: 0., Neighbors.right: 0., Neighbors.bottom: 0.}
+    # prob = {Neighbors.self: 0., Neighbors.left: 0., Neighbors.top: 0., Neighbors.right: 0., Neighbors.bottom: 0.}
+    prob = {}
+    # for key, neighbor in grid.get_neighbors(geometry, [ped.i(), ped.j()]).items():
+    #     prob[key] = 0.
+
+    size_neighbors = len(grid.get_neighbors(geometry, [ped.i(), ped.j()]).items())
 
     # compute visible area
     x, y = grid.get_coordinates(ped.i(), ped.j())
@@ -119,29 +125,33 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
     # sum up every cell in neighbor polygon to neighbor cell
     # sum is weighted by distance, closer = more important
     for key, polygon in neighbor_voronoi_polygons.items():
-        p = Polygon(polygon.coords)
-        inter = p.intersection(vis)
-        points = []
-        for ppp in inter.exterior.coords:
-            points.append([ppp[0], ppp[1]])
-        intersection = sg.Polygon(points)
+        if polygon is not None:
 
-        weighted_distance = grid.get_weighted_distance_cells(geometry, intersection, sg.Point2(x, y))
-        weighted_prob_neighbor = distance_to_prob_dec(weighted_distance, 30, 0.01)
+            points = []
 
-        combination = weighted_prob_neighbor * floorfield
-        # plot_prob_field(geometry, grid, weighted_prob_neighbor*combination)
-        combination[np.isnan(combination)] = 0
-        prob[key] = np.average(combination)
-        # TODO prob[Neighbors.self] need to get higher value
-    # print(prob)
+            p = Polygon(polygon.coords)
+            inter = p.intersection(vis)
 
-    # prob_neighbors = np.zeros([3, 3])
-    # prob_neighbors[1, 1] = prob[Neighbors.self]
-    # prob_neighbors[0, 1] = prob[Neighbors.left]
-    # prob_neighbors[1, 0] = prob[Neighbors.top]
-    # prob_neighbors[2, 1] = prob[Neighbors.right]
-    # prob_neighbors[1, 2] = prob[Neighbors.bottom]
+            if inter.geom_type == 'GeometryCollection':
+                for i in inter.geoms:
+                    if i.geom_type == 'Polygon':
+                        for ppp in i.exterior.coords:
+                            points.append([ppp[0], ppp[1]])
+            else:
+                points = []
+                for ppp in inter.exterior.coords:
+                    points.append([ppp[0], ppp[1]])
+
+            intersection = sg.Polygon(points)
+
+            weighted_distance = grid.get_weighted_distance_cells(geometry, intersection, sg.Point2(x, y))
+            weighted_prob_neighbor = distance_to_prob_dec(weighted_distance, 30, 0.01)
+
+            combination = weighted_prob_neighbor * floorfield
+            combination[np.isnan(combination)] = 0
+            # TODO prob[Neighbors.self] need to get higher value
+            # for example: sum of surrounding cells prob
+            prob[key] = np.average(combination)
 
     # normalize
     normalization_factor = sum(prob.values())
@@ -152,7 +162,6 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
 
 def compute_voronoi_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian):
     neighbors = grid.get_neighbors(geometry, ped.pos)
-
     points = {}
     for key, neighbor in neighbors.items():
         if neighbor is not None:
@@ -167,9 +176,9 @@ def compute_voronoi_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian):
 
     points_list = list(points.values())
     vor = Voronoi(list(points.values()))
-
-    polygons = {Neighbors.self: None, Neighbors.left: None, Neighbors.top: None, Neighbors.right: None,
-                Neighbors.bottom: None}
+    polygons = {}
+    for key, neighbor in neighbors.items():
+        polygons[key] = None
 
     for i in vor.point_region:
         region = vor.regions[i]

@@ -5,12 +5,10 @@ import numpy as np
 import skgeom as sg
 
 from geometry import Geometry
-from IO import MTOMM
+from constants import *
 
 from enum import Enum
 moore = False
-CELLSIZE = 0.5 * MTOMM
-THRESHOLD = 0.5 * CELLSIZE
 
 
 class Neighbors(Enum):
@@ -177,8 +175,6 @@ class Grid:
             x, y = self.get_coordinates(posNeighbor[0], posNeighbor[1])
             if geometry.is_in_geometry(x, y):
                 neighbors[key] = posNeighbor
-            else:
-                neighbors[key] = None
 
         # not shuffling significantly alters the simulation...
         return neighbors

@@ -1,11 +1,10 @@
 from geometry import Geometry
-from geometry import Geometry
 from grid import Grid
 
 from numpy.random import choice
 
 from floorfield import *
-
+from plotting import *
 
 class CA:
     staticFF = None
@@ -19,23 +18,24 @@ class CA:
         combined = compute_overall_ff(geometry, grid, self.staticFF, dynamicFF, filterFF)
 
         next_step = {}
-        for key, ped in geometry.peds.items():
+        for ped_id, ped in geometry.peds.items():
             prob_neighbor = compute_prob_neighbors(geometry, grid, ped, combined)
-            next_step[key] = self.compute_next_step(prob_neighbor)
-            self.apply_step(geometry, grid, next_step)
+            next_step[ped_id] = self.compute_next_step(prob_neighbor, geometry, grid, ped_id)
+
+        self.apply_step(geometry, grid, next_step)
+
         return
 
     @staticmethod
-    def compute_next_step(prob):
+    def compute_next_step(prob, geometry, grid, key):
         keys = list(prob.keys())
         probs = list(prob.values())
 
-        draw = choice(keys, 1, p=probs)
-        return draw
+        return choice(keys, 1, p=probs)
 
     @staticmethod
     def apply_step(geometry: Geometry, grid: Grid, next_step):
         # TODO collision detection
         for key, step in next_step.items():
             neighbors = grid.get_neighbors(geometry, geometry.peds[key].pos)
-            geometry.peds[key].pos = neighbors[step[0]]
+            geometry.peds[key].set_pos(neighbors[step[0]])

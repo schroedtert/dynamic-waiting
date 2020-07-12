@@ -13,4 +13,6 @@ class Pedestrian:
         return self.pos[1]
 
     def set_pos(self, new_pos):
+        if (new_pos == None):
+            print('break!')
         self.pos = new_pos

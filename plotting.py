@@ -70,33 +70,11 @@ def plot_geometry_peds(geometry: Geometry, grid: Grid, peds: Dict[int, Pedestria
         y = grid.gridY[ped.i()][ped.j()]
         point = sg.Point2(x, y)
         draw(point, color='black')
-        # plt.figure()
-        # for key, polygon in geometry.bounds.items():
-        #     x, y = polygon.exterior.xy
-        #     plt.plot(x, y, color='black')
-        #
-        # for key, obstacle in geometry.obstacles.items():
-        #     x, y = obstacle.exterior.xy
-        #     plt.fill(x, y, alpha=0.1, fc='gray', ec='none')
-        #     plt.plot(x, y, color='gray')
-        #
-        # for key, door in geometry.doors.items():
-        #     x, y = door.coords.xy
-        #     plt.plot(x, y, color='red')
-        #
-        # for key, ped in peds.items():
-        #     x = grid.gridX[ped.i()][ped.j()]
-        #     y = grid.gridY[ped.i()][ped.j()]
-        #
-        #     plt.plot(x, y, color='blue', markersize='8', marker='o')
     plt.show()
 
 
 def plot_prob_field(geometry: Geometry, grid: Grid, prob_field):
     plt.figure()
-    # plt.contour(grid.gridX, grid.gridY, phi, [0], linewidths=(3), colors='black')
-    # for key, door in geometry.doors.items():
-    #     draw(door, color='red', alpha=0.5)
 
     plt.contourf(grid.gridX, grid.gridY, prob_field)
     plt.colorbar()
@@ -143,7 +121,8 @@ def plot_trajectories(geometry: Geometry, grid: Grid, trajectory: Trajectory):
     for ped_id in trajectory.traj.id.unique():
         df = trajectory.traj.loc[trajectory.traj['id'] == ped_id]
         df = df.sort_values('step')
-        df.plot(x='x', y='y', color='red')
+        plt.plot(df.x, df.y)
+        # df.plot(x='x', y='y')
 
     # plot floor
     draw(geometry.floor, alpha=0.1)

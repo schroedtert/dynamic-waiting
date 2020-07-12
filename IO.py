@@ -2,9 +2,8 @@ import numpy as np
 
 # parsing xml files
 from xml.dom.minidom import parse
-from typing import Final
+from constants import *
 
-MTOMM: Final = 1000
 
 
 def read_geometry(filename):
