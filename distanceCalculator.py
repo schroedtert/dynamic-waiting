@@ -7,7 +7,7 @@ from grid import Grid
 from plotting import *
 
 
-def compute_distance_fmm(geometry: Geometry, grid: Grid, start, with_peds=True):
+def compute_distance_fmm(geometry: Geometry, grid: Grid, start, with_peds=False):
     # phi = -1 * np.ones_like(grid.gridX)
 
     inside = grid.get_inside_cells(geometry)
@@ -16,10 +16,9 @@ def compute_distance_fmm(geometry: Geometry, grid: Grid, start, with_peds=True):
     outside = grid.get_outside_cells(geometry)
     # plot_prob_field(geometry, grid, np.ma.MaskedArray(np.ones_like(grid.gridX), outside))
 
-    doors = grid.get_door_cells(geometry)
+    # doors = grid.get_entrance_cells(geometry)
     # plot_prob_field(geometry, grid, np.ma.MaskedArray(np.ones_like(grid.gridX), doors))
 
-    peds = grid.get_ped_cells(geometry)
     # plot_prob_field(geometry, grid, np.ma.MaskedArray(np.ones_like(grid.gridX), peds))
 
     phi = inside - start
@@ -28,10 +27,11 @@ def compute_distance_fmm(geometry: Geometry, grid: Grid, start, with_peds=True):
     mask = np.logical_and(outside == 1, start != 1)
     # plot_prob_field(geometry, grid, np.ma.MaskedArray(np.ones_like(grid.gridX), mask))
 
-    mask = np.logical_and(mask, doors != 1)
+    # mask = np.logical_and(mask, doors != 1)
     # plot_prob_field(geometry, grid, np.ma.MaskedArray(np.ones_like(grid.gridX), mask))
 
     if with_peds:
+        peds = grid.get_ped_cells(geometry)
         mask = np.logical_or(mask, peds == 1)
     # plot_prob_field(geometry, grid, np.ma.MaskedArray(np.ones_like(grid.gridX), mask))
 
@@ -41,10 +41,16 @@ def compute_distance_fmm(geometry: Geometry, grid: Grid, start, with_peds=True):
     return distance
 
 
-def compute_door_distance(geometry: Geometry, grid: Grid):
-    doors = grid.get_door_cells(geometry)
+def compute_entrance_distance(geometry: Geometry, grid: Grid):
+    entrances = grid.get_entrance_cells(geometry)
 
-    return compute_distance_fmm(geometry, grid, doors)
+    return compute_distance_fmm(geometry, grid, entrances)
+
+
+def compute_exit_distance(geometry: Geometry, grid: Grid):
+    exits = grid.get_exit_cells(geometry)
+
+    return compute_distance_fmm(geometry, grid, exits)
 
 
 def compute_wall_distance(geometry: Geometry, grid: Grid):

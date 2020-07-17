@@ -20,7 +20,7 @@ def plot_geometry(geometry: Geometry):
         plt.fill(x, y, alpha=0.1, fc='gray', ec='none')
         plt.plot(x, y, color='gray')
 
-    for key, door in geometry.doors.items():
+    for key, door in geometry.entrances.items():
         x, y = door.coords.xy
         plt.plot(x, y, color='red')
 
@@ -38,7 +38,7 @@ def plot_geometry_grid(geometry: Geometry, grid: Grid):
         plt.fill(x, y, alpha=0.1, fc='gray', ec='none')
         plt.plot(x, y, color='gray')
 
-    for key, door in geometry.doors.items():
+    for key, door in geometry.entrances.items():
         x, y = door.coords.xy
         plt.plot(x, y, color='red')
 
@@ -62,8 +62,11 @@ def plot_geometry_peds(geometry: Geometry, grid: Grid, peds: Dict[int, Pedestria
     # draw(geometry.floor)
     draw(geometry.floor, alpha=0.1)
 
-    for key, door in geometry.doors.items():
+    for key, door in geometry.entrances.items():
         draw(door, color='red', alpha=0.5)
+
+    for key, door in geometry.exits.items():
+        draw(door, color='blue', alpha=0.5)
 
     for key, ped in peds.items():
         x = grid.gridX[ped.i()][ped.j()]

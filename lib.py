@@ -38,18 +38,17 @@ def create_peds(num_peds: int, geometry: Geometry, grid: Grid):
                 break
 
 
-def run_simulation(file, num_peds=10, max_steps=10):
+def run_simulation(file, num_peds=1, max_steps=20):
     geometry, grid = init(file)
     create_peds(num_peds, geometry, grid)
 
     ca = CA(geometry, grid)
     plot_geometry_peds(geometry, grid, geometry.peds)
-
     traj = Trajectory()
     for step in range(max_steps):
         print("========================= step {:2d} ======================================".format(step))
         ca.compute_step(geometry, grid)
-        # plot_geometry_peds(geometry, grid, geometry.peds)
+        plot_geometry_peds(geometry, grid, geometry.peds)
         traj.add_step(step, grid, geometry.peds)
 
     plot_trajectories(geometry, grid, traj)

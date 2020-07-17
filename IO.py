@@ -1,26 +1,25 @@
 import numpy as np
 
-# parsing xml files
 from xml.dom.minidom import parse
 from constants import *
-
 
 
 def read_geometry(filename):
     root = parse(filename)
     obstacles = read_obstacle(root)
     walls = read_subroom_walls(root)
-    doors = read_doors(root)
+    entrances = read_entrances(root)
+    exits = read_exits(root)
     edges = read_subroom_edges(root)
-    return walls, obstacles, doors, edges
+    return walls, obstacles, entrances, exits, edges
 
 
-def read_doors(root):
+def read_entrances(root):
     # Initialization of a dictionary with obstacles
-    doors = {}
+    entrances = {}
 
     # read in doors and combine them into an array for polygon representation
-    for t_num, t_elem in enumerate(root.getElementsByTagName('transition')):
+    for t_num, t_elem in enumerate(root.getElementsByTagName('entrance')):
         door_id = t_elem.getAttribute('id')
 
         points = []
@@ -29,9 +28,28 @@ def read_doors(root):
             vertex_y = MTOMM * float(t_elem.getElementsByTagName('vertex')[v_num].attributes['py'].value)
             points.append([vertex_x, vertex_y])
 
-        doors[door_id] = points
+        entrances[door_id] = points
 
-    return doors
+    return entrances
+
+
+def read_exits(root):
+    # Initialization of a dictionary with obstacles
+    exits = {}
+
+    # read in doors and combine them into an array for polygon representation
+    for t_num, t_elem in enumerate(root.getElementsByTagName('exit')):
+        door_id = t_elem.getAttribute('id')
+
+        points = []
+        for v_num, v_elem in enumerate(t_elem.getElementsByTagName('vertex')):
+            vertex_x = MTOMM * float(t_elem.getElementsByTagName('vertex')[v_num].attributes['px'].value)
+            vertex_y = MTOMM * float(t_elem.getElementsByTagName('vertex')[v_num].attributes['py'].value)
+            points.append([vertex_x, vertex_y])
+
+        exits[door_id] = points
+
+    return exits
 
 
 def read_obstacle(xml_doc):

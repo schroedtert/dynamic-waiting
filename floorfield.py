@@ -6,9 +6,9 @@ import numpy as np
 import skgeom as sg
 from skgeom import boolean_set
 
-from distanceCalculator import compute_door_distance, compute_wall_distance, compute_edge_distance, compute_ped_distance
+from distanceCalculator import *
 from geometry import Geometry
-from grid import Grid, Neighbors
+from grid import Grid
 from pedestrian import Pedestrian
 from constants import *
 from scipy.spatial import Voronoi, voronoi_plot_2d
@@ -56,30 +56,26 @@ def distance_to_prob_dec(distance_field, b, c):
 
 def compute_static_ff(geometry: Geometry, grid: Grid):
     # compute door probability: further is better
-    door_distance = compute_door_distance(geometry, grid)
+    door_distance = compute_entrance_distance(geometry, grid)
     door_prob = distance_to_prob_inc(door_distance, door_b, door_c)
-    # plot_prob_field(geometry, grid, door_prob)
+    plot_prob_field(geometry, grid, door_prob)
 
     # compute wall probability: closer is better
     wall_distance = compute_wall_distance(geometry, grid)
     wall_prob = distance_to_prob_dec(wall_distance, wall_b, wall_c)
-    # plot_prob_field(geometry, grid, wall_prob)
+    plot_prob_field(geometry, grid, wall_prob)
 
-    # compute distance to edges: closer is better
-    exit_distance = compute_edge_distance(geometry, grid)
-    exit_prob = distance_to_prob_dec(exit_distance, 10, 1)
-    # plot_prob_field(geometry, grid, exit_prob)
+    # compute distance to exits: closer is better
+    exit_distance = compute_exit_distance(geometry, grid)
+    exit_prob = distance_to_prob_dec(exit_distance, 2, 1)
 
     # compute distance to edges: further is better
-    # TODO check if maybe as filter
-    danger_distance = compute_edge_distance(geometry, grid)
-    danger_prob = distance_to_prob_inc(danger_distance, 5, 5)
-    # plot_prob_field(geometry, grid, danger_prob)
+    # exit_prob = np.zeros_like(grid.gridX)
 
     # sum everything up for static FF
-    static = 1 * door_prob + 5 * wall_prob + 1 * danger_prob + 1 * exit_prob
+    static = 0 * door_prob + 50 * wall_prob + 0 * exit_prob
     static = normalize(static)
-    # plot_prob_field(geometry, grid, static)
+    plot_prob_field(geometry, grid, static)
 
     return static
 
@@ -132,7 +128,16 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
     # sum up every cell in neighbor polygon to neighbor cell
     # sum is weighted by distance, closer = more important
     for key, polygon in neighbor_voronoi_polygons.items():
-        if polygon is not None:
+        if key == Neighbors.self:
+            p = 0
+            for neighbor in grid.get_neighbors(geometry, [ped.i(), ped.j()]).values():
+                p = p + np.ma.filled(floorfield, 0)[neighbor[0]][neighbor[1]]
+            prob[key] = p / len(grid.get_neighbors(geometry, [ped.i(), ped.j()]).values())
+            print("Neighbor {}: p={}".format(key, p))
+
+            # print(floorfield[ped.i()][ped.j()])
+            # prob[key] = np.ma.filled(floorfield, 0)[ped.i()][ped.j()]
+        elif polygon is not None:
 
             points = []
 
@@ -158,7 +163,15 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
             combination[np.isnan(combination)] = 0
             # TODO prob[Neighbors.self] need to get higher value
             # for example: sum of surrounding cells prob
-            prob[key] = np.average(combination)
+            prob[key] = np.sum(combination)
+
+    # normalize
+    # prob = normalize_dict(prob)
+
+    # print("before weighting:")
+    # print("{:5f} | {:5f} | {:5f}".format(0., prob[Neighbors.top], 0.))
+    # print("{:5f} | {:5f} | {:5f}".format(prob[Neighbors.left], prob[Neighbors.self], prob[Neighbors.right]))
+    # print("{:5f} | {:5f} | {:5f}".format(0., prob[Neighbors.bottom], 0.))
 
     # weight cells by moving direction
     weights = {}
@@ -169,9 +182,11 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
         prob[key] = p * weights[key]
 
     # normalize
-    normalization_factor = sum(prob.values())
-    for key, p in prob.items():
-        prob[key] = p / normalization_factor
+    prob = normalize_dict(prob)
+    # print("after normalization:")
+    # print("{:5f} | {:5f} | {:5f}".format(0., prob[Neighbors.top], 0.))
+    # print("{:5f} | {:5f} | {:5f}".format(prob[Neighbors.left], prob[Neighbors.self], prob[Neighbors.right]))
+    # print("{:5f} | {:5f} | {:5f}".format(0., prob[Neighbors.bottom], 0.))
     return prob
 
 

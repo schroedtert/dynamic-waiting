@@ -15,7 +15,8 @@ class Geometry:
     walls: List[sg.Segment2]
     edges: List[sg.Segment2]
     floor: sg.PolygonWithHoles
-    doors: Dict[int, sg.Segment2]
+    entrances: Dict[int, sg.Segment2]
+    exits: Dict[int, sg.Segment2]
     peds: Dict[int, Pedestrian]
     boundingbox: sg.Bbox2
     arr: sg.arrangement.Arrangement
@@ -24,12 +25,13 @@ class Geometry:
     def __init__(self, filename):
         self.walls = []
         self.floor = None
-        self.doors = {}
+        self.entrances = {}
+        self.exits = {}
         self.peds = {}
         self.edges = []
         self.arr = sg.arrangement.Arrangement()
 
-        walls, obstacles, doors, edges = read_geometry(filename)
+        walls, obstacles, entrances, exits, edges = read_geometry(filename)
 
         points = []
         for wall in walls:
@@ -46,10 +48,15 @@ class Geometry:
             p2 = sg.Point2(edge[1][0], edge[1][1])
             self.edges.append(sg.Segment2(p1, p2))
 
-        for key, door in doors.items():
+        for key, door in entrances.items():
             p1 = sg.Point2(door[0][0], door[0][1])
             p2 = sg.Point2(door[1][0], door[1][1])
-            self.doors[key] = sg.Segment2(p1, p2)
+            self.entrances[key] = sg.Segment2(p1, p2)
+
+        for key, door in exits.items():
+            p1 = sg.Point2(door[0][0], door[0][1])
+            p2 = sg.Point2(door[1][0], door[1][1])
+            self.exits[key] = sg.Segment2(p1, p2)
 
         holes = []
         for key, obstacle in obstacles.items():

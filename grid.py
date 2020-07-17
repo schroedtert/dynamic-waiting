@@ -78,13 +78,13 @@ class Grid:
         walls = np.zeros_like(self.gridX)
         wallSegments = []
 
-        for i in range(len(geometry.floor.outer_boundary().coords)):
-            next_coordinate = (i + 1) % len(geometry.floor.outer_boundary().coords)
-            p1 = sg.Point2(geometry.floor.outer_boundary().coords[i][0], geometry.floor.outer_boundary().coords[i][1])
-            p2 = sg.Point2(geometry.floor.outer_boundary().coords[next_coordinate][0],
-                           geometry.floor.outer_boundary().coords[next_coordinate][1])
-            wall = sg.Segment2(p1, p2)
-            wallSegments.append(wall)
+        # for i in range(len(geometry.floor.outer_boundary().coords)):
+        #     next_coordinate = (i + 1) % len(geometry.floor.outer_boundary().coords)
+        #     p1 = sg.Point2(geometry.floor.outer_boundary().coords[i][0], geometry.floor.outer_boundary().coords[i][1])
+        #     p2 = sg.Point2(geometry.floor.outer_boundary().coords[next_coordinate][0],
+        #                    geometry.floor.outer_boundary().coords[next_coordinate][1])
+        #     wall = sg.Segment2(p1, p2)
+        #     wallSegments.append(wall)
 
         for hole in geometry.floor.holes:
             for i in range(len(hole.coords)):
@@ -104,7 +104,7 @@ class Grid:
                     if sg.squared_distance(wall, p) < THRESHOLD ** 2:
                         walls[i][j] = 1
 
-        return walls - self.get_door_cells(geometry)
+        return walls - self.get_entrance_cells(geometry)
 
     def get_edge_cells(self, geometry: Geometry):
         edges = np.zeros_like(self.gridX)
@@ -130,17 +130,29 @@ class Grid:
 
         return edges
 
-    def get_door_cells(self, geometry: Geometry):
-        doors = np.zeros_like(self.gridX)
+    def get_entrance_cells(self, geometry: Geometry):
+        entrances = np.zeros_like(self.gridX)
         for i in range(self.dimX):
             for j in range(self.dimY):
-                for key, door in geometry.doors.items():
+                for key, door in geometry.entrances.items():
                     x, y = self.get_coordinates(i, j)
                     p = sg.Point2(x, y)
                     if sg.squared_distance(door, p) < THRESHOLD ** 2:
-                        doors[i][j] = 1
+                        entrances[i][j] = 1
 
-        return doors
+        return entrances
+
+    def get_exit_cells(self, geometry: Geometry):
+        exits = np.zeros_like(self.gridX)
+        for i in range(self.dimX):
+            for j in range(self.dimY):
+                for key, door in geometry.exits.items():
+                    x, y = self.get_coordinates(i, j)
+                    p = sg.Point2(x, y)
+                    if sg.squared_distance(door, p) < THRESHOLD ** 2:
+                        exits[i][j] = 1
+
+        return exits
 
     def get_coordinates(self, i: int, j: int):
         if 0 <= i < self.dimX and 0 <= j < self.dimY:
