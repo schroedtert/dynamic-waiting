@@ -73,8 +73,8 @@ def compute_static_ff(geometry: Geometry, grid: Grid):
     # exit_prob = np.zeros_like(grid.gridX)
 
     # sum everything up for static FF
-    static = 0 * door_prob + 50 * wall_prob + 0 * exit_prob
-    static = normalize(static)
+    static = 0 * door_prob + 500 * wall_prob + 0 * exit_prob
+    # static = normalize(static)
     plot_prob_field(geometry, grid, static)
 
     return static
@@ -110,12 +110,7 @@ def init_dynamic_ff():
 
 
 def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floorfield):
-    # prob = {Neighbors.self: 0., Neighbors.left: 0., Neighbors.top: 0., Neighbors.right: 0., Neighbors.bottom: 0.}
     prob = {}
-    # for key, neighbor in grid.get_neighbors(geometry, [ped.i(), ped.j()]).items():
-    #     prob[key] = 0.
-
-    size_neighbors = len(grid.get_neighbors(geometry, [ped.i(), ped.j()]).items())
 
     # compute visible area
     x, y = grid.get_coordinates(ped.i(), ped.j())
@@ -129,16 +124,18 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
     # sum is weighted by distance, closer = more important
     for key, polygon in neighbor_voronoi_polygons.items():
         if key == Neighbors.self:
-            p = 0
-            for neighbor in grid.get_neighbors(geometry, [ped.i(), ped.j()]).values():
-                p = p + np.ma.filled(floorfield, 0)[neighbor[0]][neighbor[1]]
-            prob[key] = p / len(grid.get_neighbors(geometry, [ped.i(), ped.j()]).values())
-            print("Neighbor {}: p={}".format(key, p))
+            # all cells within a 2m? range
+            distance = 500
+            nearby = grid.get_nearby_cells(geometry, [ped.i(), ped.j()], distance)
 
-            # print(floorfield[ped.i()][ped.j()])
-            # prob[key] = np.ma.filled(floorfield, 0)[ped.i()][ped.j()]
+            # a = grid.get_weighted_distance_cells(geometry, floorfield, sg.Point2(x, y))
+            # plot_prob_field(geometry, grid, nearby*grid.get_inside_cells(geometry))
+            foo = nearby * floorfield
+            # plot_prob_field(geometry, grid, foo)
+            prob[key] = np.max(foo)
+            # asd = 1
+
         elif polygon is not None:
-
             points = []
 
             p = Polygon(polygon.coords)
@@ -157,36 +154,21 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
             intersection = sg.Polygon(points)
 
             weighted_distance = grid.get_weighted_distance_cells(geometry, intersection, sg.Point2(x, y))
-            weighted_prob_neighbor = distance_to_prob_dec(weighted_distance, 30, 0.01)
+            weighted_prob_neighbor = distance_to_prob_dec(weighted_distance, 50, 0.01)
 
             combination = weighted_prob_neighbor * floorfield
             combination[np.isnan(combination)] = 0
-            # TODO prob[Neighbors.self] need to get higher value
-            # for example: sum of surrounding cells prob
-            prob[key] = np.sum(combination)
-
-    # normalize
-    # prob = normalize_dict(prob)
-
-    # print("before weighting:")
-    # print("{:5f} | {:5f} | {:5f}".format(0., prob[Neighbors.top], 0.))
-    # print("{:5f} | {:5f} | {:5f}".format(prob[Neighbors.left], prob[Neighbors.self], prob[Neighbors.right]))
-    # print("{:5f} | {:5f} | {:5f}".format(0., prob[Neighbors.bottom], 0.))
+            prob[key] = np.max(combination)
 
     # weight cells by moving direction
-    weights = {}
-    for key, p in prob.items():
-        weights[key] = weighted_neighbors[ped.direction][key]
-    weights = normalize_dict(weights)
-    for key, p in prob.items():
-        prob[key] = p * weights[key]
+    # weights = {}
+    # for key, p in prob.items():
+    #     weights[key] = weighted_neighbors[ped.direction][key]
+    # weights = normalize_dict(weights)
+    # for key, p in prob.items():
+    #     prob[key] = p * weights[key]
 
-    # normalize
     prob = normalize_dict(prob)
-    # print("after normalization:")
-    # print("{:5f} | {:5f} | {:5f}".format(0., prob[Neighbors.top], 0.))
-    # print("{:5f} | {:5f} | {:5f}".format(prob[Neighbors.left], prob[Neighbors.self], prob[Neighbors.right]))
-    # print("{:5f} | {:5f} | {:5f}".format(0., prob[Neighbors.bottom], 0.))
     return prob
 
 

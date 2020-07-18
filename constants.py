@@ -23,9 +23,9 @@ class Direction(Enum):
 
 
 weighted_direction: Final = {
-    Direction.stay: 0.25,
+    Direction.stay: 0.2,
     Direction.left: 0.15,
-    Direction.forward: 0.4,
+    Direction.forward: 0.45,
     Direction.right: 0.15,
     Direction.back: 0.05
 }

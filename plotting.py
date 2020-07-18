@@ -8,6 +8,10 @@ import pandas as pd
 import skgeom as sg
 from skgeom.draw import draw
 from trajectory import Trajectory
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import cm
+from matplotlib.ticker import LinearLocator, FormatStrFormatter
+
 
 def plot_geometry(geometry: Geometry):
     plt.figure()
@@ -82,6 +86,20 @@ def plot_prob_field(geometry: Geometry, grid: Grid, prob_field):
     plt.contourf(grid.gridX, grid.gridY, prob_field)
     plt.colorbar()
     plt.axis('equal')
+
+    # plt.imshow(probField, origin='lower')
+    plt.show()
+
+
+def plot_prob_field_3d(geometry: Geometry, grid: Grid, prob_field):
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    surf = ax.plot_surface(grid.gridX, grid.gridY, prob_field, cmap=cm.coolwarm,
+                           linewidth=0, antialiased=False)
+
+    # plt.contourf(grid.gridX, grid.gridY, prob_field)
+    fig.colorbar(surf, shrink=0.5, aspect=5)
+    # plt.axis('equal')
 
     # plt.imshow(probField, origin='lower')
     plt.show()

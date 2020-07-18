@@ -203,3 +203,17 @@ class Grid:
                 else:
                     inside[i][j] = np.nan
         return inside
+
+    def get_nearby_cells(self, geometry: Geometry, cell: [int, int], cutoff: float):
+        px, py = self.get_coordinates(cell[0], cell[1])
+        reference = sg.Point2(px, py)
+
+        nearby = np.zeros_like(self.gridX)
+        for i in range(self.dimX):
+            for j in range(self.dimY):
+                x, y = self.get_coordinates(i, j)
+                p = sg.Point2(x, y)
+                if sg.squared_distance(reference, p) < cutoff ** 2:
+                    nearby[i][j] = 1
+
+        return nearby
