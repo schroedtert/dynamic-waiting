@@ -6,7 +6,7 @@ import skgeom as sg
 
 from geometry import Geometry
 from constants import *
-
+from pedestrian import Pedestrian
 moore = False
 
 
@@ -55,13 +55,14 @@ class Grid:
 
         return inside
 
-    def get_ped_cells(self, geometry: Geometry):
+    def get_ped_cells(self, geometry: Geometry, ped: Pedestrian = None):
         peds = np.zeros_like(self.gridX)
 
         pedPositions = []
-        for key, ped in geometry.peds.items():
-            x, y = self.get_coordinates(ped.i(), ped.j())
-            pedPositions.append(sg.Point2(x, y))
+        for key, pped in geometry.peds.items():
+            if ped is not None and ped.id != pped.id:
+                x, y = self.get_coordinates(pped.i(), pped.j())
+                pedPositions.append(sg.Point2(x, y))
 
         for i in range(self.dimX):
             for j in range(self.dimY):

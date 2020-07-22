@@ -7,6 +7,7 @@ class Pedestrian:
     """Class containing ped information"""
     pos: [int, int]
     direction: Neighbors
+    id: int
 
     def i(self):
         return self.pos[0]

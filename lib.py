@@ -34,7 +34,7 @@ def create_peds(num_peds: int, geometry: Geometry, grid: Grid):
 
             x, y = grid.get_coordinates(i, j)
             if not occupied and geometry.is_in_geometry(x, y):
-                geometry.peds[index] = Pedestrian([i, j], Neighbors.left)
+                geometry.peds[index] = Pedestrian([i, j], Neighbors.left, index)
                 break
 
 

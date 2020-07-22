@@ -60,8 +60,9 @@ def compute_wall_distance(geometry: Geometry, grid: Grid):
     return compute_distance_fmm(geometry, grid, wall)
 
 
-def compute_ped_distance(geometry: Geometry, grid: Grid):
-    peds = grid.get_ped_cells(geometry)
+def compute_ped_distance(geometry: Geometry, grid: Grid, ped: Pedestrian = None):
+    peds = grid.get_ped_cells(geometry, ped)
+
     return compute_distance_fmm(geometry, grid, peds, False)
 
 

@@ -17,8 +17,8 @@ from plotting import plot_prob_field
 from shapely.geometry import Polygon
 
 # for wall distance
-wall_b = 2
-wall_c = 0.5
+wall_b = 1
+wall_c = 1
 
 # for ped distance
 ped_b = 5
@@ -67,32 +67,32 @@ def compute_static_ff(geometry: Geometry, grid: Grid):
 
     # compute distance to exits: closer is better
     exit_distance = compute_exit_distance(geometry, grid)
-    exit_prob = distance_to_prob_dec(exit_distance, 2, 1)
-
+    exit_prob = distance_to_prob_dec(exit_distance, 5, 0.5)
+    plot_prob_field(geometry, grid, exit_prob)
     # compute distance to edges: further is better
     # exit_prob = np.zeros_like(grid.gridX)
 
     # sum everything up for static FF
-    static = 0 * door_prob + 500 * wall_prob + 0 * exit_prob
+    static = 0.5 * door_prob + 1 * wall_prob + 1 * exit_prob
     # static = normalize(static)
     plot_prob_field(geometry, grid, static)
 
     return static
 
 
-def compute_dynamic_ff(geometry: Geometry, grid: Grid):
+def compute_dynamic_ff(geometry: Geometry, grid: Grid, ped: Pedestrian):
     return np.zeros_like(grid.gridX)
 
 
-def compute_filter_ff(geometry: Geometry, grid: Grid):
-
-    # pedDistance = compute_ped_distance(geometry, grid)
+def compute_filter_ff(geometry: Geometry, grid: Grid, ped: Pedestrian):
+    pedDistance = compute_ped_distance(geometry, grid, ped)
     # plot_prob_field(geometry, grid, pedDistance)
-    # pedProb = distance_to_prob_inc(pedDistance, ped_b, ped_c)
+    # plot_geometry_peds(geometry, grid, {0: geometry.peds[0]})
+    pedProb = distance_to_prob_inc(pedDistance, ped_b, ped_c)
     # plot_prob_field(geometry, grid, pedProb)
     # pedProbNormalized = normalize(pedProb)
     # plot_prob_field(geometry, grid, pedProbNormalized)
-    return grid.get_inside_cells(geometry) - grid.get_wall_cells(geometry)
+    return pedProb
 
 
 def compute_overall_ff(geometry: Geometry, grid: Grid, staticFF, dynamicFF, filterFF):
