@@ -4,10 +4,11 @@ from dataclasses import dataclass
 @dataclass
 class SimulationParameters:
     # general parameters
-    max_agents: int = 1
-    steps: int = 10
-    seed: int = 124
-    file = 'geometries/simplified.xml'
+    max_agents: int
+    init_agents: int
+    steps: int
+    seed: int
+    file = ''
 
     # for wall distance
     wall_b: float = 1
@@ -41,6 +42,7 @@ class SimulationParameters:
 
     def __init__(self, args):
         self.max_agents = args.max_agents
+        self.init_agents = args.init_agents
         self.steps = args.steps
         self.seed = args.seed
         self.file = args.file

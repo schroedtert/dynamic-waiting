@@ -24,7 +24,9 @@ def setup_argument_parser():
     parser = argparse.ArgumentParser(description='Dynamic CA waiting model for pedestrians')
 
     # read general parameters
-    parser.add_argument('--max_agents', help='max number of pedestrians', type=restricted_int, default=1)
+    parser.add_argument('--max_agents', help='max number of pedestrians', type=restricted_int, default=10)
+    parser.add_argument('--init_agents', help='max number of pedestrians', type=restricted_int, default=5)
+
     parser.add_argument('--steps', help='number of simulation steps', type=restricted_int, default=5)
     parser.add_argument('--file', help='geometry used for simulation', default='./geometries/simplified.xml')
 

@@ -39,12 +39,33 @@ def create_peds(num_peds: int, geometry: Geometry, grid: Grid):
                 break
 
 
+def add_pedestrian(geometry: Geometry, grid: Grid):
+    entrances = grid.get_entrance_cells(geometry)
+    entrance_cells = np.transpose(np.where(entrances == 1))
+
+    ped_cells = np.zeros(shape=(len(geometry.pedestrians.items()) + 1, 2))
+
+    for i in range(len(geometry.pedestrians.items())):
+        ped = geometry.pedestrians[i]
+        ped_cells[i] = [ped.i(), ped.j()]
+
+    ped_cells[len(geometry.pedestrians.items())] = [41, 9]
+
+    exclude_cells = (entrance_cells[:, None] == ped_cells).all(-1).any(-1)
+    entrance_cells = entrance_cells[exclude_cells == False]
+
+    cell = random.choice(entrance_cells)
+    max_id = max(geometry.pedestrians)
+    id = max_id + 1
+    geometry.pedestrians[id] = Pedestrian([cell[0], cell[1]], Neighbors.left, id)
+
+
 def run_simulation(simulation_parameters: SimulationParameters):
     file = open(simulation_parameters.file, 'r')
     random.seed(simulation_parameters.seed)
 
     geometry, grid = init(file)
-    create_peds(simulation_parameters.max_agents, geometry, grid)
+    create_peds(simulation_parameters.init_agents, geometry, grid)
 
     ca = CA(simulation_parameters, geometry, grid)
     plot_geometry_peds(geometry, grid, geometry.pedestrians)
@@ -52,6 +73,9 @@ def run_simulation(simulation_parameters: SimulationParameters):
 
     for step in range(simulation_parameters.steps):
         print("========================= step {:2d} ======================================".format(step))
+        if len(geometry.pedestrians.values()) < simulation_parameters.max_agents:
+            add_pedestrian(geometry, grid)
+
         ca.compute_step(geometry, grid)
         plot_geometry_peds(geometry, grid, geometry.pedestrians)
         traj.add_step(step, grid, geometry.pedestrians)
