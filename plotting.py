@@ -80,9 +80,9 @@ def plot_geometry_peds(geometry: Geometry, grid: Grid, peds: Dict[int, Pedestria
     plt.show()
 
 
-def plot_prob_field(geometry: Geometry, grid: Grid, prob_field):
+def plot_prob_field(geometry: Geometry, grid: Grid, prob_field, title=""):
     plt.figure()
-
+    plt.title(title)
     plt.contourf(grid.gridX, grid.gridY, prob_field)
     plt.colorbar()
     plt.axis('equal')
@@ -135,8 +135,14 @@ def plot_voronoi_peds(geometry, grid, peds):
     plt.show()
 
 
-def plot_trajectories(geometry: Geometry, grid: Grid, trajectory: Trajectory):
+def plot_trajectories(geometry: Geometry, grid: Grid, trajectory: Trajectory, peds: Dict[int, Pedestrian]):
     plt.figure()
+
+    for key, ped in peds.items():
+        x = grid.gridX[ped.i()][ped.j()]
+        y = grid.gridY[ped.i()][ped.j()]
+        point = sg.Point2(x, y)
+        draw(point, color='black')
 
     # plot trajectories
     for ped_id in trajectory.traj.id.unique():

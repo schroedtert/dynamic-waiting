@@ -58,24 +58,24 @@ def compute_static_ff(geometry: Geometry, grid: Grid):
     # compute door probability: further is better
     door_distance = compute_entrance_distance(geometry, grid)
     door_prob = distance_to_prob_inc(door_distance, door_b, door_c)
-    plot_prob_field(geometry, grid, door_prob)
+    # plot_prob_field(geometry, grid, door_prob, "entrance prob")
 
     # compute wall probability: closer is better
     wall_distance = compute_wall_distance(geometry, grid)
     wall_prob = distance_to_prob_dec(wall_distance, wall_b, wall_c)
-    plot_prob_field(geometry, grid, wall_prob)
+    # plot_prob_field(geometry, grid, wall_prob, "wall prob")
 
     # compute distance to exits: closer is better
     exit_distance = compute_exit_distance(geometry, grid)
     exit_prob = distance_to_prob_dec(exit_distance, 5, 0.5)
-    plot_prob_field(geometry, grid, exit_prob)
+    # plot_prob_field(geometry, grid, exit_prob, "exit prob")
     # compute distance to edges: further is better
     # exit_prob = np.zeros_like(grid.gridX)
 
     # sum everything up for static FF
     static = 0.5 * door_prob + 1 * wall_prob + 1 * exit_prob
     # static = normalize(static)
-    plot_prob_field(geometry, grid, static)
+    # plot_prob_field(geometry, grid, static, "static")
 
     return static
 
@@ -89,7 +89,7 @@ def compute_filter_ff(geometry: Geometry, grid: Grid, ped: Pedestrian):
     # plot_prob_field(geometry, grid, pedDistance)
     # plot_geometry_peds(geometry, grid, {0: geometry.peds[0]})
     pedProb = distance_to_prob_inc(pedDistance, ped_b, ped_c)
-    # plot_prob_field(geometry, grid, pedProb)
+    # plot_prob_field(geometry, grid, pedProb, "ped prob")
     # pedProbNormalized = normalize(pedProb)
     # plot_prob_field(geometry, grid, pedProbNormalized)
     return pedProb
@@ -100,7 +100,7 @@ def compute_overall_ff(geometry: Geometry, grid: Grid, staticFF, dynamicFF, filt
     # plot_prob_field(geometry, grid, staticFF)
     # plot_prob_field(geometry, grid, dynamicFF)
     # plot_prob_field(geometry, grid, filterFF)
-    # plot_prob_field(geometry, grid, combined)
+    # plot_prob_field(geometry, grid, combined, "overall")
 
     return combined
 
@@ -120,6 +120,8 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
     # compute voronoi polygons of neighbors
     neighbor_voronoi_polygons = compute_voronoi_neighbors(geometry, grid, ped)
 
+    intersections = []
+    weights = np.zeros_like(grid.gridX)
     # sum up every cell in neighbor polygon to neighbor cell
     # sum is weighted by distance, closer = more important
     for key, polygon in neighbor_voronoi_polygons.items():
@@ -152,13 +154,27 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
                     points.append([ppp[0], ppp[1]])
 
             intersection = sg.Polygon(points)
-
+            intersections.append(intersection)
             weighted_distance = grid.get_weighted_distance_cells(geometry, intersection, sg.Point2(x, y))
-            weighted_prob_neighbor = distance_to_prob_dec(weighted_distance, 50, 0.01)
+            # plot_prob_field(geometry, grid, weighted_distance, 'weight distance')
+            weighted_prob_neighbor = distance_to_prob_dec(weighted_distance, 5, 0.5)
+
+            weighted_prob_neighbor[np.isnan(weighted_prob_neighbor)] = 0
+            # plot_prob_field(geometry, grid, weighted_prob_neighbor, 'weight distance')
 
             combination = weighted_prob_neighbor * floorfield
+            # plot_prob_field(geometry, grid, combination, 'weighted neighborhood')
             combination[np.isnan(combination)] = 0
             prob[key] = np.max(combination)
+            weights = weights + combination
+
+    # plot_prob_field(geometry, grid, weights, 'weight distance')
+    #
+    #
+    # for intersection in intersections:
+    #     sg.draw.draw(intersection)
+    # sg.draw.draw(geometry.floor, alpha=0.2)
+    # plt.show()
 
     # weight cells by moving direction
     # weights = {}

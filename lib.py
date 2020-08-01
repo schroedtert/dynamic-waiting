@@ -51,6 +51,6 @@ def run_simulation(file, num_peds=10, max_steps=50):
         # plot_geometry_peds(geometry, grid, geometry.peds)
         traj.add_step(step, grid, geometry.peds)
 
-    plot_trajectories(geometry, grid, traj)
-    plot_geometry_peds(geometry, grid, geometry.peds)
+    plot_trajectories(geometry, grid, traj, geometry.peds)
+    # plot_geometry_peds(geometry, grid, geometry.peds)
     print("========================= done ======================================".format(step))
