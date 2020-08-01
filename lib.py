@@ -1,6 +1,7 @@
 import logging
 import random
 
+from simulation_parameters import SimulationParameters
 from CA import CA
 from geometry import Geometry
 from grid import Grid
@@ -38,15 +39,18 @@ def create_peds(num_peds: int, geometry: Geometry, grid: Grid):
                 break
 
 
-def run_simulation(file, num_peds=5, max_steps=10):
-    geometry, grid = init(file)
-    create_peds(num_peds, geometry, grid)
+def run_simulation(simulation_parameters: SimulationParameters):
+    file = open(simulation_parameters.file, 'r')
+    random.seed(simulation_parameters.seed)
 
-    ca = CA(geometry, grid)
+    geometry, grid = init(file)
+    create_peds(simulation_parameters.max_agents, geometry, grid)
+
+    ca = CA(simulation_parameters, geometry, grid)
     plot_geometry_peds(geometry, grid, geometry.pedestrians)
     traj = Trajectory(grid)
 
-    for step in range(max_steps):
+    for step in range(simulation_parameters.steps):
         print("========================= step {:2d} ======================================".format(step))
         ca.compute_step(geometry, grid)
         plot_geometry_peds(geometry, grid, geometry.pedestrians)
@@ -55,5 +59,5 @@ def run_simulation(file, num_peds=5, max_steps=10):
     print("========================= done ======================================")
 
     plot_trajectories(geometry, grid, traj, geometry.pedestrians)
-    plot_space_usage(geometry, grid, traj, max_steps)
+    plot_space_usage(geometry, grid, traj, simulation_parameters.steps)
     # plot_geometry_peds(geometry, grid, geometry.pedestrians)

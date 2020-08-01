@@ -2,20 +2,24 @@ from geometry import Geometry
 from grid import Grid
 
 from numpy.random import choice
+from simulation_parameters import SimulationParameters
 
 from floorfield import *
 from plotting import *
 
+
 class CA:
     static_ff = None
+    simulation_parameters: SimulationParameters
 
-    def __init__(self, geometry: Geometry, grid: Grid):
-        self.static_ff = compute_static_ff(geometry, grid)
+    def __init__(self, simulation_parameters: SimulationParameters, geometry: Geometry, grid: Grid):
+        self.simulation_parameters = simulation_parameters
+        self.static_ff = compute_static_ff(geometry, grid, self.simulation_parameters)
 
     def compute_step(self, geometry: Geometry, grid: Grid):
         next_step = {}
         for ped_id, ped in geometry.pedestrians.items():
-            individual_ff = compute_individual_ff(geometry, grid, ped)
+            individual_ff = compute_individual_ff(geometry, grid, ped, self.simulation_parameters)
             combined = compute_overall_ff(geometry, grid, self.static_ff, individual_ff)
 
             prob_neighbor = compute_prob_neighbors(geometry, grid, ped, combined)
