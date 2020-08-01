@@ -28,15 +28,28 @@ ped_c = 1
 door_b = 10
 door_c = 0.5
 
+# for exit distance
+exit_b = 5
+exit_c = 0.5
+
+# for attraction prob ground
+attraction_ground_b = 2
+attraction_ground_c = 0.5
+
+attraction_mounted_b = 2
+attraction_mounted_c = 0.1
+
+# weights
+w_door = 1
+w_exit = 1
+w_attraction_ground = 1
+w_attraction_mounted = 1
+w_wall = 1
+
 
 def nth(iterable, n, default=None):
-    "Returns the nth item or a default value"
+    """Returns the nth item or a default value"""
     return next(islice(iterable, n, None), default)
-
-
-def normalize(field):
-    sum = np.nansum(field)
-    return field / sum
 
 
 def normalize_dict(field):
@@ -59,59 +72,56 @@ def compute_static_ff(geometry: Geometry, grid: Grid):
     door_distance = compute_entrance_distance(geometry, grid)
     # plot_prob_field(geometry, grid, door_distance, "entrance distance")
     door_prob = distance_to_prob_inc(door_distance, door_b, door_c)
-    # plot_prob_field(geometry, grid, door_prob, "entrance prob")
+    plot_prob_field(geometry, grid, door_prob, "entrance prob")
 
     # compute wall probability: closer is better
     wall_distance = compute_wall_distance(geometry, grid)
     # plot_prob_field(geometry, grid, wall_distance, "wall distance")
     wall_prob = distance_to_prob_dec(wall_distance, wall_b, wall_c)
-    # plot_prob_field(geometry, grid, wall_prob, "wall prob")
+    plot_prob_field(geometry, grid, wall_prob, "wall prob")
 
     # compute distance to exits: closer is better
     exit_distance = compute_exit_distance(geometry, grid)
     # plot_prob_field(geometry, grid, exit_distance, "exit distance")
     exit_prob = distance_to_prob_dec(exit_distance, 5, 0.5)
-    # plot_prob_field(geometry, grid, exit_prob, "exit prob")
+    plot_prob_field(geometry, grid, exit_prob, "exit prob")
 
     # compute distance to ground attraction points: closer is better
     attraction_ground_distance = compute_attraction_ground_distance(geometry, grid)
     # plot_prob_field(geometry, grid, attraction_ground_distance, "attraction ground distance")
     attraction_ground_prob = distance_to_prob_dec(attraction_ground_distance, 2, 0.5)
-    # plot_prob_field(geometry, grid, attraction_ground_prob, "attraction ground prob")
+    plot_prob_field(geometry, grid, attraction_ground_prob, "attraction ground prob")
 
     # compute distance to ground attraction points: closer is better
     attraction_mounted_distance = compute_attraction_mounted_distance(geometry, grid)
     # plot_prob_field(geometry, grid, attraction_mounted_distance, "attraction mounted distance")
     attraction_mounted_prob = distance_to_prob_dec(attraction_mounted_distance, 2, 0.1)
-    # plot_prob_field(geometry, grid, attraction_mounted_prob, "attraction_mounted_prob")
+    plot_prob_field(geometry, grid, attraction_mounted_prob, "attraction_mounted_prob")
 
     # sum everything up for static FF
-    static = 0.5 * door_prob + 1 * wall_prob + 1 * exit_prob + 1 * attraction_ground_prob + 1 * attraction_mounted_prob
+    static = w_door * door_prob \
+             + w_wall * wall_prob \
+             + w_exit * exit_prob \
+             + w_attraction_ground * attraction_ground_prob \
+             + w_attraction_mounted * attraction_mounted_prob
+
     plot_prob_field(geometry, grid, static, "static")
 
     return static
 
 
-def compute_dynamic_ff(geometry: Geometry, grid: Grid, ped: Pedestrian):
-    return np.zeros_like(grid.gridX)
+def compute_individual_ff(geometry: Geometry, grid: Grid, ped: Pedestrian):
+    ped_distance = compute_ped_distance(geometry, grid, ped)
+    plot_prob_field(geometry, grid, ped_distance, "ped distance")
+    ped_prob = distance_to_prob_inc(ped_distance, ped_b, ped_c)
+    plot_prob_field(geometry, grid, ped_prob, "ped prob")
+    return ped_prob
 
 
-def compute_filter_ff(geometry: Geometry, grid: Grid, ped: Pedestrian):
-    pedDistance = compute_ped_distance(geometry, grid, ped)
-    plot_prob_field(geometry, grid, pedDistance, "ped distance")
-    # plot_geometry_peds(geometry, grid, {0: geometry.peds[0]})
-    pedProb = distance_to_prob_inc(pedDistance, ped_b, ped_c)
-    plot_prob_field(geometry, grid, pedProb, "ped prob")
-    # pedProbNormalized = normalize(pedProb)
-    # plot_prob_field(geometry, grid, pedProbNormalized)
-    return pedProb
-
-
-def compute_overall_ff(geometry: Geometry, grid: Grid, staticFF, dynamicFF, filterFF):
-    combined = (staticFF + dynamicFF) * filterFF
-    # plot_prob_field(geometry, grid, staticFF)
-    # plot_prob_field(geometry, grid, dynamicFF)
-    # plot_prob_field(geometry, grid, filterFF)
+def compute_overall_ff(geometry: Geometry, grid: Grid, static_ff, individual_ff):
+    combined = static_ff * individual_ff
+    # plot_prob_field(geometry, grid, static_ff)
+    # plot_prob_field(geometry, grid, individual_ff)
     # plot_prob_field(geometry, grid, combined, "overall")
 
     return combined
@@ -223,7 +233,7 @@ def compute_voronoi_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian):
 
     for i in vor.point_region:
         region = vor.regions[i]
-        if not -1 in region:
+        if -1 not in region:
             polygon = [vor.vertices[i] for i in region]
             if len(polygon) > 0:
                 key = list(points.keys())[

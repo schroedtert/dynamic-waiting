@@ -7,17 +7,16 @@ from floorfield import *
 from plotting import *
 
 class CA:
-    staticFF = None
+    static_ff = None
 
     def __init__(self, geometry: Geometry, grid: Grid):
-        self.staticFF = compute_static_ff(geometry, grid)
+        self.static_ff = compute_static_ff(geometry, grid)
 
     def compute_step(self, geometry: Geometry, grid: Grid):
         next_step = {}
         for ped_id, ped in geometry.pedestrians.items():
-            dynamicFF = compute_dynamic_ff(geometry, grid, ped)
-            filterFF = compute_filter_ff(geometry, grid, ped)
-            combined = compute_overall_ff(geometry, grid, self.staticFF, dynamicFF, filterFF)
+            individual_ff = compute_individual_ff(geometry, grid, ped)
+            combined = compute_overall_ff(geometry, grid, self.static_ff, individual_ff)
 
             prob_neighbor = compute_prob_neighbors(geometry, grid, ped, combined)
             next_step[ped_id] = self.compute_next_step(prob_neighbor, geometry, grid, ped_id)
