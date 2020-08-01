@@ -25,7 +25,10 @@ def setup_argument_parser():
 
     # read general parameters
     parser.add_argument('--max_agents', help='max number of pedestrians', type=restricted_int, default=10)
-    parser.add_argument('--init_agents', help='max number of pedestrians', type=restricted_int, default=5)
+    parser.add_argument('--init_agents', help='number of pedestrians at start of simulation', type=restricted_int,
+                        default=5)
+    parser.add_argument('--standing_agents', help='number of pedestrian which will not move during simulation, '
+                                                  'only applies to init_agents', type=restricted_int, default=3)
 
     parser.add_argument('--steps', help='number of simulation steps', type=restricted_int, default=5)
     parser.add_argument('--file', help='geometry used for simulation', default='./geometries/simplified.xml')

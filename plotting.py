@@ -77,7 +77,11 @@ def plot_geometry_peds(geometry: Geometry, grid: Grid, peds: Dict[int, Pedestria
         x = grid.gridX[ped.i()][ped.j()]
         y = grid.gridY[ped.i()][ped.j()]
         point = sg.Point2(x, y)
-        draw(point, color='black')
+        if ped.standing:
+            draw(point, color='black')
+        else:
+            draw(point, color='green')
+
     plt.show()
 
 

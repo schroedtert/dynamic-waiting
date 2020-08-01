@@ -1,5 +1,4 @@
 import logging
-import random
 
 from simulation_parameters import SimulationParameters
 from CA import CA
@@ -9,6 +8,8 @@ from pedestrian import Pedestrian
 from plotting import *
 from trajectory import Trajectory
 from constants import *
+
+import random
 
 logfile = 'log.dat'
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -20,7 +21,7 @@ def init(file):
     return geometry, grid
 
 
-def create_peds(num_peds: int, geometry: Geometry, grid: Grid):
+def create_peds(num_peds: int, standing_peds: int, geometry: Geometry, grid: Grid):
     for index in range(num_peds):
         while True:
             i = random.randint(0, grid.gridX.shape[0] - 1)
@@ -35,8 +36,12 @@ def create_peds(num_peds: int, geometry: Geometry, grid: Grid):
 
             x, y = grid.get_coordinates(i, j)
             if not occupied and geometry.is_in_geometry(x, y):
-                geometry.pedestrians[index] = Pedestrian([i, j], Neighbors.left, index)
+                geometry.pedestrians[index] = Pedestrian([i, j], Neighbors.left, index, False)
                 break
+
+    keys = random.sample(list(geometry.pedestrians), standing_peds)
+    for key in keys:
+        geometry.pedestrians[key].standing = True
 
 
 def add_pedestrian(geometry: Geometry, grid: Grid):
@@ -57,7 +62,7 @@ def add_pedestrian(geometry: Geometry, grid: Grid):
     cell = random.choice(entrance_cells)
     max_id = max(geometry.pedestrians)
     id = max_id + 1
-    geometry.pedestrians[id] = Pedestrian([cell[0], cell[1]], Neighbors.left, id)
+    geometry.pedestrians[id] = Pedestrian([cell[0], cell[1]], Neighbors.left, id, False)
 
 
 def run_simulation(simulation_parameters: SimulationParameters):
@@ -65,7 +70,9 @@ def run_simulation(simulation_parameters: SimulationParameters):
     random.seed(simulation_parameters.seed)
 
     geometry, grid = init(file)
-    create_peds(simulation_parameters.init_agents, geometry, grid)
+    create_peds(simulation_parameters.init_agents,
+                simulation_parameters.standing_agents,
+                geometry, grid)
 
     ca = CA(simulation_parameters, geometry, grid)
     plot_geometry_peds(geometry, grid, geometry.pedestrians)

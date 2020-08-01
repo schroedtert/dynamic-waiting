@@ -6,6 +6,7 @@ class SimulationParameters:
     # general parameters
     max_agents: int
     init_agents: int
+    standing_agents: int
     steps: int
     seed: int
     file = ''
@@ -43,6 +44,7 @@ class SimulationParameters:
     def __init__(self, args):
         self.max_agents = args.max_agents
         self.init_agents = args.init_agents
+        self.standing_agents = args.standing_agents
         self.steps = args.steps
         self.seed = args.seed
         self.file = args.file

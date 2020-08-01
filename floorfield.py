@@ -91,7 +91,7 @@ def compute_individual_ff(geometry: Geometry, grid: Grid, ped: Pedestrian, simul
     else:
         ped_prob = np.ones_like(grid.gridX)
 
-    plot_prob_field(geometry, grid, ped_prob, "ped prob")
+    # plot_prob_field(geometry, grid, ped_prob, "ped prob")
     return ped_prob
 
 

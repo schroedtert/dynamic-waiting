@@ -19,11 +19,14 @@ class CA:
     def compute_step(self, geometry: Geometry, grid: Grid):
         next_step = {}
         for ped_id, ped in geometry.pedestrians.items():
-            individual_ff = compute_individual_ff(geometry, grid, ped, self.simulation_parameters)
-            combined = compute_overall_ff(geometry, grid, self.static_ff, individual_ff)
+            if ped.standing:
+                next_step[ped_id] = [Neighbors.self]
+            else:
+                individual_ff = compute_individual_ff(geometry, grid, ped, self.simulation_parameters)
+                combined = compute_overall_ff(geometry, grid, self.static_ff, individual_ff)
 
-            prob_neighbor = compute_prob_neighbors(geometry, grid, ped, combined)
-            next_step[ped_id] = self.compute_next_step(prob_neighbor, geometry, grid, ped_id)
+                prob_neighbor = compute_prob_neighbors(geometry, grid, ped, combined)
+                next_step[ped_id] = self.compute_next_step(prob_neighbor, geometry, grid, ped_id)
 
         self.apply_step(geometry, grid, next_step)
 

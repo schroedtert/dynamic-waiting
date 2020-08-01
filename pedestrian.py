@@ -8,6 +8,7 @@ class Pedestrian:
     pos: [int, int]
     direction: Neighbors
     id: int
+    standing: bool
 
     def i(self):
         return self.pos[0]
