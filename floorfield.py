@@ -69,13 +69,20 @@ def compute_static_ff(geometry: Geometry, grid: Grid):
     exit_distance = compute_exit_distance(geometry, grid)
     exit_prob = distance_to_prob_dec(exit_distance, 5, 0.5)
     # plot_prob_field(geometry, grid, exit_prob, "exit prob")
-    # compute distance to edges: further is better
-    # exit_prob = np.zeros_like(grid.gridX)
+
+    # compute distance to ground attraction points: closer is better
+    attraction_ground_distance = compute_attraction_ground_distance(geometry, grid)
+    attraction_ground_prob = distance_to_prob_dec(attraction_ground_distance, 2, 0.5)
+    # plot_prob_field(geometry, grid, attraction_ground_prob, "attraction ground prob")
+
+    # compute distance to ground attraction points: closer is better
+    attraction_mounted_distance = compute_attraction_mounted_distance(geometry, grid)
+    attraction_mounted_prob = distance_to_prob_dec(attraction_mounted_distance, 2, 0.1)
+    # plot_prob_field(geometry, grid, attraction_mounted_prob, "attraction_mounted_prob")
 
     # sum everything up for static FF
-    static = 0.5 * door_prob + 1 * wall_prob + 1 * exit_prob
-    # static = normalize(static)
-    # plot_prob_field(geometry, grid, static, "static")
+    static = 0.5 * door_prob + 1 * wall_prob + 1 * exit_prob + 1 * attraction_ground_prob + 1 * attraction_mounted_prob
+    plot_prob_field(geometry, grid, static, "static")
 
     return static
 
@@ -86,10 +93,10 @@ def compute_dynamic_ff(geometry: Geometry, grid: Grid, ped: Pedestrian):
 
 def compute_filter_ff(geometry: Geometry, grid: Grid, ped: Pedestrian):
     pedDistance = compute_ped_distance(geometry, grid, ped)
-    # plot_prob_field(geometry, grid, pedDistance)
+    plot_prob_field(geometry, grid, pedDistance, "ped distance")
     # plot_geometry_peds(geometry, grid, {0: geometry.peds[0]})
     pedProb = distance_to_prob_inc(pedDistance, ped_b, ped_c)
-    # plot_prob_field(geometry, grid, pedProb, "ped prob")
+    plot_prob_field(geometry, grid, pedProb, "ped prob")
     # pedProbNormalized = normalize(pedProb)
     # plot_prob_field(geometry, grid, pedProbNormalized)
     return pedProb
@@ -157,14 +164,15 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
             intersections.append(intersection)
             weighted_distance = grid.get_weighted_distance_cells(geometry, intersection, sg.Point2(x, y))
             # plot_prob_field(geometry, grid, weighted_distance, 'weight distance')
-            weighted_prob_neighbor = distance_to_prob_dec(weighted_distance, 5, 0.5)
+            weighted_prob_neighbor = distance_to_prob_dec(weighted_distance, 5, 0.25)
 
             weighted_prob_neighbor[np.isnan(weighted_prob_neighbor)] = 0
             # plot_prob_field(geometry, grid, weighted_prob_neighbor, 'weight distance')
 
             combination = weighted_prob_neighbor * floorfield
-            # plot_prob_field(geometry, grid, combination, 'weighted neighborhood')
             combination[np.isnan(combination)] = 0
+            plot_prob_field(geometry, grid, combination, 'weighted neighborhood')
+
             prob[key] = np.max(combination)
             weights = weights + combination
 

@@ -38,19 +38,33 @@
 		</exit>
 	</exits>
 
-	<obstacle id="0">
-		<polygon>
-			<vertex px="-1" py="-1"/>
-			<vertex px="1" py="-1"/>
-			<vertex px="1" py="1"/>
-			<vertex px="-1" py="1"/>
-		</polygon>
-	</obstacle>
+	<obstacles>
+		<obstacle id="0">
+			<polygon>
+				<vertex px="-1" py="-1"/>
+				<vertex px="1" py="-1"/>
+				<vertex px="1" py="1"/>
+				<vertex px="-1" py="1"/>
+			</polygon>
+		</obstacle>
+	</obstacles>
 
-	<source>
-		<vertex px="" py=""/>
-		<vertex px="" py=""/>
-		<vertex px="" py=""/>
-		<vertex px="" py=""/>
-	</source>
+	<attractions>
+		<attraction id="0" mounted="true" exit_id="0">
+			<polygon>
+				<vertex px="-0.25" py="-3.75"/>
+				<vertex px="0.25" py="-2.25"/>
+				<vertex px="0.25" py="-3.75"/>
+				<vertex px="-0.25" py="-2.25"/>
+			</polygon>
+		</attraction>
+		<attraction id="1" high="false">
+			<polygon>
+				<vertex px="-8" py="-0.25"/>
+				<vertex px="-7" py="-0.25"/>
+				<vertex px="-7" py="0.25"/>
+				<vertex px="-8" py="0.25"/>
+			</polygon>
+		</attraction>
+	</attractions>
 </geometry>

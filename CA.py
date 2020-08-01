@@ -14,7 +14,7 @@ class CA:
 
     def compute_step(self, geometry: Geometry, grid: Grid):
         next_step = {}
-        for ped_id, ped in geometry.peds.items():
+        for ped_id, ped in geometry.pedestrians.items():
             dynamicFF = compute_dynamic_ff(geometry, grid, ped)
             filterFF = compute_filter_ff(geometry, grid, ped)
             combined = compute_overall_ff(geometry, grid, self.staticFF, dynamicFF, filterFF)
@@ -37,5 +37,5 @@ class CA:
     def apply_step(geometry: Geometry, grid: Grid, next_step):
         # TODO collision detection
         for key, step in next_step.items():
-            neighbors = grid.get_neighbors(geometry, geometry.peds[key].pos)
-            geometry.peds[key].set_pos(neighbors[step[0]])
+            neighbors = grid.get_neighbors(geometry, geometry.pedestrians[key].pos)
+            geometry.pedestrians[key].set_pos(neighbors[step[0]])

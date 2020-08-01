@@ -9,16 +9,21 @@ from IO import read_geometry
 from pedestrian import Pedestrian
 from constants import *
 
+
 @dataclass
 class Geometry:
-    '''Class for managing the geometry.'''
+    """Class for managing the geometry."""
     walls: List[sg.Segment2]
     edges: List[sg.Segment2]
     floor: sg.PolygonWithHoles
     entrances: Dict[int, sg.Segment2]
     exits: Dict[int, sg.Segment2]
-    peds: Dict[int, Pedestrian]
-    boundingbox: sg.Bbox2
+    pedestrians: Dict[int, Pedestrian]
+    bounding_box: sg.Bbox2
+    obstacles: Dict[int, sg.Polygon]
+    attraction_mounted: Dict[int, sg.Polygon]
+    attraction_ground: Dict[int, sg.Polygon]
+
     arr: sg.arrangement.Arrangement
 
     # parameterized constructor
@@ -27,11 +32,13 @@ class Geometry:
         self.floor = None
         self.entrances = {}
         self.exits = {}
-        self.peds = {}
+        self.pedestrians = {}
         self.edges = []
         self.arr = sg.arrangement.Arrangement()
-
-        walls, obstacles, entrances, exits, edges = read_geometry(filename)
+        self.obstacles = {}
+        self.attraction_ground = {}
+        self.attraction_mounted = {}
+        walls, obstacles, entrances, exits, edges, attractions_mounted, attractions_ground = read_geometry(filename)
 
         points = []
         for wall in walls:
@@ -63,7 +70,9 @@ class Geometry:
             hole_points = []
             for point in obstacle:
                 hole_points.append(sg.Point2(point[0], point[1]))
-            holes.append(sg.Polygon(hole_points))
+            hole_poly = sg.Polygon(hole_points)
+            holes.append(hole_poly)
+            self.obstacles[key] = hole_poly
 
             for i in range(len(hole_points)):
                 p1 = hole_points[i]
@@ -71,10 +80,30 @@ class Geometry:
                 hole_wall = sg.Segment2(p1, p2)
                 self.arr.insert(hole_wall)
 
+        for key, attraction in attractions_ground.items():
+            hole_points = []
+            for point in attraction:
+                hole_points.append(sg.Point2(point[0], point[1]))
+            hole_poly = sg.Polygon(hole_points)
+            holes.append(hole_poly)
+            self.attraction_ground[key] = hole_poly
+
+            for i in range(len(hole_points)):
+                p1 = hole_points[i]
+                p2 = hole_points[(i + 1) % len(hole_points)]
+                hole_wall = sg.Segment2(p1, p2)
+                self.arr.insert(hole_wall)
+
+        for key, attraction in attractions_mounted.items():
+            hole_points = []
+            for point in attraction:
+                hole_points.append(sg.Point2(point[0], point[1]))
+            self.attraction_mounted[key] = sg.Polygon(hole_points)
+
         # create polygon
         poly = sg.Polygon(points)
         self.floor = sg.PolygonWithHoles(poly, holes)
-        self.boundingbox = poly.bbox()
+        self.bounding_box = poly.bbox()
 
         sg.draw.draw(self.floor)
         plt.show()
@@ -95,7 +124,7 @@ class Geometry:
         return False
 
     def get_bounding_box(self):
-        return self.boundingbox.xmin(), self.boundingbox.ymin(), self.boundingbox.xmax(), self.boundingbox.ymax()
+        return self.bounding_box.xmin(), self.bounding_box.ymin(), self.bounding_box.xmax(), self.bounding_box.ymax()
 
     def visible_area(self, x: float, y: float):
         vs = sg.RotationalSweepVisibility(self.arr)

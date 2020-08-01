@@ -59,7 +59,7 @@ class Grid:
         peds = np.zeros_like(self.gridX)
 
         pedPositions = []
-        for key, pped in geometry.peds.items():
+        for key, pped in geometry.pedestrians.items():
             if ped is not None and ped.id != pped.id:
                 x, y = self.get_coordinates(pped.i(), pped.j())
                 pedPositions.append(sg.Point2(x, y))
@@ -79,15 +79,7 @@ class Grid:
         walls = np.zeros_like(self.gridX)
         wallSegments = []
 
-        # for i in range(len(geometry.floor.outer_boundary().coords)):
-        #     next_coordinate = (i + 1) % len(geometry.floor.outer_boundary().coords)
-        #     p1 = sg.Point2(geometry.floor.outer_boundary().coords[i][0], geometry.floor.outer_boundary().coords[i][1])
-        #     p2 = sg.Point2(geometry.floor.outer_boundary().coords[next_coordinate][0],
-        #                    geometry.floor.outer_boundary().coords[next_coordinate][1])
-        #     wall = sg.Segment2(p1, p2)
-        #     wallSegments.append(wall)
-
-        for hole in geometry.floor.holes:
+        for hole in geometry.obstacles.values():
             for i in range(len(hole.coords)):
                 next_coordinate = (i + 1) % len(hole.coords)
                 p1 = sg.Point2(hole.coords[i][0],
@@ -154,6 +146,32 @@ class Grid:
                         exits[i][j] = 1
 
         return exits
+
+    def get_attraction_ground_cells(self, geometry: Geometry):
+        attraction_ground = np.zeros_like(self.gridX)
+
+        for i in range(self.dimX):
+            for j in range(self.dimY):
+                x, y = self.get_coordinates(i, j)
+                p = sg.Point2(x, y)
+                for hole in geometry.attraction_ground.values():
+                    if hole.oriented_side(p) != sg.Sign.NEGATIVE:
+                        attraction_ground[i][j] = 1
+
+        return attraction_ground
+
+    def get_attraction_mounted_cells(self, geometry: Geometry):
+        attraction_mounted = np.zeros_like(self.gridX)
+
+        for i in range(self.dimX):
+            for j in range(self.dimY):
+                x, y = self.get_coordinates(i, j)
+                p = sg.Point2(x, y)
+                for hole in geometry.attraction_mounted.values():
+                    if hole.oriented_side(p) != sg.Sign.NEGATIVE:
+                        attraction_mounted[i][j] = 1
+
+        return attraction_mounted
 
     def get_coordinates(self, i: int, j: int):
         if 0 <= i < self.dimX and 0 <= j < self.dimY:

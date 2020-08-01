@@ -11,7 +11,8 @@ def read_geometry(filename):
     entrances = read_entrances(root)
     exits = read_exits(root)
     edges = read_subroom_edges(root)
-    return walls, obstacles, entrances, exits, edges
+    attractions_mounted, attractions_ground = read_attractions(root)
+    return walls, obstacles, entrances, exits, edges, attractions_mounted, attractions_ground
 
 
 def read_entrances(root):
@@ -109,6 +110,29 @@ def read_subroom_walls(xml_doc):
         wall_segments.append([point1, point2])
 
     return wall_segments
+
+
+def read_attractions(xml_doc):
+    # Initialization of a dictionary with obstacles
+    attractions_mounted = {}
+    attractions_ground = {}
+
+    # read in obstacles and combine them into an array for polygon representation
+    for a_num, a_elem in enumerate(xml_doc.getElementsByTagName('attraction')):
+        attraction_id = a_elem.getAttribute('id')
+
+        points = []
+        for p_num, p_elem in enumerate(a_elem.getElementsByTagName('polygon')):
+            for v_num, v_elem in enumerate(p_elem.getElementsByTagName('vertex')):
+                vertex_x = MTOMM * float(p_elem.getElementsByTagName('vertex')[v_num].attributes['px'].value)
+                vertex_y = MTOMM * float(p_elem.getElementsByTagName('vertex')[v_num].attributes['py'].value)
+                points.append([vertex_x, vertex_y])
+
+        if (a_elem.getAttribute('mounted') == 'true'):
+            attractions_mounted[attraction_id] = points
+        else:
+            attractions_ground[attraction_id] = points
+    return attractions_mounted, attractions_ground
 
 
 def geo_limits(geo_xml):

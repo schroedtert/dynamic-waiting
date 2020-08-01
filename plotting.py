@@ -11,7 +11,7 @@ from trajectory import Trajectory
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
-
+from scipy import ndimage
 
 def plot_geometry(geometry: Geometry):
     plt.figure()
@@ -83,11 +83,12 @@ def plot_geometry_peds(geometry: Geometry, grid: Grid, peds: Dict[int, Pedestria
 def plot_prob_field(geometry: Geometry, grid: Grid, prob_field, title=""):
     plt.figure()
     plt.title(title)
-    plt.contourf(grid.gridX, grid.gridY, prob_field)
+    # plt.contourf(grid.gridX, grid.gridY, prob_field)
+    # plt.axis('equal')
+    # rotated_img = ndimage.rotate(prob_field, 90)
+    plt.imshow(prob_field, origin='upper')
     plt.colorbar()
-    plt.axis('equal')
 
-    # plt.imshow(probField, origin='lower')
     plt.show()
 
 
