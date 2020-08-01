@@ -38,19 +38,22 @@ def create_peds(num_peds: int, geometry: Geometry, grid: Grid):
                 break
 
 
-def run_simulation(file, num_peds=5, max_steps=50):
+def run_simulation(file, num_peds=5, max_steps=10):
     geometry, grid = init(file)
     create_peds(num_peds, geometry, grid)
 
     ca = CA(geometry, grid)
     plot_geometry_peds(geometry, grid, geometry.pedestrians)
-    traj = Trajectory()
+    traj = Trajectory(grid)
+
     for step in range(max_steps):
         print("========================= step {:2d} ======================================".format(step))
         ca.compute_step(geometry, grid)
-        # plot_geometry_peds(geometry, grid, geometry.peds)
+        plot_geometry_peds(geometry, grid, geometry.pedestrians)
         traj.add_step(step, grid, geometry.pedestrians)
 
+    print("========================= done ======================================")
+
     plot_trajectories(geometry, grid, traj, geometry.pedestrians)
-    # plot_geometry_peds(geometry, grid, geometry.peds)
-    print("========================= done ======================================".format(step))
+    plot_space_usage(geometry, grid, traj, max_steps)
+    # plot_geometry_peds(geometry, grid, geometry.pedestrians)

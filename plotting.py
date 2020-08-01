@@ -145,3 +145,16 @@ def plot_trajectories(geometry: Geometry, grid: Grid, trajectory: Trajectory, pe
     plt.axis('equal')
     plt.gca().set_adjustable("box")
     plt.show()
+
+
+def plot_space_usage(geometry: Geometry, grid: Grid, trajectory: Trajectory, num_steps: int):
+    plt.figure("Space usage")
+
+    space_usage = trajectory.space_usage / num_steps
+    outside = grid.get_outside_cells(geometry)
+    space_usage = np.ma.MaskedArray(space_usage, outside == 1)
+
+    plt.imshow(np.transpose(space_usage), origin='lower', cmap=cm.coolwarm)
+    plt.axis('equal')
+    plt.gca().set_adjustable("box")
+    plt.show()
