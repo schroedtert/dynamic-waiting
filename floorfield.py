@@ -57,26 +57,31 @@ def distance_to_prob_dec(distance_field, b, c):
 def compute_static_ff(geometry: Geometry, grid: Grid):
     # compute door probability: further is better
     door_distance = compute_entrance_distance(geometry, grid)
+    # plot_prob_field(geometry, grid, door_distance, "entrance distance")
     door_prob = distance_to_prob_inc(door_distance, door_b, door_c)
     # plot_prob_field(geometry, grid, door_prob, "entrance prob")
 
     # compute wall probability: closer is better
     wall_distance = compute_wall_distance(geometry, grid)
+    # plot_prob_field(geometry, grid, wall_distance, "wall distance")
     wall_prob = distance_to_prob_dec(wall_distance, wall_b, wall_c)
     # plot_prob_field(geometry, grid, wall_prob, "wall prob")
 
     # compute distance to exits: closer is better
     exit_distance = compute_exit_distance(geometry, grid)
+    # plot_prob_field(geometry, grid, exit_distance, "exit distance")
     exit_prob = distance_to_prob_dec(exit_distance, 5, 0.5)
     # plot_prob_field(geometry, grid, exit_prob, "exit prob")
 
     # compute distance to ground attraction points: closer is better
     attraction_ground_distance = compute_attraction_ground_distance(geometry, grid)
+    # plot_prob_field(geometry, grid, attraction_ground_distance, "attraction ground distance")
     attraction_ground_prob = distance_to_prob_dec(attraction_ground_distance, 2, 0.5)
     # plot_prob_field(geometry, grid, attraction_ground_prob, "attraction ground prob")
 
     # compute distance to ground attraction points: closer is better
     attraction_mounted_distance = compute_attraction_mounted_distance(geometry, grid)
+    # plot_prob_field(geometry, grid, attraction_mounted_distance, "attraction mounted distance")
     attraction_mounted_prob = distance_to_prob_dec(attraction_mounted_distance, 2, 0.1)
     # plot_prob_field(geometry, grid, attraction_mounted_prob, "attraction_mounted_prob")
 

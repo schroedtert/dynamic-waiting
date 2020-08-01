@@ -26,7 +26,20 @@ def compute_entrance_distance(geometry: Geometry, grid: Grid):
     outside = grid.get_outside_cells(geometry)
     mask = np.logical_and(outside == 1, entrances != 1)
 
-    return compute_distance_fmm(geometry, grid, entrances, mask)
+    speed = 0.5 * np.ones_like(grid.gridX)
+
+    for entrance in geometry.entrances.values():
+        y_min = entrance.bbox().ymin()
+        y_max = entrance.bbox().ymax()
+
+        x_min = entrance.bbox().xmin()
+
+        speed_mask_y = np.logical_and(grid.gridY >= y_min + 1000, grid.gridY <= y_max - 1000)
+        speed_mask_x = np.logical_and(grid.gridX >= x_min - 5000, grid.gridX <= x_min + 5000)
+        speed_mask = np.logical_and(speed_mask_x, speed_mask_y)
+        speed[speed_mask] = 5
+
+    return compute_distance_fmm(geometry, grid, entrances, mask, speed)
 
 
 def compute_exit_distance(geometry: Geometry, grid: Grid):
@@ -61,8 +74,6 @@ def compute_ped_distance(geometry: Geometry, grid: Grid, ped: Pedestrian = None)
     outside = grid.get_outside_cells(geometry)
     mask = outside == 1
 
-    plot_prob_field(geometry, grid, np.ma.MaskedArray(np.ones_like(grid.gridX), mask), "mask")
-
     return compute_distance_fmm(geometry, grid, peds, mask)
 
 
@@ -82,7 +93,12 @@ def compute_attraction_mounted_distance(geometry: Geometry, grid: Grid):
     mask = np.logical_and(outside == 1, attraction_mounted != 1)
 
     speed = 0.5 * np.ones_like(grid.gridX)
-    speed_mask = np.logical_and(grid.gridY >= -3750, grid.gridY <= -2250)
-    speed[speed_mask] = 2
+
+    for attraction in geometry.attraction_mounted.values():
+        y_min = attraction.bbox().ymin()
+        y_max = attraction.bbox().ymax()
+
+        speed_mask = np.logical_and(grid.gridY >= y_min, grid.gridY <= y_max)
+        speed[speed_mask] = 2
 
     return compute_distance_fmm(geometry, grid, attraction_mounted, mask, speed)
