@@ -28,6 +28,10 @@ class Grid:
     dimY: int
     cellsize: float
 
+    inside_cells: np.ndarray
+    outside_cells: np.ndarray
+    entrance_cells: np.ndarray
+
     def __init__(self, geometry: Geometry):
         minx, miny, maxx, maxy = geometry.get_bounding_box()
 
@@ -44,17 +48,20 @@ class Grid:
         self.dimY = dimY
         self.cellsize = CELLSIZE
 
-    def get_outside_cells(self, geometry: Geometry):
+        self.inside_cells = self.__get_inside_cells(geometry)
+        self.outside_cells = self.__get_outside_cells(geometry)
+        self.entrance_cells = self.__get_entrance_cells(geometry)
+
+    def __get_outside_cells(self, geometry: Geometry):
         outside = np.zeros_like(self.gridX)
         for i in range(self.dimX):
             for j in range(self.dimY):
-                x, y = self.get_coordinates(i, j)
-                if not geometry.is_in_geometry(x, y):
+                if self.inside_cells[i][j] == 0:
                     outside[i][j] = 1
 
         return outside
 
-    def get_inside_cells(self, geometry: Geometry):
+    def __get_inside_cells(self, geometry: Geometry):
         inside = np.zeros_like(self.gridX)
         for i in range(self.dimX):
             for j in range(self.dimY):
@@ -62,7 +69,7 @@ class Grid:
                 if geometry.is_in_geometry(x, y):
                     inside[i][j] = 1
 
-        inside = inside + self.get_entrance_cells(geometry)
+        inside = inside + self.__get_entrance_cells(geometry)
         return inside
 
     def get_ped_cells(self, geometry: Geometry, ped: Pedestrian = None):
@@ -107,7 +114,7 @@ class Grid:
                     if sg.squared_distance(wall, p) < THRESHOLD ** 2:
                         walls[i][j] = 1
 
-        return walls - self.get_entrance_cells(geometry)
+        return walls - self.__get_entrance_cells(geometry)
 
     def get_edge_cells(self, geometry: Geometry):
         edges = np.zeros_like(self.gridX)
@@ -121,19 +128,7 @@ class Grid:
 
         return edges
 
-    def get_danger_cells(self, geometry: Geometry):
-        edges = np.zeros_like(self.gridX)
-        for i in range(self.dimX):
-            for j in range(self.dimY):
-                for edge in geometry.edges:
-                    x, y = self.get_coordinates(i, j)
-                    p = sg.Point2(x, y)
-                    if sg.squared_distance(edge, p) < 1:
-                        edges[i][j] = 1
-
-        return edges
-
-    def get_entrance_cells(self, geometry: Geometry):
+    def __get_entrance_cells(self, geometry: Geometry):
         entrances = np.zeros_like(self.gridX)
         for i in range(self.dimX):
             for j in range(self.dimY):
@@ -203,36 +198,25 @@ class Grid:
         possibleNeigbors[Neighbors.right] = [i + 1, j]
         possibleNeigbors[Neighbors.bottom] = [i, j - 1]
 
-        entrance = self.get_entrance_cells(geometry)
+        entrance = self.entrance_cells
 
         for key, posNeighbor in possibleNeigbors.items():
-            x, y = self.get_coordinates(posNeighbor[0], posNeighbor[1])
-            if geometry.is_in_geometry(x, y) or entrance[posNeighbor[0]][posNeighbor[1]] == 1:
+            if self.inside_cells[posNeighbor[0], posNeighbor[1]] == 1 or entrance[posNeighbor[0]][posNeighbor[1]] == 1:
                 neighbors[key] = posNeighbor
 
         # not shuffling significantly alters the simulation...
         return neighbors
 
-    def get_inside_polygon_cells(self, polygon: sg.Polygon):
-        inside = np.zeros_like(self.gridX)
-        for i in range(self.dimX):
-            for j in range(self.dimY):
-                x, y = self.get_coordinates(i, j)
-                if polygon.oriented_side(sg.Point2(x, y)) == sg.Sign.NEGATIVE:
-                    inside[i][j] = 1
-
-        return inside
-
-    def get_weighted_distance_cells(self, geometry: Geometry, polygon: sg.Polygon, point: sg.Point2):
-        inside = self.get_inside_cells(geometry)
+    def get_inside_polygon_cells(self, geometry: Geometry, polygon: sg.Polygon, point: sg.Point2):
+        inside = np.copy(self.inside_cells)
         for i in range(self.dimX):
             for j in range(self.dimY):
                 x, y = self.get_coordinates(i, j)
                 p = sg.Point2(x, y)
                 if polygon.oriented_side(p) == sg.Sign.NEGATIVE:
-                    inside[i][j] = np.sqrt(sg.squared_distance(p, point))
+                    inside[i][j] = 1
                 else:
-                    inside[i][j] = np.nan
+                    inside[i][j] = 0
         return inside
 
     def get_nearby_cells(self, geometry: Geometry, cell: [int, int], cutoff: float):

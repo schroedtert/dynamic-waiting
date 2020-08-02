@@ -155,7 +155,7 @@ def plot_space_usage(geometry: Geometry, grid: Grid, trajectory: Trajectory, num
     plt.figure("Space usage")
 
     space_usage = trajectory.space_usage / num_steps
-    outside = grid.get_outside_cells(geometry)
+    outside = grid.outside_cells
     space_usage = np.ma.MaskedArray(space_usage, outside == 1)
 
     plt.imshow(np.transpose(space_usage), origin='lower', cmap=cm.coolwarm)

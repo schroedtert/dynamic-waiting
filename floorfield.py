@@ -121,20 +121,26 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
 
     intersections = []
     weights = np.zeros_like(grid.gridX)
+
+    weight_distance = compute_point_distance(geometry, grid, [ped.i(), ped.j()])
+    weight_prob = distance_to_prob_dec(weight_distance, 5, 0.25)
+
+    weighted_floorfield = weight_prob * floorfield
+
     # sum up every cell in neighbor polygon to neighbor cell
     # sum is weighted by distance, closer = more important
     for key, polygon in neighbor_voronoi_polygons.items():
         if key == Neighbors.self:
             # all cells within a 2m? range
-            distance = 500
-            nearby = grid.get_nearby_cells(geometry, [ped.i(), ped.j()], distance)
+            # distance = 500
+            # nearby = grid.get_nearby_cells(geometry, [ped.i(), ped.j()], distance)
 
             # a = grid.get_weighted_distance_cells(geometry, floorfield, sg.Point2(x, y))
             # plot_prob_field(geometry, grid, nearby*grid.get_inside_cells(geometry))
-            foo = nearby * floorfield
+            # foo = nearby * floorfield
             # plot_prob_field(geometry, grid, foo)
-            prob[key] = np.max(foo)
-            # asd = 1
+            # prob[key] = np.max(foo)
+            prob[key] = floorfield.filled(0)[ped.i()][ped.j()]
 
         elif polygon is not None:
             points = []
@@ -154,23 +160,11 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
 
             intersection = sg.Polygon(points)
             intersections.append(intersection)
-            weighted_distance = grid.get_weighted_distance_cells(geometry, intersection, sg.Point2(x, y))
-            # plot_prob_field(geometry, grid, weighted_distance, 'weight distance')
-            weighted_prob_neighbor = distance_to_prob_dec(weighted_distance, 5, 0.25)
 
-            weighted_prob_neighbor[np.isnan(weighted_prob_neighbor)] = 0
-            # plot_prob_field(geometry, grid, weighted_prob_neighbor, 'weight distance')
+            inside_cells = grid.get_inside_polygon_cells(geometry, intersection, sg.Point2(x, y))
+            combination = inside_cells * weighted_floorfield
+            prob[key] = np.ma.max(combination, fill_value=0)
 
-            combination = weighted_prob_neighbor * floorfield
-            combination[np.isnan(combination)] = 0
-            # plot_prob_field(geometry, grid, combination, 'weighted neighborhood')
-
-            prob[key] = np.max(combination)
-            weights = weights + combination
-
-    # plot_prob_field(geometry, grid, weights, 'weight distance')
-    #
-    #
     # for intersection in intersections:
     #     sg.draw.draw(intersection)
     # sg.draw.draw(geometry.floor, alpha=0.2)

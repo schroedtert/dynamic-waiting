@@ -26,16 +26,14 @@ def create_peds(num_peds: int, standing_peds: int, geometry: Geometry, grid: Gri
         while True:
             i = random.randint(0, grid.gridX.shape[0] - 1)
             j = random.randint(0, grid.gridY.shape[1] - 1)
-            # i = 11
-            # j = 2
+
             occupied = False
-            for id, ped in geometry.pedestrians.items():
+            for ped in geometry.pedestrians.values():
                 if ped.i() == i and ped.j() == j:
                     occupied = True
                     break
 
-            x, y = grid.get_coordinates(i, j)
-            if not occupied and geometry.is_in_geometry(x, y):
+            if not occupied and grid.inside_cells[i][j] == 1:
                 geometry.pedestrians[index] = Pedestrian([i, j], Neighbors.left, index, False)
                 break
 
@@ -45,7 +43,7 @@ def create_peds(num_peds: int, standing_peds: int, geometry: Geometry, grid: Gri
 
 
 def add_pedestrian(geometry: Geometry, grid: Grid):
-    entrances = grid.get_entrance_cells(geometry)
+    entrances = grid.entrance_cells
     entrance_cells = np.transpose(np.where(entrances == 1))
 
     ped_cells = np.zeros(shape=(len(geometry.pedestrians.items()) + 1, 2))

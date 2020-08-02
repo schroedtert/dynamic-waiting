@@ -8,7 +8,7 @@ from plotting import *
 
 
 def compute_distance_fmm(geometry: Geometry, grid: Grid, start, mask, speed=None):
-    inside = grid.get_inside_cells(geometry)
+    inside = grid.inside_cells
 
     phi = inside - start
     phi = np.ma.MaskedArray(phi, mask)
@@ -21,9 +21,9 @@ def compute_distance_fmm(geometry: Geometry, grid: Grid, start, mask, speed=None
 
 
 def compute_entrance_distance(geometry: Geometry, grid: Grid):
-    entrances = grid.get_entrance_cells(geometry)
+    entrances = grid.entrance_cells
 
-    outside = grid.get_outside_cells(geometry)
+    outside = grid.outside_cells
     mask = np.logical_and(outside == 1, entrances != 1)
 
     speed = 0.5 * np.ones_like(grid.gridX)
@@ -41,14 +41,13 @@ def compute_entrance_distance(geometry: Geometry, grid: Grid):
 
     return compute_distance_fmm(geometry, grid, entrances, mask, speed)
 
-
 def compute_exit_distance(geometry: Geometry, grid: Grid):
     exits = grid.get_exit_cells(geometry)
     wall = grid.get_wall_cells(geometry)
 
     exits[wall == 1] = 0
 
-    outside = grid.get_outside_cells(geometry)
+    outside = grid.outside_cells
     mask = np.logical_and(outside == 1, exits != 1)
 
     return compute_distance_fmm(geometry, grid, exits, mask)
@@ -56,13 +55,13 @@ def compute_exit_distance(geometry: Geometry, grid: Grid):
 
 def compute_wall_distance(geometry: Geometry, grid: Grid):
     wall = grid.get_wall_cells(geometry)
-    entrances = grid.get_entrance_cells(geometry)
+    entrances = grid.entrance_cells
     edges = grid.get_edge_cells(geometry)
 
     wall[edges == 1] = 0
     wall[entrances == 1] = 0
 
-    outside = grid.get_outside_cells(geometry)
+    outside = grid.outside_cells
     mask = np.logical_and(outside == 1, wall != 1)
 
     return compute_distance_fmm(geometry, grid, wall, mask)
@@ -71,7 +70,7 @@ def compute_wall_distance(geometry: Geometry, grid: Grid):
 def compute_ped_distance(geometry: Geometry, grid: Grid, ped: Pedestrian = None):
     peds = grid.get_ped_cells(geometry, ped)
 
-    outside = grid.get_outside_cells(geometry)
+    outside = grid.outside_cells
     mask = outside == 1
 
     return compute_distance_fmm(geometry, grid, peds, mask)
@@ -80,7 +79,7 @@ def compute_ped_distance(geometry: Geometry, grid: Grid, ped: Pedestrian = None)
 def compute_attraction_ground_distance(geometry: Geometry, grid: Grid):
     attraction_ground = grid.get_attraction_ground_cells(geometry)
 
-    outside = grid.get_outside_cells(geometry)
+    outside = grid.outside_cells
     mask = np.logical_and(outside == 1, attraction_ground != 1)
 
     return compute_distance_fmm(geometry, grid, attraction_ground, mask)
@@ -89,7 +88,7 @@ def compute_attraction_ground_distance(geometry: Geometry, grid: Grid):
 def compute_attraction_mounted_distance(geometry: Geometry, grid: Grid):
     attraction_mounted = grid.get_attraction_mounted_cells(geometry)
 
-    outside = grid.get_outside_cells(geometry)
+    outside = grid.outside_cells
     mask = np.logical_and(outside == 1, attraction_mounted != 1)
 
     speed = 0.5 * np.ones_like(grid.gridX)
@@ -102,3 +101,14 @@ def compute_attraction_mounted_distance(geometry: Geometry, grid: Grid):
         speed[speed_mask] = 2
 
     return compute_distance_fmm(geometry, grid, attraction_mounted, mask, speed)
+
+
+def compute_point_distance(geometry: Geometry, grid: Grid, cell: [int, int]):
+    start = np.zeros_like(grid.gridX)
+    start[cell[0], cell[1]] = 1
+
+    entrances = grid.entrance_cells
+    outside = grid.outside_cells
+    mask = np.logical_and(outside == 1, entrances != 1)
+
+    return compute_distance_fmm(geometry, grid, start, mask)
