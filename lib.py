@@ -80,11 +80,11 @@ def run_simulation(simulation_parameters: SimulationParameters):
 
     for step in range(simulation_parameters.steps):
         print("========================= step {:2d} ======================================".format(step))
-        if len(geometry.pedestrians.values()) < simulation_parameters.max_agents:
+        if len(geometry.pedestrians.values()) < simulation_parameters.max_agents and step % 10 == 0:
             add_pedestrian(geometry, grid)
 
         ca.compute_step(geometry, grid)
-        plot_geometry_peds(geometry, grid, geometry.pedestrians)
+        # plot_geometry_peds(geometry, grid, geometry.pedestrians)
         traj.add_step(step, grid, geometry.pedestrians)
 
     print("========================= done ======================================")

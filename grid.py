@@ -7,7 +7,16 @@ import skgeom as sg
 from geometry import Geometry
 from constants import *
 from pedestrian import Pedestrian
+
 moore = False
+
+
+def cell_is_occupied(geometry: Geometry, cell: [int, int]):
+    for ped in geometry.pedestrians.values():
+        if cell[0] == ped.i() and cell[1] == ped.j():
+            return True
+
+    return False
 
 
 @dataclass
@@ -53,6 +62,7 @@ class Grid:
                 if geometry.is_in_geometry(x, y):
                     inside[i][j] = 1
 
+        inside = inside + self.get_entrance_cells(geometry)
         return inside
 
     def get_ped_cells(self, geometry: Geometry, ped: Pedestrian = None):
@@ -193,9 +203,11 @@ class Grid:
         possibleNeigbors[Neighbors.right] = [i + 1, j]
         possibleNeigbors[Neighbors.bottom] = [i, j - 1]
 
+        entrance = self.get_entrance_cells(geometry)
+
         for key, posNeighbor in possibleNeigbors.items():
             x, y = self.get_coordinates(posNeighbor[0], posNeighbor[1])
-            if geometry.is_in_geometry(x, y):
+            if geometry.is_in_geometry(x, y) or entrance[posNeighbor[0]][posNeighbor[1]] == 1:
                 neighbors[key] = posNeighbor
 
         # not shuffling significantly alters the simulation...
@@ -236,3 +248,4 @@ class Grid:
                     nearby[i][j] = 1
 
         return nearby
+

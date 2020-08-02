@@ -177,12 +177,12 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
     # plt.show()
 
     # weight cells by moving direction
-    # weights = {}
-    # for key, p in prob.items():
-    #     weights[key] = weighted_neighbors[ped.direction][key]
-    # weights = normalize_dict(weights)
-    # for key, p in prob.items():
-    #     prob[key] = p * weights[key]
+    weights = {}
+    for key, p in prob.items():
+        weights[key] = weighted_neighbors[ped.direction][key]
+    weights = normalize_dict(weights)
+    for key, p in prob.items():
+        prob[key] = p * weights[key]
 
     prob = normalize_dict(prob)
     return prob
