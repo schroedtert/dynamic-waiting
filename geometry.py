@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from dataclasses import dataclass
-from typing import Dict, List, Final
+from typing import Dict, List
 
 import skgeom as sg
 from matplotlib import pyplot as plt

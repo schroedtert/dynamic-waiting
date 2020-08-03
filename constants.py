@@ -1,9 +1,8 @@
-from typing import Final
 from enum import Enum
 
-MTOMM: Final = 1000
-CELLSIZE: Final = 0.5 * MTOMM
-THRESHOLD: Final = 0.5 * CELLSIZE
+MTOMM = 1000
+CELLSIZE = 0.5 * MTOMM
+THRESHOLD = 0.5 * CELLSIZE
 
 
 class Neighbors(Enum):
@@ -22,7 +21,7 @@ class Direction(Enum):
     back = 4
 
 
-weighted_direction: Final = {
+weighted_direction = {
     Direction.stay: 0.2,
     Direction.left: 0.15,
     Direction.forward: 0.45,
@@ -30,7 +29,7 @@ weighted_direction: Final = {
     Direction.back: 0.05
 }
 
-weighted_neighbors: Final = {
+weighted_neighbors = {
     Neighbors.self: {Neighbors.self: 0.4,
                      Neighbors.left: 0.15,
                      Neighbors.top: 0.15,
