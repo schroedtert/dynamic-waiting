@@ -12,6 +12,7 @@ def compute_distance_fmm(geometry: Geometry, grid: Grid, start, mask, speed=None
 
     phi = inside - start
     phi = np.ma.MaskedArray(phi, mask)
+
     if speed is None:
         distance = skfmm.distance(phi, dx=grid.cellsize)
     else:
@@ -41,6 +42,7 @@ def compute_entrance_distance(geometry: Geometry, grid: Grid):
 
     return compute_distance_fmm(geometry, grid, entrances, mask, speed)
 
+
 def compute_exit_distance(geometry: Geometry, grid: Grid):
     exits = grid.get_exit_cells(geometry)
     wall = grid.get_wall_cells(geometry)
@@ -50,7 +52,8 @@ def compute_exit_distance(geometry: Geometry, grid: Grid):
     outside = grid.outside_cells
     mask = np.logical_and(outside == 1, exits != 1)
 
-    return compute_distance_fmm(geometry, grid, exits, mask)
+    mask_inside = grid.inside_cells == 0
+    return np.ma.MaskedArray(compute_distance_fmm(geometry, grid, exits, mask), mask_inside)
 
 
 def compute_wall_distance(geometry: Geometry, grid: Grid):

@@ -38,7 +38,7 @@ def setup_argument_parser():
     parser.add_argument('--standing_agents', help='number of pedestrian which will not move during simulation, '
                                                   'only applies to init_agents', type=restricted_int, default=0)
 
-    parser.add_argument('--steps', help='number of simulation steps', type=restricted_int, default=5)
+    parser.add_argument('--steps', help='number of simulation steps', type=restricted_int, default=10)
     # parser.add_argument('--file', help='geometry used for simulation', default='./geometries/simplified.xml')
     parser.add_argument('--file', help='geometry used for simulation', default='./geometries/platform.xml')
 
@@ -48,10 +48,8 @@ def setup_argument_parser():
     parser.add_argument('--w_door', help='weight of door potential (default 1)', type=restricted_float, default=0)
     parser.add_argument('--w_exit', help='weight of exit potential (default 1)', type=restricted_float, default=3)
     parser.add_argument('--w_wall', help='weight of wall potential (default 1)', type=restricted_float, default=10)
-    parser.add_argument('--w_att_ground', help='weight of ground attraction potential (default 1)',
+    parser.add_argument('--w_attraction', help='weight of attraction potential (default 1)',
                         type=restricted_float, default=10)
-    parser.add_argument('--w_att_mounted', help='weight of mounted attraction potential (default 1)',
-                        type=restricted_float, default=1)
 
     # read sigmoid parameters
     parser.add_argument('--door_b', help='sigmoid parameter for door b (default 1)', type=restricted_float, default=1)

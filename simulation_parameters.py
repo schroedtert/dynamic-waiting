@@ -39,8 +39,7 @@ class SimulationParameters:
     # weights
     w_door: float = 1
     w_exit: float = 1
-    w_attraction_ground: float = 1
-    w_attraction_mounted: float = 1
+    w_attraction: float = 1
     w_wall: float = 1
 
     plot: bool = False
@@ -58,8 +57,7 @@ class SimulationParameters:
         self.w_door = args.w_door
         self.w_exit = args.w_exit
         self.w_wall = args.w_wall
-        self.w_attraction_ground = args.w_att_ground
-        self.w_attraction_mounted = args.w_att_mounted
+        self.w_attraction = args.w_attraction
 
         self.door_b = args.door_b
         self.door_c = args.door_c
@@ -90,8 +88,7 @@ class SimulationParameters:
                            'standing_agents': [self.standing_agents],
                            'w_exit': [self.w_exit],
                            'w_wall': [self.w_wall],
-                           'w_att_ground': [self.w_attraction_ground],
-                           'w_att_mounted': [self.w_attraction_mounted],
+                           'w_attraction': [self.w_attraction],
                            'exit_b': [self.exit_b],
                            'exit_c': [self.exit_c],
                            'wall_b': [self.wall_b],

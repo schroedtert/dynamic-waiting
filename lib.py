@@ -71,15 +71,21 @@ def run_simulation(simulation_parameters: SimulationParameters):
     random.seed(simulation_parameters.seed)
 
     geometry, grid = init(file)
+
     create_peds(simulation_parameters.init_agents,
                 simulation_parameters.standing_agents,
                 geometry, grid)
 
-    ca = CA(simulation_parameters, geometry, grid)
-    traj = Trajectory(grid, simulation_parameters.steps)
-
     if simulation_parameters.plot:
         plot_geometry_peds(geometry, grid, geometry.pedestrians)
+
+    ca = CA(simulation_parameters, geometry, grid)
+
+    # Save simulation parameters and static ff
+    ca.save(simulation_parameters.output_path)
+    simulation_parameters.write_to_file(simulation_parameters.output_path)
+
+    traj = Trajectory(grid, simulation_parameters.steps)
 
     for step in range(simulation_parameters.steps):
         print("========================= step {:2d} ======================================".format(step))
@@ -98,5 +104,3 @@ def run_simulation(simulation_parameters: SimulationParameters):
         plot_space_usage(geometry, grid, traj, simulation_parameters.steps)
 
     traj.save(simulation_parameters.output_path)
-    ca.save(simulation_parameters.output_path)
-    simulation_parameters.write_to_file(simulation_parameters.output_path)

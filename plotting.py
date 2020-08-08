@@ -14,6 +14,9 @@ from matplotlib.ticker import LinearLocator, FormatStrFormatter
 from scipy import ndimage
 import numpy as np
 
+from constants import MTOMM
+
+
 def plot_geometry(geometry: Geometry):
     plt.figure()
     for key, polygon in geometry.bounds.items():
@@ -32,67 +35,49 @@ def plot_geometry(geometry: Geometry):
     plt.show()
 
 
-def plot_geometry_grid(geometry: Geometry, grid: Grid):
-    plt.figure()
-    for key, polygon in geometry.bounds.items():
-        x, y = polygon.exterior.xy
-        plt.plot(x, y, color='black')
-
-    for key, obstacle in geometry.obstacles.items():
-        x, y = obstacle.exterior.xy
-        plt.fill(x, y, alpha=0.1, fc='gray', ec='none')
-        plt.plot(x, y, color='gray')
+def plot_geometry_peds(geometry: Geometry, grid: Grid, peds: Dict[int, Pedestrian], highlight=None):
+    draw(geometry.floor, alpha=0.5)
 
     for key, door in geometry.entrances.items():
-        x, y = door.coords.xy
-        plt.plot(x, y, color='red')
-
-    for i in range(grid.gridX.shape[0]):
-        x = [grid.gridX[i][0], grid.gridX[i][-1]]
-        y = [grid.gridY[i], grid.gridY[i]]
-        plt.plot(x, y, color='gray', alpha=0.1)
-
-    for i in range(grid.dimX):
-        for j in range(grid.dimY):
-            x, y = grid.get_coordinates(i, j)
-            cellsize = grid.cellsize
-            rect = plt.Rectangle((x - 0.5 * cellsize, y - 0.5 * cellsize), cellsize, cellsize, fill=False)
-            ax = plt.gca()
-            ax.add_patch(rect)
-
-    plt.show()
-
-
-def plot_geometry_peds(geometry: Geometry, grid: Grid, peds: Dict[int, Pedestrian]):
-    # draw(geometry.floor)
-    draw(geometry.floor, alpha=0.1)
-
-    for key, door in geometry.entrances.items():
-        draw(door, color='red', alpha=0.5)
+        draw(door, color='red', visible_point=False)
 
     for key, door in geometry.exits.items():
-        draw(door, color='blue', alpha=0.5)
+        draw(door, color='blue', visible_point=False)
 
     for key, ped in peds.items():
         x = grid.gridX[ped.i()][ped.j()]
         y = grid.gridY[ped.i()][ped.j()]
         point = sg.Point2(x, y)
-        if ped.standing:
+
+        if ped == highlight:
+            draw(point, color='red')
+        elif not ped.standing:
             draw(point, color='black')
         else:
             draw(point, color='green')
 
+
+
     plt.show()
 
 
-def plot_prob_field(geometry: Geometry, grid: Grid, prob_field, title=""):
+def plot_prob_field(geometry: Geometry, grid: Grid, prob_field, title="", ped=None, vmin=None, vmax=None):
     plt.figure()
     plt.title(title)
+
     # plt.contourf(grid.gridX, grid.gridY, prob_field)
-    # plt.axis('equal')
-    # rotated_img = ndimage.rotate(prob_field, 90)
-    plt.imshow(np.transpose(prob_field), origin='lower', cmap=cm.coolwarm)
-    plt.colorbar()
+    if not ped == None:
+        x = grid.gridX[ped.i()][ped.j()]
+        y = grid.gridY[ped.i()][ped.j()]
+        # plt.scatter(x, y, color='black')
+
+    plt.pcolor(grid.gridX / MTOMM, grid.gridY / MTOMM, prob_field, cmap=cm.coolwarm)
+
+    plt.axis('equal')
+    plt.xlabel('x/m')
+    plt.ylabel('y/m')
+    plt.gca().set_adjustable("box")
+    plt.colorbar(orientation="horizontal")
 
     plt.show()
 
@@ -107,18 +92,6 @@ def plot_voronoi_peds(geometry, grid, peds):
         vdiag.insert(point)
         plt.scatter(x, y)
 
-    # print(vdiag)
-    # print(vdiag.sites)
-    # for vertix in vdiag.vertices:
-    #     print(vertix)
-    #     draw(vertix)
-
-    # source, target = he.source(), he.target()
-    # if source and target:
-    #     plt.plot([source.point().x(), target.point().x()], [source.point().y(), target.point().y()])
-
-    # plt.scatter(npoints[:, 0], npoints[:, 1])
-
     plt.axis('equal')
     plt.gca().set_adjustable("box")
 
@@ -130,11 +103,11 @@ def plot_voronoi_peds(geometry, grid, peds):
 def plot_trajectories(geometry: Geometry, grid: Grid, trajectory: Trajectory, peds: Dict[int, Pedestrian]):
     plt.figure()
 
-    for key, ped in peds.items():
-        x = grid.gridX[ped.i()][ped.j()]
-        y = grid.gridY[ped.i()][ped.j()]
-        point = sg.Point2(x, y)
-        draw(point, color='black')
+    # for key, ped in peds.items():
+    #     x = grid.gridX[ped.i()][ped.j()]
+    #     y = grid.gridY[ped.i()][ped.j()]
+    #     point = sg.Point2(x, y)
+    #     draw(point, color='black')
 
     # plot trajectories
     for ped_id in trajectory.traj.id.unique():
@@ -154,11 +127,27 @@ def plot_trajectories(geometry: Geometry, grid: Grid, trajectory: Trajectory, pe
 def plot_space_usage(geometry: Geometry, grid: Grid, trajectory: Trajectory, num_steps: int):
     plt.figure("Space usage")
 
-    space_usage = trajectory.space_usage / num_steps
+    space_usage = trajectory.space_usage[num_steps - 1] / num_steps
     outside = grid.outside_cells
     space_usage = np.ma.MaskedArray(space_usage, outside == 1)
 
-    plt.imshow(np.transpose(space_usage), origin='lower', cmap=cm.coolwarm)
+    plt.pcolor(grid.gridX / MTOMM, grid.gridY / MTOMM, space_usage, cmap=cm.coolwarm)
+
     plt.axis('equal')
     plt.gca().set_adjustable("box")
+    plt.colorbar()
+
+    plt.show()
+
+
+def plot_voronoi_neighbors(geometry: Geometry, grid: Grid, voronoi_regions):
+    cmap = plt.cm.get_cmap('tab10')
+
+    plt.figure()
+    colorValue = 0
+    for voronoi_region in voronoi_regions:
+        sg.draw.draw(voronoi_region, facecolor=cmap(colorValue))
+        colorValue = colorValue + 0.1
+    draw(geometry.floor, alpha=0.1)
+
     plt.show()

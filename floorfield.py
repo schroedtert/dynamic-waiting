@@ -70,14 +70,13 @@ def compute_static_ff(geometry: Geometry, grid: Grid, simulation_parameters: Sim
                                                    simulation_parameters.attraction_mounted_b,
                                                    simulation_parameters.attraction_mounted_c)
 
-    # plot_prob_field(geometry, grid, attraction_mounted_prob, "attraction_mounted_prob")
+    attraction = np.maximum(attraction_ground_prob, attraction_mounted_prob)
 
     # sum everything up for static FF
     static = simulation_parameters.w_door * door_prob \
              + simulation_parameters.w_wall * wall_prob \
              + simulation_parameters.w_exit * exit_prob \
-             + simulation_parameters.w_attraction_ground * attraction_ground_prob \
-             + simulation_parameters.w_attraction_mounted * attraction_mounted_prob
+             + simulation_parameters.w_attraction * attraction
 
     if simulation_parameters.plot:
         plot_prob_field(geometry, grid, static, "static")
