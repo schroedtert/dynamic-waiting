@@ -1,8 +1,8 @@
 import numpy as np
-
+import os
 from xml.dom.minidom import parse
 from constants import *
-
+from CA import *
 
 def read_geometry(filename):
     root = parse(filename)
@@ -152,3 +152,19 @@ def geo_limits(geo_xml):
     geominY = np.min(Ymin)
     geomaxY = np.max(Ymax)
     return geominX, geomaxX, geominY, geomaxY
+
+
+def create_output_directory(output_path):
+    print(os.getcwd())
+    try:
+        # Create target Directory
+        os.makedirs(output_path)
+        print("Directory ", output_path, " Created ")
+    except FileExistsError:
+        print("Directory '{}' already exists".format(output_path))
+        # exit("Directory '{}' already exists".format(output_path))
+
+
+def save_floor_field(floor_field, output_path, filename):
+    ff_filename = os.path.join(output_path, filename)
+    np.savetxt(ff_filename, floor_field)

@@ -69,6 +69,7 @@ def compute_static_ff(geometry: Geometry, grid: Grid, simulation_parameters: Sim
     attraction_mounted_prob = distance_to_prob_dec(attraction_mounted_distance,
                                                    simulation_parameters.attraction_mounted_b,
                                                    simulation_parameters.attraction_mounted_c)
+
     # plot_prob_field(geometry, grid, attraction_mounted_prob, "attraction_mounted_prob")
 
     # sum everything up for static FF

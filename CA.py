@@ -2,7 +2,7 @@ from numpy.random import choice
 
 from floorfield import *
 from plotting import *
-
+from IO import save_floor_field
 
 class CA:
     static_ff = None
@@ -83,3 +83,6 @@ class CA:
             conflicts.append(indices)
 
         return conflicts
+
+    def save(self, output_path):
+        save_floor_field(self.static_ff, output_path, 'static_ff.txt')

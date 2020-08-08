@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+import pandas as pd
+import os
 
 
 @dataclass
@@ -43,6 +45,8 @@ class SimulationParameters:
 
     plot: bool = False
 
+    output_path = 'results'
+
     def __init__(self, args):
         self.max_agents = args.max_agents
         self.init_agents = args.init_agents
@@ -76,3 +80,29 @@ class SimulationParameters:
         self.ped_c = args.ped_c
 
         self.plot = args.plot
+        self.output_path = args.output_path
+
+    def write_to_file(self, output_path):
+        df = pd.DataFrame({'seed': [self.seed],
+                           'steps': [self.steps],
+                           'max_agents': [self.max_agents],
+                           'init_agents': [self.init_agents],
+                           'standing_agents': [self.standing_agents],
+                           'w_exit': [self.w_exit],
+                           'w_wall': [self.w_wall],
+                           'w_att_ground': [self.w_attraction_ground],
+                           'w_att_mounted': [self.w_attraction_mounted],
+                           'exit_b': [self.exit_b],
+                           'exit_c': [self.exit_c],
+                           'wall_b': [self.wall_b],
+                           'wall_c': [self.wall_c],
+                           'att_ground_b': [self.attraction_ground_b],
+                           'att_ground_c': [self.attraction_ground_c],
+                           'att_mounted_b': [self.attraction_mounted_b],
+                           'att_mounted_c': [self.attraction_mounted_c],
+                           'ped_b': [self.ped_b],
+                           'ped_c': [self.ped_c],
+                           'file': [self.file]})
+
+        filename = os.path.join(output_path, 'simulation_parameters.csv')
+        df.to_csv(filename)

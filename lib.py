@@ -8,6 +8,7 @@ from pedestrian import Pedestrian
 from plotting import *
 from trajectory import Trajectory
 from constants import *
+from IO import create_output_directory, save_floor_field
 
 import random
 
@@ -64,6 +65,8 @@ def add_pedestrian(geometry: Geometry, grid: Grid):
 
 
 def run_simulation(simulation_parameters: SimulationParameters):
+    create_output_directory(simulation_parameters.output_path)
+
     file = open(simulation_parameters.file, 'r')
     random.seed(simulation_parameters.seed)
 
@@ -73,7 +76,7 @@ def run_simulation(simulation_parameters: SimulationParameters):
                 geometry, grid)
 
     ca = CA(simulation_parameters, geometry, grid)
-    traj = Trajectory(grid)
+    traj = Trajectory(grid, simulation_parameters.steps)
 
     if simulation_parameters.plot:
         plot_geometry_peds(geometry, grid, geometry.pedestrians)
@@ -93,3 +96,7 @@ def run_simulation(simulation_parameters: SimulationParameters):
     if simulation_parameters.plot:
         plot_trajectories(geometry, grid, traj, geometry.pedestrians)
         plot_space_usage(geometry, grid, traj, simulation_parameters.steps)
+
+    traj.save(simulation_parameters.output_path)
+    ca.save(simulation_parameters.output_path)
+    simulation_parameters.write_to_file(simulation_parameters.output_path)
