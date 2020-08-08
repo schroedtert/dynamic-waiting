@@ -41,6 +41,8 @@ class SimulationParameters:
     w_attraction_mounted: float = 1
     w_wall: float = 1
 
+    plot: bool = False
+
     def __init__(self, args):
         self.max_agents = args.max_agents
         self.init_agents = args.init_agents
@@ -72,3 +74,5 @@ class SimulationParameters:
 
         self.ped_b = args.ped_b
         self.ped_c = args.ped_c
+
+        self.plot = args.plot

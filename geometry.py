@@ -105,8 +105,6 @@ class Geometry:
         self.floor = sg.PolygonWithHoles(poly, holes)
         self.bounding_box = poly.bbox()
 
-        sg.draw.draw(self.floor)
-        plt.show()
         return
 
     def is_in_geometry(self, x: float, y: float) -> bool:

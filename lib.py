@@ -73,8 +73,10 @@ def run_simulation(simulation_parameters: SimulationParameters):
                 geometry, grid)
 
     ca = CA(simulation_parameters, geometry, grid)
-    plot_geometry_peds(geometry, grid, geometry.pedestrians)
     traj = Trajectory(grid)
+
+    if simulation_parameters.plot:
+        plot_geometry_peds(geometry, grid, geometry.pedestrians)
 
     for step in range(simulation_parameters.steps):
         print("========================= step {:2d} ======================================".format(step))
@@ -82,11 +84,12 @@ def run_simulation(simulation_parameters: SimulationParameters):
             add_pedestrian(geometry, grid)
 
         ca.compute_step(geometry, grid)
-        # plot_geometry_peds(geometry, grid, geometry.pedestrians)
         traj.add_step(step, grid, geometry.pedestrians)
+        if simulation_parameters.plot:
+            plot_geometry_peds(geometry, grid, geometry.pedestrians)
 
     print("========================= done ======================================")
 
-    plot_trajectories(geometry, grid, traj, geometry.pedestrians)
-    plot_space_usage(geometry, grid, traj, simulation_parameters.steps)
-    # plot_geometry_peds(geometry, grid, geometry.pedestrians)
+    if simulation_parameters.plot:
+        plot_trajectories(geometry, grid, traj, geometry.pedestrians)
+        plot_space_usage(geometry, grid, traj, simulation_parameters.steps)

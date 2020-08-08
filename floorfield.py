@@ -78,7 +78,8 @@ def compute_static_ff(geometry: Geometry, grid: Grid, simulation_parameters: Sim
              + simulation_parameters.w_attraction_ground * attraction_ground_prob \
              + simulation_parameters.w_attraction_mounted * attraction_mounted_prob
 
-    plot_prob_field(geometry, grid, static, "static")
+    if simulation_parameters.plot:
+        plot_prob_field(geometry, grid, static, "static")
 
     return static
 

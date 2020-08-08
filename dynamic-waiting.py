@@ -20,27 +20,35 @@ def restricted_int(x):
     return x
 
 
+def restricted_bool(x):
+    try:
+        x = bool(x)
+    except ValueError:
+        raise argparse.ArgumentTypeError("%r not a bool literal" % (x,))
+    return x
+
+
 def setup_argument_parser():
     parser = argparse.ArgumentParser(description='Dynamic CA waiting model for pedestrians')
 
     # read general parameters
     parser.add_argument('--max_agents', help='max number of pedestrians', type=restricted_int, default=50)
     parser.add_argument('--init_agents', help='number of pedestrians at start of simulation', type=restricted_int,
-                        default=20)
+                        default=50)
     parser.add_argument('--standing_agents', help='number of pedestrian which will not move during simulation, '
                                                   'only applies to init_agents', type=restricted_int, default=0)
 
-    parser.add_argument('--steps', help='number of simulation steps', type=restricted_int, default=10)
+    parser.add_argument('--steps', help='number of simulation steps', type=restricted_int, default=50)
     parser.add_argument('--file', help='geometry used for simulation', default='./geometries/simplified.xml')
 
     parser.add_argument('--seed', help='used random seed (default 124)', type=restricted_int, default=124)
 
     # read weights from arguments
     parser.add_argument('--w_door', help='weight of door potential (default 1)', type=restricted_float, default=0)
-    parser.add_argument('--w_exit', help='weight of exit potential (default 1)', type=restricted_float, default=1)
-    parser.add_argument('--w_wall', help='weight of wall potential (default 1)', type=restricted_float, default=2)
+    parser.add_argument('--w_exit', help='weight of exit potential (default 1)', type=restricted_float, default=3)
+    parser.add_argument('--w_wall', help='weight of wall potential (default 1)', type=restricted_float, default=10)
     parser.add_argument('--w_att_ground', help='weight of ground attraction potential (default 1)',
-                        type=restricted_float, default=2)
+                        type=restricted_float, default=10)
     parser.add_argument('--w_att_mounted', help='weight of mounted attraction potential (default 1)',
                         type=restricted_float, default=1)
 
@@ -65,9 +73,12 @@ def setup_argument_parser():
                         type=restricted_float, default=0.1)
 
     parser.add_argument('--ped_b', help='sigmoid parameter for pedestrian b (default 1)', type=restricted_float,
-                        default=5)
+                        default=1)
     parser.add_argument('--ped_c', help='sigmoid parameter for pedestrian c (default 1)', type=restricted_float,
                         default=1)
+
+    parser.add_argument('--plot', help='plot the static ff, and peds in each step', type=restricted_bool,
+                        default=False)
 
     return parser
 
