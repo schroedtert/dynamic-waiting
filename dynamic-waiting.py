@@ -65,7 +65,7 @@ def setup_argument_parser():
                         type=restricted_float, default=0.1)
 
     parser.add_argument('--ped_b', help='sigmoid parameter for pedestrian b (default 1)', type=restricted_float,
-                        default=5)
+                        default=2)
     parser.add_argument('--ped_c', help='sigmoid parameter for pedestrian c (default 1)', type=restricted_float,
                         default=1)
 
