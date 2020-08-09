@@ -212,3 +212,7 @@ pip-selfcheck.json
 # End of https://www.gitignore.io/api/python,pycharm
 
 .idea/*
+
+data/*
+results/*
+foo.py
