@@ -70,6 +70,7 @@ def setup_simulation():
 
 def start_simulation(sim_parameters):
     run_simulation(sim_parameters)
+    return 0
 
 
 if __name__ == '__main__':
@@ -78,13 +79,13 @@ if __name__ == '__main__':
 
     parameters = setup_simulation()
     print('run {} simulations with {} processes'.format(len(parameters), multiprocessing.cpu_count()))
-    print(parameters[int(start):int(end)])
+    start_time = time.time()
+
     pool = multiprocessing.Pool(multiprocessing.cpu_count())
-    start = time.time()
-    pool.map(start_simulation, parameters[int(start):int(end)])
+    pool.map_async(start_simulation, parameters[int(start):int(end)])
     pool.close()
     pool.join()
-    end = time.time()
-    print("Time needed: {}".format(end - start))
+    end_time = time.time()
 
+    print("Time needed: {}".format(end_time - start_time))
     print('All simulations finished')

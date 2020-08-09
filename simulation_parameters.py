@@ -18,7 +18,7 @@ class SimulationParameters:
     wall_c: float = 1
 
     # for ped distance
-    ped_b: float = 5
+    ped_b: float = 2
     ped_c: float = 1
 
     # for door distance (flow avoidance)
