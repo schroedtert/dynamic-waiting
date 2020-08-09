@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import skgeom as sg
 from matplotlib import pyplot as plt
@@ -24,6 +24,7 @@ class Geometry:
     attraction_mounted: Dict[int, sg.Polygon]
     attraction_ground: Dict[int, sg.Polygon]
 
+    entrances_properties: Dict[int, Tuple[int, int]]
     arr: sg.arrangement.Arrangement
 
     # parameterized constructor
@@ -38,7 +39,10 @@ class Geometry:
         self.obstacles = {}
         self.attraction_ground = {}
         self.attraction_mounted = {}
-        walls, obstacles, entrances, exits, edges, attractions_mounted, attractions_ground = read_geometry(filename)
+        walls, obstacles, entrances, entrances_properties, exits, edges, attractions_mounted, attractions_ground = read_geometry(
+            filename)
+
+        self.entrances_properties = entrances_properties
 
         points = []
         for wall in walls:

@@ -7,6 +7,7 @@ import skgeom as sg
 from geometry import Geometry
 from constants import *
 from pedestrian import Pedestrian
+from typing import Dict
 
 moore = False
 
@@ -31,6 +32,7 @@ class Grid:
     inside_cells: np.ndarray
     outside_cells: np.ndarray
     entrance_cells: np.ndarray
+    door_cells: Dict[int, np.ndarray]
 
     def __init__(self, geometry: Geometry):
         minx, miny, maxx, maxy = geometry.get_bounding_box()
@@ -50,6 +52,7 @@ class Grid:
 
         self.inside_cells = self.__get_inside_cells(geometry)
         self.outside_cells = self.__get_outside_cells(geometry)
+        self.door_cells = self.__get_door_cells(geometry)
         self.entrance_cells = self.__get_entrance_cells(geometry)
 
     def __get_outside_cells(self, geometry: Geometry):
@@ -71,6 +74,31 @@ class Grid:
 
         inside = inside + self.__get_entrance_cells(geometry)
         return inside
+
+    def __get_entrance_cells(self, geometry: Geometry):
+        entrances = np.zeros_like(self.gridX)
+        for i in range(self.dimX):
+            for j in range(self.dimY):
+                for key, door in geometry.entrances.items():
+                    x, y = self.get_coordinates(i, j)
+                    p = sg.Point2(x, y)
+                    if sg.squared_distance(door, p) < THRESHOLD ** 2:
+                        entrances[i][j] = 1
+
+        return entrances
+
+    def __get_door_cells(self, geometry: Geometry):
+        doors = {}
+        for key, door in geometry.entrances.items():
+            entrances = np.zeros_like(self.gridX)
+            for i in range(self.dimX):
+                for j in range(self.dimY):
+                    x, y = self.get_coordinates(i, j)
+                    p = sg.Point2(x, y)
+                    if sg.squared_distance(door, p) < THRESHOLD ** 2:
+                        entrances[i][j] = 1
+            doors[key] = entrances
+        return doors
 
     def get_ped_cells(self, geometry: Geometry, ped: Pedestrian = None):
         peds = np.zeros_like(self.gridX)
@@ -127,18 +155,6 @@ class Grid:
                         edges[i][j] = 1
 
         return edges
-
-    def __get_entrance_cells(self, geometry: Geometry):
-        entrances = np.zeros_like(self.gridX)
-        for i in range(self.dimX):
-            for j in range(self.dimY):
-                for key, door in geometry.entrances.items():
-                    x, y = self.get_coordinates(i, j)
-                    p = sg.Point2(x, y)
-                    if sg.squared_distance(door, p) < THRESHOLD ** 2:
-                        entrances[i][j] = 1
-
-        return entrances
 
     def get_exit_cells(self, geometry: Geometry):
         exits = np.zeros_like(self.gridX)

@@ -43,28 +43,32 @@ def create_peds(num_peds: int, standing_peds: int, geometry: Geometry, grid: Gri
         geometry.pedestrians[key].standing = True
 
 
-def add_pedestrian(geometry: Geometry, grid: Grid):
-    entrances = grid.entrance_cells
-    entrance_cells = np.transpose(np.where(entrances == 1))
+def add_pedestrian(geometry: Geometry, grid: Grid, step: int):
+    for key in geometry.entrances.keys():
+        entrance_properties = geometry.entrances_properties[key]
+        if step % entrance_properties[0] == 0:
+            for i in range(geometry.entrances_properties[key][1]):
+                entrances = grid.door_cells[key]
+                entrance_cells = np.transpose(np.where(entrances == 1))
 
-    ped_cells = np.zeros(shape=(len(geometry.pedestrians.items()) + 1, 2))
+                ped_cells = np.zeros(shape=(len(geometry.pedestrians.items()) + 1, 2))
 
-    for i in range(len(geometry.pedestrians.items())):
-        ped = geometry.pedestrians[i]
-        ped_cells[i] = [ped.i(), ped.j()]
+                for i in range(len(geometry.pedestrians.items())):
+                    ped = geometry.pedestrians[i]
+                    ped_cells[i] = [ped.i(), ped.j()]
 
-    ped_cells[len(geometry.pedestrians.items())] = [41, 9]
+                ped_cells[len(geometry.pedestrians.items())] = [41, 9]
 
-    exclude_cells = (entrance_cells[:, None] == ped_cells).all(-1).any(-1)
-    entrance_cells = entrance_cells[exclude_cells == False]
+                exclude_cells = (entrance_cells[:, None] == ped_cells).all(-1).any(-1)
+                entrance_cells = entrance_cells[exclude_cells == False]
 
-    cell = random.choice(entrance_cells)
-    max_id = 0
-    if len(geometry.pedestrians.items()) != 0:
-        max_id = max(geometry.pedestrians) + 1
+                cell = random.choice(entrance_cells)
+                max_id = 0
+                if len(geometry.pedestrians.items()) != 0:
+                    max_id = max(geometry.pedestrians) + 1
 
-    id = max_id
-    geometry.pedestrians[id] = Pedestrian([cell[0], cell[1]], Neighbors.left, id, False)
+                id = max_id
+                geometry.pedestrians[id] = Pedestrian([cell[0], cell[1]], Neighbors.left, id, False)
 
 
 def run_simulation(simulation_parameters: SimulationParameters):
@@ -92,8 +96,8 @@ def run_simulation(simulation_parameters: SimulationParameters):
 
     for step in range(simulation_parameters.steps):
         # print("========================= step {:2d} ======================================".format(step))
-        if len(geometry.pedestrians.values()) < simulation_parameters.max_agents and step % 10 == 0:
-            add_pedestrian(geometry, grid)
+        if len(geometry.pedestrians.values()) < simulation_parameters.max_agents:
+            add_pedestrian(geometry, grid, step)
 
         ca.compute_step(geometry, grid)
         traj.add_step(step, grid, geometry.pedestrians)

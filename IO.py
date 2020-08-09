@@ -4,24 +4,28 @@ from xml.dom.minidom import parse
 from constants import *
 from CA import *
 
+
 def read_geometry(filename):
     root = parse(filename)
     obstacles = read_obstacle(root)
     walls = read_subroom_walls(root)
-    entrances = read_entrances(root)
+    entrances, entrances_properties = read_entrances(root)
     exits = read_exits(root)
     edges = read_subroom_edges(root)
     attractions_mounted, attractions_ground = read_attractions(root)
-    return walls, obstacles, entrances, exits, edges, attractions_mounted, attractions_ground
+    return walls, obstacles, entrances, entrances_properties, exits, edges, attractions_mounted, attractions_ground
 
 
 def read_entrances(root):
     # Initialization of a dictionary with obstacles
     entrances = {}
-
+    entrances_properties = {}
     # read in doors and combine them into an array for polygon representation
     for t_num, t_elem in enumerate(root.getElementsByTagName('entrance')):
-        door_id = t_elem.getAttribute('id')
+        door_id = int(t_elem.getAttribute('id'))
+        door_frequency = int(t_elem.getAttribute('frequency'))
+        door_number = int(t_elem.getAttribute('number'))
+        entrances_properties[door_id] = (door_frequency, door_number)
 
         points = []
         for v_num, v_elem in enumerate(t_elem.getElementsByTagName('vertex')):
@@ -31,7 +35,7 @@ def read_entrances(root):
 
         entrances[door_id] = points
 
-    return entrances
+    return entrances, entrances_properties
 
 
 def read_exits(root):
@@ -40,7 +44,7 @@ def read_exits(root):
 
     # read in doors and combine them into an array for polygon representation
     for t_num, t_elem in enumerate(root.getElementsByTagName('exit')):
-        door_id = t_elem.getAttribute('id')
+        door_id = int(t_elem.getAttribute('id'))
 
         points = []
         for v_num, v_elem in enumerate(t_elem.getElementsByTagName('vertex')):
@@ -58,7 +62,7 @@ def read_obstacle(xml_doc):
     obstacles = {}
     # read in obstacles and combine them into an array for polygon representation
     for o_num, o_elem in enumerate(xml_doc.getElementsByTagName('obstacle')):
-        obstacle_id = o_elem.getAttribute('id')
+        obstacle_id = int(o_elem.getAttribute('id'))
 
         points = []
         for p_num, p_elem in enumerate(o_elem.getElementsByTagName('polygon')):
@@ -119,7 +123,7 @@ def read_attractions(xml_doc):
 
     # read in obstacles and combine them into an array for polygon representation
     for a_num, a_elem in enumerate(xml_doc.getElementsByTagName('attraction')):
-        attraction_id = a_elem.getAttribute('id')
+        attraction_id = int(a_elem.getAttribute('id'))
 
         points = []
         for p_num, p_elem in enumerate(a_elem.getElementsByTagName('polygon')):
