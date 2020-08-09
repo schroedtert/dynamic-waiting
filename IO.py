@@ -161,12 +161,9 @@ def geo_limits(geo_xml):
 def create_output_directory(output_path):
     try:
         # Create target Directory
-        os.makedirs(output_path)
-        print("Directory ", output_path, " Created ")
+        os.makedirs(os.path.join(output_path, 'geo_peds'))
     except FileExistsError:
         return
-        # print("Directory '{}' already exists".format(output_path))
-        # exit("Directory '{}' already exists".format(output_path))
 
 
 def save_floor_field(floor_field, output_path, filename):

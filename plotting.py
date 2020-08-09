@@ -17,25 +17,7 @@ import numpy as np
 from constants import MTOMM
 
 
-def plot_geometry(geometry: Geometry):
-    plt.figure()
-    for key, polygon in geometry.bounds.items():
-        x, y = polygon.exterior.xy
-        plt.plot(x, y, color='black')
-
-    for key, obstacle in geometry.obstacles.items():
-        x, y = obstacle.exterior.xy
-        plt.fill(x, y, alpha=0.1, fc='gray', ec='none')
-        plt.plot(x, y, color='gray')
-
-    for key, door in geometry.entrances.items():
-        x, y = door.coords.xy
-        plt.plot(x, y, color='red')
-
-    plt.show()
-
-
-def plot_geometry_peds(geometry: Geometry, grid: Grid, peds: Dict[int, Pedestrian], highlight=None):
+def plot_geometry_peds(geometry: Geometry, grid: Grid, peds: Dict[int, Pedestrian], highlight=None, filename=None):
     draw(geometry.floor, alpha=0.5)
 
     for key, door in geometry.entrances.items():
@@ -56,12 +38,14 @@ def plot_geometry_peds(geometry: Geometry, grid: Grid, peds: Dict[int, Pedestria
         else:
             draw(point, color='green')
 
+    if filename is None:
+        plt.show()
+    else:
+        plt.savefig(filename, dpi=300, format='pdf')
 
 
-    plt.show()
-
-
-def plot_prob_field(geometry: Geometry, grid: Grid, prob_field, title="", ped=None, vmin=None, vmax=None):
+def plot_prob_field(geometry: Geometry, grid: Grid, prob_field, title="", ped=None, vmin=None, vmax=None,
+                    filename=None):
     plt.figure()
     plt.title(title)
 
@@ -79,10 +63,13 @@ def plot_prob_field(geometry: Geometry, grid: Grid, prob_field, title="", ped=No
     plt.gca().set_adjustable("box")
     plt.colorbar(orientation="horizontal")
 
-    plt.show()
+    if filename is None:
+        plt.show()
+    else:
+        plt.savefig(filename, dpi=300, format='pdf')
 
 
-def plot_voronoi_peds(geometry, grid, peds):
+def plot_voronoi_peds(geometry, grid, peds, filename=None):
     vdiag = sg.voronoi.VoronoiDiagram()
 
     for key, ped in peds.items():
@@ -97,10 +84,14 @@ def plot_voronoi_peds(geometry, grid, peds):
 
     draw(geometry.floor, alpha=0.1)
 
-    plt.show()
+    if filename is None:
+        plt.show()
+    else:
+        plt.savefig(filename, dpi=300, format='pdf')
 
 
-def plot_trajectories(geometry: Geometry, grid: Grid, trajectory: Trajectory, peds: Dict[int, Pedestrian]):
+def plot_trajectories(geometry: Geometry, grid: Grid, trajectory: Trajectory, peds: Dict[int, Pedestrian],
+                      filename=None):
     plt.figure()
 
     # for key, ped in peds.items():
@@ -121,10 +112,13 @@ def plot_trajectories(geometry: Geometry, grid: Grid, trajectory: Trajectory, pe
 
     plt.axis('equal')
     plt.gca().set_adjustable("box")
-    plt.show()
+    if filename is None:
+        plt.show()
+    else:
+        plt.savefig(filename, dpi=300, format='pdf')
 
 
-def plot_space_usage(geometry: Geometry, grid: Grid, trajectory: Trajectory, num_steps: int):
+def plot_space_usage(geometry: Geometry, grid: Grid, trajectory: Trajectory, num_steps: int, filename=None):
     plt.figure("Space usage")
 
     space_usage = trajectory.space_usage[num_steps - 1] / num_steps
@@ -137,10 +131,13 @@ def plot_space_usage(geometry: Geometry, grid: Grid, trajectory: Trajectory, num
     plt.gca().set_adjustable("box")
     plt.colorbar()
 
-    plt.show()
+    if filename is None:
+        plt.show()
+    else:
+        plt.savefig(filename, dpi=300, format='pdf')
 
 
-def plot_voronoi_neighbors(geometry: Geometry, grid: Grid, voronoi_regions):
+def plot_voronoi_neighbors(geometry: Geometry, grid: Grid, voronoi_regions, filename=None):
     cmap = plt.cm.get_cmap('tab10')
 
     plt.figure()
@@ -150,4 +147,7 @@ def plot_voronoi_neighbors(geometry: Geometry, grid: Grid, voronoi_regions):
         colorValue = colorValue + 0.1
     draw(geometry.floor, alpha=0.1)
 
-    plt.show()
+    if filename is None:
+        plt.show()
+    else:
+        plt.savefig(filename, dpi=300, format='pdf')

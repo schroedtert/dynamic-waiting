@@ -34,6 +34,12 @@ class Trajectory:
         self.traj.to_csv(traj_filename)
 
         for step in range(self.space_usage.shape[0]):
+            path = os.path.join(output_path, 'space_usage')
+            try:
+                os.makedirs(path)
+            except FileExistsError:
+                a = 1
+
             suffix = 'space_usage_{:03d}.txt'.format(step)
-            su_filename = os.path.join(output_path, suffix)
+            su_filename = os.path.join(path, suffix)
             np.savetxt(su_filename, self.space_usage[step])

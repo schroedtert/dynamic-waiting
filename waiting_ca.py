@@ -38,7 +38,7 @@ def setup_argument_parser():
     parser.add_argument('--standing_agents', help='number of pedestrian which will not move during simulation, '
                                                   'only applies to init_agents', type=restricted_int, default=0)
 
-    parser.add_argument('--steps', help='number of simulation steps', type=restricted_int, default=30)
+    parser.add_argument('--steps', help='number of simulation steps', type=restricted_int, default=1)
     # parser.add_argument('--file', help='geometry used for simulation', default='./geometries/simplified.xml')
     parser.add_argument('--file', help='geometry used for simulation', default='./geometries/platform.xml')
 
@@ -77,7 +77,7 @@ def setup_argument_parser():
                         default=1)
 
     parser.add_argument('--plot', help='plot the static ff, and peds in each step', type=restricted_bool,
-                        default=True)
+                        default=False)
 
     parser.add_argument('--output_path', help='directory where the results are stored', default='results')
 
