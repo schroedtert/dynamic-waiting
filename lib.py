@@ -59,8 +59,11 @@ def add_pedestrian(geometry: Geometry, grid: Grid):
     entrance_cells = entrance_cells[exclude_cells == False]
 
     cell = random.choice(entrance_cells)
-    max_id = max(geometry.pedestrians)
-    id = max_id + 1
+    max_id = 0
+    if len(geometry.pedestrians.items()) != 0:
+        max_id = max(geometry.pedestrians) + 1
+
+    id = max_id
     geometry.pedestrians[id] = Pedestrian([cell[0], cell[1]], Neighbors.left, id, False)
 
 
@@ -88,7 +91,7 @@ def run_simulation(simulation_parameters: SimulationParameters):
     traj = Trajectory(grid, simulation_parameters.steps)
 
     for step in range(simulation_parameters.steps):
-        print("========================= step {:2d} ======================================".format(step))
+        # print("========================= step {:2d} ======================================".format(step))
         if len(geometry.pedestrians.values()) < simulation_parameters.max_agents and step % 10 == 0:
             add_pedestrian(geometry, grid)
 
@@ -97,7 +100,7 @@ def run_simulation(simulation_parameters: SimulationParameters):
         if simulation_parameters.plot:
             plot_geometry_peds(geometry, grid, geometry.pedestrians)
 
-    print("========================= done ======================================")
+    # print("========================= done ======================================")
 
     if simulation_parameters.plot:
         plot_trajectories(geometry, grid, traj, geometry.pedestrians)

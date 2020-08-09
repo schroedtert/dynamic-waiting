@@ -105,6 +105,23 @@ class Geometry:
         self.floor = sg.PolygonWithHoles(poly, holes)
         self.bounding_box = poly.bbox()
 
+        # for he in self.arr.halfedges:
+        #     sg.draw.draw(he.curve())
+        # plt.show()
+        #
+        # vs = sg.RotationalSweepVisibility(self.arr)
+        # q = sg.Point2(-60000, 2000)
+        # face = self.arr.find(q)
+        # vx = vs.compute_visibility(q, face)
+        #
+        # for he in self.arr.halfedges:
+        #     sg.draw.draw(he.curve(), visible_point=False)
+        # for v in vx.halfedges:
+        #     sg.draw.draw(v.curve(), color='red', visible_point=False)
+        #
+        # sg.draw.draw(q, color='magenta')
+        # plt.show()
+
         return
 
     def is_in_geometry(self, x: float, y: float) -> bool:

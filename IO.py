@@ -155,13 +155,13 @@ def geo_limits(geo_xml):
 
 
 def create_output_directory(output_path):
-    print(os.getcwd())
     try:
         # Create target Directory
         os.makedirs(output_path)
         print("Directory ", output_path, " Created ")
     except FileExistsError:
-        print("Directory '{}' already exists".format(output_path))
+        return
+        # print("Directory '{}' already exists".format(output_path))
         # exit("Directory '{}' already exists".format(output_path))
 
 

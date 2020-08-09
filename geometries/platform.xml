@@ -26,16 +26,16 @@
 
 	<entrances>
 		<entrance id="0">
-			<vertex px="-60.0" py="-2.0"/>
-			<vertex px="-60.0" py="2.0"/>
+			<vertex px="-60.0" py="-1.5"/>
+			<vertex px="-60.0" py="1.5"/>
 		</entrance>
 		<entrance id="1">
-			<vertex px="60.0" py="-2.0"/>
-			<vertex px="60.0" py="2.0"/>
+			<vertex px="60.0" py="-1.5"/>
+			<vertex px="60.0" py="1.5"/>
 		</entrance>
 		<entrance id="2">
-			<vertex px="-2.0" py="-2.0"/>
-			<vertex px="-2.0" py="2.0"/>
+			<vertex px="-2.0" py="-1.5"/>
+			<vertex px="-2.0" py="1.5"/>
 		</entrance>
 	</entrances>
 
@@ -49,26 +49,26 @@
 	<obstacles>
 		<obstacle id="0">
 			<polygon>
-				<vertex px="-60" py="-2"/>
+				<vertex px="-59.5" py="-2"/>
 				<vertex px="-30" py="-2"/>
 				<vertex px="-30" py="2"/>
-				<vertex px="-60" py="2"/>
+				<vertex px="-59.5" py="2"/>
 			</polygon>
 		</obstacle>
 		<obstacle id="1">
 			<polygon>
 				<vertex px="30" py="-2"/>
-				<vertex px="60" py="-2"/>
-				<vertex px="60" py="2"/>
+				<vertex px="59.5" py="-2"/>
+				<vertex px="59.5" py="2"/>
 				<vertex px="30" py="2"/>
 			</polygon>
 		</obstacle>
 		<obstacle id="2">
 			<polygon>
-				<vertex px="-2" py="-2"/>
+				<vertex px="-1.5" py="-2"/>
 				<vertex px="2" py="-2"/>
 				<vertex px="2" py="2"/>
-				<vertex px="-2" py="2"/>
+				<vertex px="-1.5" py="2"/>
 			</polygon>
 		</obstacle>
 

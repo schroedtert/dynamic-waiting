@@ -10,7 +10,7 @@ from plotting import *
 def compute_distance_fmm(geometry: Geometry, grid: Grid, start, mask, speed=None):
     inside = grid.inside_cells
 
-    phi = inside - start
+    phi = inside - 5 * start
     phi = np.ma.MaskedArray(phi, mask)
 
     if speed is None:
@@ -107,11 +107,14 @@ def compute_attraction_mounted_distance(geometry: Geometry, grid: Grid):
 
 
 def compute_point_distance(geometry: Geometry, grid: Grid, cell: [int, int]):
-    start = np.zeros_like(grid.gridX)
-    start[cell[0], cell[1]] = 1
-
     entrances = grid.entrance_cells
     outside = grid.outside_cells
     mask = np.logical_and(outside == 1, entrances != 1)
 
-    return compute_distance_fmm(geometry, grid, start, mask)
+    x0 = grid.gridX[cell[0]][cell[1]]
+    y0 = grid.gridY[cell[0]][cell[1]]
+
+    distance = np.sqrt((grid.gridX - x0) ** 2 + (grid.gridY - y0) ** 2)
+
+    distance = np.ma.MaskedArray(distance, mask)
+    return distance

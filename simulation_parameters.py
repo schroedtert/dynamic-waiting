@@ -46,7 +46,26 @@ class SimulationParameters:
 
     output_path = 'results'
 
-    def __init__(self, args):
+    def __init__(self, *args, **kwargs):
+        if len(args) == 1:
+            self.init_from_parser(args[0])
+
+    def init_from_para(self, max_agents, init_agents, standing_agents, steps, seed,
+                       w_door, w_exit, w_wall, w_attraction, output_path, plot, file):
+        self.max_agents = max_agents
+        self.init_agents = init_agents
+        self.standing_agents = standing_agents
+        self.steps = steps
+        self.seed = seed
+        self.w_door = w_door
+        self.w_exit = w_exit
+        self.w_wall = w_wall
+        self.w_attraction = w_attraction
+        self.output_path = output_path
+        self.plot = False
+        self.file = file
+
+    def init_from_parser(self, args):
         self.max_agents = args.max_agents
         self.init_agents = args.init_agents
         self.standing_agents = args.standing_agents

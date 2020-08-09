@@ -39,9 +39,9 @@ def distance_to_prob_dec(distance_field, b, c):
 
 def compute_static_ff(geometry: Geometry, grid: Grid, simulation_parameters: SimulationParameters):
     # compute door probability: further is better
-    door_distance = compute_entrance_distance(geometry, grid)
+    # door_distance = compute_entrance_distance(geometry, grid)
     # plot_prob_field(geometry, grid, door_distance, "entrance distance")
-    door_prob = distance_to_prob_inc(door_distance, simulation_parameters.door_b, simulation_parameters.door_c)
+    # door_prob = distance_to_prob_inc(door_distance, simulation_parameters.door_b, simulation_parameters.door_c)
     # plot_prob_field(geometry, grid, door_prob, "entrance prob")
 
     # compute wall probability: closer is better
@@ -73,8 +73,7 @@ def compute_static_ff(geometry: Geometry, grid: Grid, simulation_parameters: Sim
     attraction = np.maximum(attraction_ground_prob, attraction_mounted_prob)
 
     # sum everything up for static FF
-    static = simulation_parameters.w_door * door_prob \
-             + simulation_parameters.w_wall * wall_prob \
+    static = simulation_parameters.w_wall * wall_prob \
              + simulation_parameters.w_exit * exit_prob \
              + simulation_parameters.w_attraction * attraction
 
