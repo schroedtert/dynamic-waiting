@@ -48,19 +48,6 @@ def setup_simulation():
                      "_w-exit={:0.2f}_w-wall={:0.2f}_w-attraction={:0.2f}_rep={}".format(
                 max_agent, init_agent, standing_agent, step, seed, w_exit, w_wall, w_attraction, rep)
             output_path = os.path.join('results/', suffix)
-            # logfile = 'log.txt'
-            # arg = ["--max_agents", max_agent,
-            #        "--init_agents", init_agent,
-            #        "--standing_agents", standing_agent,
-            #        "--step", step,
-            #        "--seed", seed,
-            #        "--w_door", 0,
-            #        "--w_exit", w_exit,
-            #        "--w_wall", w_wall,
-            #        "--w_attraction", w_attraction,
-            #        "--output_path", output_path,
-            #        "--plot", False,
-            #        "--file", file]
 
             para = SimulationParameters()
             para.max_agents = max_agent
@@ -86,13 +73,18 @@ def start_simulation(sim_parameters):
 
 
 if __name__ == '__main__':
+    start = sys.argv[1]
+    end = sys.argv[2]
+
     parameters = setup_simulation()
-    print("run {} simulations.".format(len(parameters)))
+    print('run {} simulations with {} processes'.format(len(parameters), multiprocessing.cpu_count()))
+
     pool = multiprocessing.Pool(multiprocessing.cpu_count())
     start = time.time()
-    pool.map(start_simulation, parameters[:5])
+    pool.map(start_simulation, parameters[start:end])
     pool.close()
     pool.join()
     end = time.time()
     print("Time needed: {}".format(end - start))
-    print("All simulations finished")
+
+    print('All simulations finished')
