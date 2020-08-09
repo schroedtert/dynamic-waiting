@@ -7,7 +7,7 @@ import sys
 import multiprocessing
 
 from simulation_parameters import *
-from waiting_ca import *
+from lib import run_simulation
 
 import time
 
@@ -73,15 +73,15 @@ def start_simulation(sim_parameters):
 
 
 if __name__ == '__main__':
-    start = sys.argv[1]
-    end = sys.argv[2]
+    start = int(sys.argv[1])
+    end = int(sys.argv[2])
 
     parameters = setup_simulation()
     print('run {} simulations with {} processes'.format(len(parameters), multiprocessing.cpu_count()))
-
+    print(parameters[int(start):int(end)])
     pool = multiprocessing.Pool(multiprocessing.cpu_count())
     start = time.time()
-    pool.map(start_simulation, parameters[start:end])
+    pool.map(start_simulation, parameters[int(start):int(end)])
     pool.close()
     pool.join()
     end = time.time()

@@ -5,7 +5,7 @@
 #SBATCH --job-name=femtc2020-waiting-ca
 #SBATCH --time=5:00:00
 #SBATCH --output=outs/out.%j
-#SBATCH --error=outs/err.%j
+#SBATCH --error=outs/out.%j
 
 module load GCC
 module load MPFR

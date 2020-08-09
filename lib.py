@@ -73,8 +73,9 @@ def add_pedestrian(geometry: Geometry, grid: Grid, step: int):
 
 
 def run_simulation(simulation_parameters: SimulationParameters):
+    print('foo')
     create_output_directory(simulation_parameters.output_path)
-
+    print(simulation_parameters)
     file = open(simulation_parameters.file, 'r')
     random.seed(simulation_parameters.seed)
 
