@@ -3,6 +3,7 @@ import argparse
 from lib import run_simulation
 from simulation_parameters import SimulationParameters
 
+import time
 
 def restricted_float(x):
     try:
@@ -38,7 +39,7 @@ def setup_argument_parser():
     parser.add_argument('--standing_agents', help='number of pedestrian which will not move during simulation, '
                                                   'only applies to init_agents', type=restricted_int, default=0)
 
-    parser.add_argument('--steps', help='number of simulation steps', type=restricted_int, default=1)
+    parser.add_argument('--steps', help='number of simulation steps', type=restricted_int, default=10)
     # parser.add_argument('--file', help='geometry used for simulation', default='./geometries/simplified.xml')
     parser.add_argument('--file', help='geometry used for simulation', default='./geometries/platform.xml')
 
@@ -79,12 +80,15 @@ def setup_argument_parser():
     parser.add_argument('--plot', help='plot the static ff, and peds in each step', type=restricted_bool,
                         default=False)
 
-    parser.add_argument('--output_path', help='directory where the results are stored', default='results')
+    parser.add_argument('--output_path', help='directory where the results are stored', default='results/platform-test')
 
     return parser
 
 
 if __name__ == '__main__':
+    start = time.time()
     arg_parser = setup_argument_parser()
     simulation_parameters = SimulationParameters(arg_parser.parse_args())
     run_simulation(simulation_parameters)
+    end = time.time()
+    print(end - start)

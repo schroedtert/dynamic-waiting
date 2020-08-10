@@ -100,24 +100,24 @@ def run_simulation(simulation_parameters: SimulationParameters):
             add_pedestrian(geometry, grid, step)
 
         ca.compute_step(geometry, grid)
-        traj.add_step(step, grid, geometry.pedestrians)
-        if simulation_parameters.plot:
-            plot_geometry_peds(geometry, grid, geometry.pedestrians)
-#        else:
-#            plot_geometry_peds(geometry, grid, geometry.pedestrians,
-#                               filename=os.path.join(simulation_parameters.output_path,
-#                                                     'geo_peds/{:03d}.pdf'.format(step)))
+        traj.add_step(step, grid, geometry.pedestrians, simulation_parameters.output_path)
+        # if simulation_parameters.plot:
+        #     plot_geometry_peds(geometry, grid, geometry.pedestrians)
+    #        else:
+    #            plot_geometry_peds(geometry, grid, geometry.pedestrians,
+    #                               filename=os.path.join(simulation_parameters.output_path,
+    #                                                     'geo_peds/{:03d}.pdf'.format(step)))
 
     # print("========================= done ======================================")
 
-    if simulation_parameters.plot:
-        plot_trajectories(geometry, grid, traj, geometry.pedestrians)
-        plot_space_usage(geometry, grid, traj, simulation_parameters.steps)
-    else:
-        plot_trajectories(geometry, grid, traj, geometry.pedestrians,
-                          filename=os.path.join(simulation_parameters.output_path, 'traj.pdf'))
-        plot_space_usage(geometry, grid, traj, simulation_parameters.steps,
-                         filename=os.path.join(simulation_parameters.output_path, 'space_usage.pdf'))
+    # if simulation_parameters.plot:
+    #     plot_trajectories(geometry, grid, traj, geometry.pedestrians)
+    #     plot_space_usage(geometry, grid, traj, simulation_parameters.steps)
+    # else:
+    #     plot_trajectories(geometry, grid, traj, geometry.pedestrians,
+    #                       filename=os.path.join(simulation_parameters.output_path, 'traj.pdf'))
+    #     plot_space_usage(geometry, grid, traj, simulation_parameters.steps,
+    #                      filename=os.path.join(simulation_parameters.output_path, 'space_usage.pdf'))
 
-    traj.save(simulation_parameters.output_path)
+    # traj.save(simulation_parameters.output_path)
     return
