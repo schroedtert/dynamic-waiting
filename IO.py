@@ -162,7 +162,9 @@ def create_output_directory(output_path):
     try:
         # Create target Directory
         os.makedirs(os.path.join(output_path, 'geo_peds'))
+        print('Created {}'.format(output_path))
     except FileExistsError:
+        print('{} already exists, results will be overwritten'.format(output_path))
         return
 
 

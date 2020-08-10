@@ -103,10 +103,10 @@ def run_simulation(simulation_parameters: SimulationParameters):
         traj.add_step(step, grid, geometry.pedestrians)
         if simulation_parameters.plot:
             plot_geometry_peds(geometry, grid, geometry.pedestrians)
-        else:
-            plot_geometry_peds(geometry, grid, geometry.pedestrians,
-                               filename=os.path.join(simulation_parameters.output_path,
-                                                     'geo_peds/{:03d}.pdf'.format(step)))
+#        else:
+#            plot_geometry_peds(geometry, grid, geometry.pedestrians,
+#                               filename=os.path.join(simulation_parameters.output_path,
+#                                                     'geo_peds/{:03d}.pdf'.format(step)))
 
     # print("========================= done ======================================")
 

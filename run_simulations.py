@@ -16,11 +16,11 @@ import time
 #     waiting_ca.main()
 
 def setup_simulation():
-    num_repetitions = 2
+    num_repetitions = 1
     max_agents = np.arange(50, 301, 50)
     init_agents = np.arange(0, 101, 50)
     standing_agents = np.arange(0, 101, 50)
-    steps = np.asarray([150])
+    steps = np.asarray([200])
     seeds = np.asarray([124, 4356, 234])
     w_exits = np.arange(1, 2.1, 0.5)
     w_walls = np.arange(1, 2.1, 0.5)
@@ -47,7 +47,7 @@ def setup_simulation():
             suffix = "max-agents={}_init-agents={}_standing-agents={}_steps={}_seed={}" \
                      "_w-exit={:0.2f}_w-wall={:0.2f}_w-attraction={:0.2f}_rep={}".format(
                 max_agent, init_agent, standing_agent, step, seed, w_exit, w_wall, w_attraction, rep)
-            output_path = os.path.join('results/', suffix)
+            output_path = os.path.join('/p/project/cias-7/2020_femtc_tobias/results/', suffix)
 
             para = SimulationParameters()
             para.max_agents = max_agent
@@ -78,7 +78,7 @@ if __name__ == '__main__':
     end = int(sys.argv[2])
 
     parameters = setup_simulation()
-    print('run {} simulations with {} processes'.format(len(parameters), multiprocessing.cpu_count()))
+    print('run {} simulations with {} processes'.format(end-start, multiprocessing.cpu_count()))
     start_time = time.time()
 
     pool = multiprocessing.Pool(multiprocessing.cpu_count())

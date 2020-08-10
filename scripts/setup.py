@@ -13,9 +13,9 @@ template_env = Environment(loader=template_loader)
 template_file = 'template_jureca.sh'
 template = template_env.get_template(template_file)
                              
-num_simulations = 8748
+num_simulations = 4374#8748
 num_processors_per_node = 48
-num_task_per_processor = 8
+num_task_per_processor = 4
 
 tasks_per_node = math.ceil(num_simulations / num_processors_per_node)
 jobs = math.ceil(tasks_per_node / num_task_per_processor)
