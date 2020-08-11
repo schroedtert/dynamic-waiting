@@ -21,7 +21,7 @@ template_env = Environment(loader=template_loader)
 template_file = 'template_jureca.sh'
 template = template_env.get_template(template_file)
                              
-num_simulations = 240 #8748
+num_simulations = 144  # 8748
 num_processors_per_node = 48
 num_task_per_processor = 1
 
