@@ -34,11 +34,10 @@ for agents in max_agents:
     for i in range(jobs):
         start = i * range_per_job
         end = min(num_simulations, (i+1)*range_per_job - 1)
-        job_name = 'femtc-{:03d}-{:02d}'.format(agents, i)
+        job_name = 'femtc-{:04d}-{:02d}'.format(agents, i)
 
         output = template.render(min=start, max=end, max_agents=agents, wall_time=wall_time[agents], jobname=job_name)
-        file_name = 'jureca_run_{:03d}_{:02d}.sh'.format(agents, i)
-        print(output)
+        file_name = 'jureca_run_{:04d}_{:02d}.sh'.format(agents, i)
         with open(file_name, 'w') as fh:
             fh.write(output)
 
