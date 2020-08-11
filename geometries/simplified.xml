@@ -25,7 +25,7 @@
 	</rooms>
 
 	<entrances>
-		<entrance id="0">
+		<entrance id="0" frequency="2" number="1">
 			<vertex px="10.0" py="-2.0"/>
 			<vertex px="10.0" py="2.0"/>
 		</entrance>

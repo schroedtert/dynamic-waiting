@@ -12,6 +12,7 @@ from IO import create_output_directory, save_floor_field
 
 import os
 import random
+import time
 
 logfile = 'log.dat'
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -95,12 +96,14 @@ def run_simulation(simulation_parameters: SimulationParameters):
     traj = Trajectory(grid, simulation_parameters.steps)
 
     for step in range(simulation_parameters.steps):
-        # print("========================= step {:2d} ======================================".format(step))
+        start_time = time.time()
         if len(geometry.pedestrians.values()) < simulation_parameters.max_agents:
             add_pedestrian(geometry, grid, step)
 
         ca.compute_step(geometry, grid)
         traj.add_step(step, grid, geometry.pedestrians, simulation_parameters.output_path)
+        end_time = time.time()
+        print("{} finished step {:3d}/{:3d} in {:4.5f}s".format(os.getpid(), step+1, simulation_parameters.steps, end_time - start_time))
         # if simulation_parameters.plot:
         #     plot_geometry_peds(geometry, grid, geometry.pedestrians)
     #        else:

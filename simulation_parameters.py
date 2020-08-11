@@ -37,7 +37,6 @@ class SimulationParameters:
     attraction_mounted_c: float = 0.1
 
     # weights
-    w_door: float = 1
     w_exit: float = 1
     w_attraction: float = 1
     w_wall: float = 1
@@ -73,7 +72,6 @@ class SimulationParameters:
         self.seed = args.seed
         self.file = args.file
 
-        self.w_door = args.w_door
         self.w_exit = args.w_exit
         self.w_wall = args.w_wall
         self.w_attraction = args.w_attraction

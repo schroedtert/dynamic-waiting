@@ -69,8 +69,10 @@ def compute_static_ff(geometry: Geometry, grid: Grid, simulation_parameters: Sim
     attraction_mounted_prob = distance_to_prob_dec(attraction_mounted_distance,
                                                    simulation_parameters.attraction_mounted_b,
                                                    simulation_parameters.attraction_mounted_c)
+    # plot_prob_field(geometry, grid, attraction_mounted_prob, "attraction mounted prob")
 
     attraction = np.maximum(attraction_ground_prob, attraction_mounted_prob)
+    # plot_prob_field(geometry, grid, attraction, "attraction prob")
 
     # sum everything up for static FF
     static = simulation_parameters.w_wall * wall_prob \
@@ -79,6 +81,8 @@ def compute_static_ff(geometry: Geometry, grid: Grid, simulation_parameters: Sim
 
     if simulation_parameters.plot:
         plot_prob_field(geometry, grid, static, "static")
+
+    # plot_prob_field(geometry, grid, static, "static")
 
     return static
 
@@ -159,7 +163,7 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
                     points.append([ppp[0], ppp[1]])
 
             intersection = sg.Polygon(points)
-            intersections.append(intersection)
+            # intersections.append(intersection)
 
             inside_cells = grid.get_inside_polygon_cells(geometry, intersection, sg.Point2(x, y))
             combination = inside_cells * weighted_floorfield

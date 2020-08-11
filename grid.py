@@ -9,6 +9,10 @@ from constants import *
 from pedestrian import Pedestrian
 from typing import Dict
 
+from matplotlib.path import Path
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+
 moore = False
 
 
@@ -106,17 +110,19 @@ class Grid:
         pedPositions = []
         for key, pped in geometry.pedestrians.items():
             if ped is not None and ped.id != pped.id:
-                x, y = self.get_coordinates(pped.i(), pped.j())
-                pedPositions.append(sg.Point2(x, y))
+                peds[ped.i()][ped.j()] = 1
+                # x, y = self.get_coordinates(pped.i(), pped.j())
+                #
+                # pedPositions.append(sg.Point2(x, y))
 
-        for i in range(self.dimX):
-            for j in range(self.dimY):
-                x, y = self.get_coordinates(i, j)
-                p = sg.Point2(x, y)
-
-                for pos in pedPositions:
-                    if sg.squared_distance(pos, p) < THRESHOLD ** 2:
-                        peds[i][j] = 1
+        # for i in range(self.dimX):
+        #     for j in range(self.dimY):
+        #         x, y = self.get_coordinates(i, j)
+        #         p = sg.Point2(x, y)
+        #
+        #         for pos in pedPositions:
+        #             if sg.squared_distance(pos, p) < THRESHOLD ** 2:
+        #                 peds[i][j] = 1
 
         return peds
 
@@ -224,15 +230,22 @@ class Grid:
         return neighbors
 
     def get_inside_polygon_cells(self, geometry: Geometry, polygon: sg.Polygon, point: sg.Point2):
-        inside = np.copy(self.inside_cells)
-        for i in range(self.dimX):
-            for j in range(self.dimY):
-                x, y = self.get_coordinates(i, j)
-                p = sg.Point2(x, y)
-                if polygon.oriented_side(p) == sg.Sign.NEGATIVE:
-                    inside[i][j] = 1
-                else:
-                    inside[i][j] = 0
+        inside = np.zeros_like(self.inside_cells)
+
+        verts = []
+        for coord in polygon.coords:
+            verts.append((coord[0], coord[1]))
+
+        p = Path(verts, closed=True)
+
+        points = np.vstack((self.gridX.flatten(), self.gridY.flatten())).T
+
+        inside_points = p.contains_points(points)
+        mask = inside_points.reshape(self.gridX.shape[0], self.gridX.shape[1])
+
+        mask = np.logical_and(mask, self.inside_cells == 1)
+        inside[mask] = 1
+
         return inside
 
     def get_nearby_cells(self, geometry: Geometry, cell: [int, int], cutoff: float):

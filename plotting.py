@@ -50,7 +50,7 @@ def plot_prob_field(geometry: Geometry, grid: Grid, prob_field, title="", ped=No
     plt.title(title)
 
     # plt.contourf(grid.gridX, grid.gridY, prob_field)
-    if not ped == None:
+    if not ped is None:
         x = grid.gridX[ped.i()][ped.j()]
         y = grid.gridY[ped.i()][ped.j()]
         # plt.scatter(x, y, color='black')
@@ -61,7 +61,7 @@ def plot_prob_field(geometry: Geometry, grid: Grid, prob_field, title="", ped=No
     plt.xlabel('x/m')
     plt.ylabel('y/m')
     plt.gca().set_adjustable("box")
-    plt.colorbar(orientation="horizontal")
+    # plt.colorbar(orientation="horizontal")
 
     if filename is None:
         plt.show()

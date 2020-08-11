@@ -94,7 +94,7 @@ def compute_attraction_mounted_distance(geometry: Geometry, grid: Grid):
     outside = grid.outside_cells
     mask = np.logical_and(outside == 1, attraction_mounted != 1)
 
-    speed = 0.5 * np.ones_like(grid.gridX)
+    speed = 0.2 * np.ones_like(grid.gridX)
 
     for attraction in geometry.attraction_mounted.values():
         y_min = attraction.bbox().ymin()
