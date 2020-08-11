@@ -47,7 +47,7 @@ def setup_simulation(agents):
             suffix = "max-agents={}_init-agents={}_standing-agents={}_steps={}_seed={}" \
                      "_w-exit={:0.2f}_w-wall={:0.2f}_w-attraction={:0.2f}_rep={}".format(
                 max_agent, init_agent, standing_agent, step, seed, w_exit, w_wall, w_attraction, rep)
-            output_path = os.path.join('/p/project/cias-7/2020_femtc_tobias/2020-08-11_results/', suffix)
+            output_path = os.path.join('/p/project/jias72/tobias/2020-femtc/2020-08-11_results/', suffix)
 
             para = SimulationParameters()
             para.max_agents = max_agent
@@ -63,10 +63,21 @@ def setup_simulation(agents):
             para.plot = False
             para.file = file
 
-            parameters.append(para)
+            if not para in parameters:
+                parameters.append(para)
 
     return parameters
 
+
+def Repeat(x):
+    _size = len(x)
+    repeated = []
+    for i in range(_size):
+        k = i + 1
+        for j in range(k, _size):
+            if x[i] == x[j] and x[i] not in repeated:
+                repeated.append(x[i])
+    return repeated
 
 def start_simulation(sim_parameters):
     run_simulation(sim_parameters)
@@ -79,6 +90,7 @@ if __name__ == '__main__':
     end = int(sys.argv[3])
 
     parameters = setup_simulation(num_agents)
+
     print('run {} simulations with {} processes'.format(end-start, multiprocessing.cpu_count()))
     start_time = time.time()
 
