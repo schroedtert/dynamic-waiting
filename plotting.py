@@ -108,7 +108,7 @@ def plot_trajectories(geometry: Geometry, grid: Grid, trajectory: Trajectory, pe
         # df.plot(x='x', y='y')
 
     # plot floor
-    draw(geometry.floor, alpha=0.1)
+    draw(geometry.floor, alpha=0.1, linewidth=0.01)
 
     plt.axis('equal')
     plt.gca().set_adjustable("box")

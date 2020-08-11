@@ -111,18 +111,6 @@ class Grid:
         for key, pped in geometry.pedestrians.items():
             if ped is not None and ped.id != pped.id:
                 peds[ped.i()][ped.j()] = 1
-                # x, y = self.get_coordinates(pped.i(), pped.j())
-                #
-                # pedPositions.append(sg.Point2(x, y))
-
-        # for i in range(self.dimX):
-        #     for j in range(self.dimY):
-        #         x, y = self.get_coordinates(i, j)
-        #         p = sg.Point2(x, y)
-        #
-        #         for pos in pedPositions:
-        #             if sg.squared_distance(pos, p) < THRESHOLD ** 2:
-        #                 peds[i][j] = 1
 
         return peds
 

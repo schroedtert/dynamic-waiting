@@ -33,13 +33,13 @@ def setup_argument_parser():
     parser = argparse.ArgumentParser(description='Dynamic CA waiting model for pedestrians')
 
     # read general parameters
-    parser.add_argument('--max_agents', help='max number of pedestrians', type=restricted_int, default=1000)
+    parser.add_argument('--max_agents', help='max number of pedestrians', type=restricted_int, default=100)
     parser.add_argument('--init_agents', help='number of pedestrians at start of simulation', type=restricted_int,
-                        default=1000)
+                        default=50)
     parser.add_argument('--standing_agents', help='number of pedestrian which will not move during simulation, '
                                                   'only applies to init_agents', type=restricted_int, default=0)
 
-    parser.add_argument('--steps', help='number of simulation steps', type=restricted_int, default=20)
+    parser.add_argument('--steps', help='number of simulation steps', type=restricted_int, default=50)
     # parser.add_argument('--file', help='geometry used for simulation', default='./geometries/simplified.xml')
     parser.add_argument('--file', help='geometry used for simulation', default='./geometries/platform.xml')
     # parser.add_argument('--file', help='geometry used for simulation', default='./geometries/platform-smaller.xml')
@@ -80,7 +80,7 @@ def setup_argument_parser():
     parser.add_argument('--plot', help='plot the static ff, and peds in each step', type=restricted_bool,
                         default=False)
 
-    parser.add_argument('--output_path', help='directory where the results are stored', default='results/platform-test')
+    parser.add_argument('--output_path', help='directory where the results are stored', default='results/traj-test')
 
     return parser
 
