@@ -1,55 +1,15 @@
 import numpy as np
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import pandas as pd
 from lib import init
-import skgeom as sg
 from skgeom.draw import draw
 from constants import MTOMM
 from matplotlib import cm
-
-#
-# # definitions for the axes
-# left, width = 0.1, 0.65
-# bottom, height = 0.1, 0.65
-# spacing = 0.005
-#
-# rect_scatter = [left, bottom, width, height]
-# rect_histx = [left, bottom + height + spacing, width, 0.2]
-# rect_histy = [left + width + spacing, bottom, 0.2, height]
-#
-# # start with a square Figure
-# fig = plt.figure(figsize=(8, 8))
-#
-#
-# traj =  pd.read_csv('results/platform-test/traj.csv')
-# print(traj)
-#
-# plt.figure()
-# plt.title("traj")
-#
-# x = traj[traj.step == traj.step.max()].x
-# y = traj[traj.step == traj.step.max()].y
-# plt.hist2d(x, y, bins=300)
-# # plt.scatter(x, y, color='black', s=5.5)
-#
-# # for ped_id in traj.id.unique():
-# #     df = traj.loc[traj['id'] == ped_id]
-# #     df = df.sort_values('step')
-# #     plt.plot(df.x, df.y, alpha=0.5, linewidth=0.2)
-#
-#
-#
-# plt.axis('equal')
-# plt.gca().set_adjustable("box")
-# # plt.xlim([-100000, 30000])
-# plt.show()
-
-import numpy as np
-import matplotlib.pyplot as plt
+import os
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
-def plot_trajectories(traj, geo):
+def plot_trajectories(traj, geo, filename=None):
     x = traj[traj.step == traj.step.max()].x
     y = traj[traj.step == traj.step.max()].y
 
@@ -59,17 +19,20 @@ def plot_trajectories(traj, geo):
     for ped_id in traj.id.unique():
         df = traj.loc[traj['id'] == ped_id]
         df = df.sort_values('step')
-        plt.plot(df.x, df.y, linewidth=0.2, alpha=0.5)
+        plt.plot(df.x, df.y, linewidth=0.3, alpha=0.5)
 
-    draw(geo.floor, alpha=0.1)
+    draw(geo.floor, alpha=0.2)
 
     plt.axis('equal')
     plt.gca().set_adjustable("box")
 
-    plt.show()
+    if filename is None:
+        plt.show()
+    else:
+        plt.savefig(filename, dpi=300, format='pdf')
 
 
-def plot_histogram(traj, geo):
+def plot_histogram(traj, geo, filename=None):
     x = traj[traj.step == traj.step.max()].x
     y = traj[traj.step == traj.step.max()].y
 
@@ -78,7 +41,7 @@ def plot_histogram(traj, geo):
     # the scatter plot:
     axScatter.scatter(x, y, s=0.5)
     axScatter.set_aspect(1.)
-    draw(geo.floor, alpha=0.1)
+    draw(geo.floor, alpha=0.2)
 
     # create new axes on the right and on the top of the current axes
     # The first argument of the new_vertical(new_horizontal) method is
@@ -110,10 +73,14 @@ def plot_histogram(traj, geo):
 
     plt.ylim([-10000, 10000])
     plt.draw()
-    plt.show()
+
+    if filename is None:
+        plt.show()
+    else:
+        plt.savefig(filename, dpi=300, format='pdf')
 
 
-def plot_space_usage(traj, geometry, grid):
+def plot_space_usage(traj, geometry, grid, filename=None):
     space_usage = np.ones_like(grid.gridX)
 
     steps = int(traj.step.max())
@@ -134,19 +101,65 @@ def plot_space_usage(traj, geometry, grid):
     space_usage = np.ma.MaskedArray(space_usage, outside == 1)
 
     plt.figure(figsize=(10, 3), dpi=300)
-    plt.pcolor(grid.gridX / MTOMM, grid.gridY / MTOMM, space_usage, cmap=cm.coolwarm)
+    plt.pcolor(grid.gridX / MTOMM, grid.gridY / MTOMM, space_usage, cmap=cm.coolwarm, shading='auto')
 
     plt.axis('equal')
     plt.gca().set_adjustable("box")
     plt.colorbar(orientation="horizontal")
-    plt.show()
+
+    if filename is None:
+        plt.show()
+    else:
+        plt.savefig(filename, dpi=300, format='pdf')
 
 
-# traj =  pd.read_csv('data/traj.csv')
-traj = pd.read_csv('results/traj-test/traj.csv')
 file = open('geometries/platform.xml', 'r')
 geometry, grid = init(file)
 
+directory = r'results-change-weight'
+output_path = r'results-change-weight-plots'
+
+if not os.path.exists(os.path.join(output_path, 'traj')):
+    os.makedirs(os.path.join(output_path, 'traj'))
+if not os.path.exists(os.path.join(output_path, 'hist')):
+    os.makedirs(os.path.join(output_path, 'hist'))
+
+if not os.path.exists(os.path.join(output_path, 'spus')):
+    os.makedirs(os.path.join(output_path, 'spus'))
+
+i = 0
+for subdir in os.scandir(directory):
+    if i > 10:
+        break
+
+    if os.path.isdir(subdir):
+        print('processing: {}'.format(os.path.join(subdir, 'traj.csv')))
+        if os.path.exists(os.path.join(subdir, 'traj.csv')):
+            traj = pd.read_csv(os.path.join(subdir, 'traj.csv'))
+            traj = traj.loc[traj.step < 200]
+            suffix = subdir.name
+
+            traj_filename = 'traj/traj_{}.pdf'.format(suffix)
+            traj_outputpath = os.path.join(output_path, traj_filename)
+            plot_trajectories(traj, geometry, traj_outputpath)
+
+
+            hist_filename = 'hist/hist_{}.pdf'.format(suffix)
+            hist_outputpath = os.path.join(output_path, hist_filename)
+            plot_histogram(traj, geometry, hist_outputpath)
+
+            spus_filename = 'spus/spus_{}.pdf'.format(suffix)
+            spus_outputpath = os.path.join(output_path, spus_filename)
+            plot_space_usage(traj, geometry, grid, spus_outputpath)
+            i = i + 1
+
+        else:
+            print('trajectory does not exist')
+
+
+# traj =  pd.read_csv('data/traj.csv')
+# traj = pd.read_csv('results/traj-test/traj.csv')
+#
 # plot_trajectories(traj, geometry)
 # plot_histogram(traj, geometry)
-plot_space_usage(traj, geometry, grid)
+# plot_space_usage(traj, geometry, grid)

@@ -18,7 +18,7 @@ import time
 def setup_simulation(agents):
     num_repetitions = 1
     max_agents = np.asarray([agents])
-    init_agents = np.asarray([0.1])
+    init_agents = np.asarray([0., 0.5])
     standing_agents = np.asarray([0., 0.25, 0.5, 0.75, 1])
     steps = np.asarray([500])
     seeds = np.asarray([124, 4356, 234])
@@ -48,7 +48,7 @@ def setup_simulation(agents):
             suffix = "max-agents={:04d}_init-agents={:04d}_standing-agents={:04d}_steps={:04d}_seed={:08d}" \
                      "_w-exit={:0.2f}_w-wall={:0.2f}_w-attraction={:0.2f}_rep={:02d}".format(
                 max_agent, init_agent, standing_agent, step, seed, w_exit, w_wall, w_attraction, rep)
-            # output_path = os.path.join('/p/project/jias72/tobias/2020-femtc/2020-08-11_results/', suffix)
+            # output_path = os.path.join('results-change-weight', suffix)
             output_path = os.path.join('results/more-time-between-peds', suffix)
 
             para = SimulationParameters()

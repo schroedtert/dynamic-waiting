@@ -100,7 +100,7 @@ def compute_individual_ff(geometry: Geometry, grid: Grid, ped: Pedestrian, simul
 
 
 def compute_overall_ff(geometry: Geometry, grid: Grid, static_ff, individual_ff):
-    combined = static_ff * individual_ff
+    combined = static_ff * 5 * individual_ff
     # plot_prob_field(geometry, grid, static_ff)
     # plot_prob_field(geometry, grid, individual_ff)
     # plot_prob_field(geometry, grid, combined, "overall")
@@ -127,7 +127,7 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
     weights = np.zeros_like(grid.gridX)
 
     weight_distance = compute_point_distance(geometry, grid, [ped.i(), ped.j()])
-    weight_prob = distance_to_prob_dec(weight_distance, 5, 0.25)
+    weight_prob = distance_to_prob_dec(weight_distance, 10, 0.1)
 
     weighted_floorfield = weight_prob * floorfield
 
