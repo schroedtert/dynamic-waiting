@@ -27,7 +27,7 @@ class SimulationParameters:
 
     # for exit distance
     exit_b: float = 5
-    exit_c: float = 0.5
+    exit_c: float = 0.3
 
     # for attraction prob ground
     attraction_ground_b: float = 2
