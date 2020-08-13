@@ -30,6 +30,7 @@ def plot_trajectories(traj, geo, filename=None):
         plt.show()
     else:
         plt.savefig(filename, dpi=300, format='pdf')
+    plt.close()
 
 
 def plot_histogram(traj, geo, filename=None):
@@ -78,6 +79,7 @@ def plot_histogram(traj, geo, filename=None):
         plt.show()
     else:
         plt.savefig(filename, dpi=300, format='pdf')
+    plt.close()
 
 
 def plot_space_usage(traj, geometry, grid, filename=None):
@@ -101,7 +103,7 @@ def plot_space_usage(traj, geometry, grid, filename=None):
     space_usage = np.ma.MaskedArray(space_usage, outside == 1)
 
     plt.figure(figsize=(10, 3), dpi=300)
-    plt.pcolor(grid.gridX / MTOMM, grid.gridY / MTOMM, space_usage, cmap=cm.coolwarm, shading='auto')
+    plt.pcolor(grid.gridX / MTOMM, grid.gridY / MTOMM, space_usage, cmap=cm.jet, shading='auto')
 
     plt.axis('equal')
     plt.gca().set_adjustable("box")
@@ -111,13 +113,14 @@ def plot_space_usage(traj, geometry, grid, filename=None):
         plt.show()
     else:
         plt.savefig(filename, dpi=300, format='pdf')
+    plt.close()
 
 
 file = open('geometries/platform.xml', 'r')
 geometry, grid = init(file)
 
-directory = r'results-change-weight'
-output_path = r'results-change-weight-plots'
+directory = r'results/sigmoid-test'
+output_path = r'results/sigmoid-test-plots'
 
 if not os.path.exists(os.path.join(output_path, 'traj')):
     os.makedirs(os.path.join(output_path, 'traj'))
@@ -127,35 +130,46 @@ if not os.path.exists(os.path.join(output_path, 'hist')):
 if not os.path.exists(os.path.join(output_path, 'spus')):
     os.makedirs(os.path.join(output_path, 'spus'))
 
-i = 0
-for subdir in os.scandir(directory):
-    if i > 10:
-        break
+traj = pd.read_csv(os.path.join(directory, 'traj.csv'))
+traj = traj.loc[traj.step < 200]
+suffix = 'test'
 
-    if os.path.isdir(subdir):
-        print('processing: {}'.format(os.path.join(subdir, 'traj.csv')))
-        if os.path.exists(os.path.join(subdir, 'traj.csv')):
-            traj = pd.read_csv(os.path.join(subdir, 'traj.csv'))
-            traj = traj.loc[traj.step < 200]
-            suffix = subdir.name
+traj_filename = 'traj/traj_{}.pdf'.format(suffix)
+traj_outputpath = os.path.join(output_path, traj_filename)
+plot_trajectories(traj, geometry, traj_outputpath)
 
-            traj_filename = 'traj/traj_{}.pdf'.format(suffix)
-            traj_outputpath = os.path.join(output_path, traj_filename)
-            plot_trajectories(traj, geometry, traj_outputpath)
+hist_filename = 'hist/hist_{}.pdf'.format(suffix)
+hist_outputpath = os.path.join(output_path, hist_filename)
+plot_histogram(traj, geometry, hist_outputpath)
 
+spus_filename = 'spus/spus_{}.pdf'.format(suffix)
+spus_outputpath = os.path.join(output_path, spus_filename)
+plot_space_usage(traj, geometry, grid, spus_outputpath)
 
-            hist_filename = 'hist/hist_{}.pdf'.format(suffix)
-            hist_outputpath = os.path.join(output_path, hist_filename)
-            plot_histogram(traj, geometry, hist_outputpath)
-
-            spus_filename = 'spus/spus_{}.pdf'.format(suffix)
-            spus_outputpath = os.path.join(output_path, spus_filename)
-            plot_space_usage(traj, geometry, grid, spus_outputpath)
-            i = i + 1
-
-        else:
-            print('trajectory does not exist')
-
+# for subdir in os.scandir(directory):
+#     if os.path.isdir(subdir):
+#         print('processing: {}'.format(os.path.join(subdir, 'traj.csv')))
+#         if os.path.exists(os.path.join(subdir, 'traj.csv')):
+#             traj = pd.read_csv(os.path.join(subdir, 'traj.csv'))
+#             traj = traj.loc[traj.step < 200]
+#             suffix = subdir.name
+#
+#             traj_filename = 'traj/traj_{}.pdf'.format(suffix)
+#             traj_outputpath = os.path.join(output_path, traj_filename)
+#             plot_trajectories(traj, geometry, traj_outputpath)
+#
+#
+#             hist_filename = 'hist/hist_{}.pdf'.format(suffix)
+#             hist_outputpath = os.path.join(output_path, hist_filename)
+#             plot_histogram(traj, geometry, hist_outputpath)
+#
+#             spus_filename = 'spus/spus_{}.pdf'.format(suffix)
+#             spus_outputpath = os.path.join(output_path, spus_filename)
+#             plot_space_usage(traj, geometry, grid, spus_outputpath)
+#         else:
+#
+#             print('trajectory does not exist')
+#
 
 # traj =  pd.read_csv('data/traj.csv')
 # traj = pd.read_csv('results/traj-test/traj.csv')

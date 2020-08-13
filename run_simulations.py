@@ -18,20 +18,20 @@ import time
 def setup_simulation(agents):
     num_repetitions = 1
     max_agents = np.asarray([agents])
-    init_agents = np.asarray([0., 0.5])
-    standing_agents = np.asarray([0., 0.25, 0.5, 0.75, 1])
+    init_agents = np.asarray([0.25])
+    standing_agents = np.asarray([0.])
     steps = np.asarray([500])
-    seeds = np.asarray([124, 4356, 234])
-    w_exits = np.arange(1, 2.1, 1)
-    w_walls = np.arange(1, 2.1, 1)
-    w_attractions = np.arange(1, 2.1, 1)
+    seeds = np.asarray([124, 4356, 234, 4561, 8147, 56351])
+    w_exits = np.arange(1, 2.1, 2)
+    w_walls = np.arange(1, 2.1, 2)
+    w_attractions = np.arange(1, 2.1, 2)
 
     all = [max_agents, init_agents, standing_agents,
            steps, seeds, w_exits, w_walls, w_attractions]
 
     # file = 'geometries/simplified.xml'
     # file = 'geometries/platform-smaller.xml'
-    file = 'geometries/platform.xml'
+    file = 'geometries/platform-sbb.xml'
 
     parameters = []
 
@@ -49,7 +49,7 @@ def setup_simulation(agents):
                      "_w-exit={:0.2f}_w-wall={:0.2f}_w-attraction={:0.2f}_rep={:02d}".format(
                 max_agent, init_agent, standing_agent, step, seed, w_exit, w_wall, w_attraction, rep)
             # output_path = os.path.join('results-change-weight', suffix)
-            output_path = os.path.join('results/more-time-between-peds', suffix)
+            output_path = os.path.join('results/sbb-train-stations', suffix)
 
             para = SimulationParameters()
             para.max_agents = max_agent
@@ -85,10 +85,11 @@ if __name__ == '__main__':
     print('run {} simulations with {} processes'.format(end-start, multiprocessing.cpu_count()))
     start_time = time.time()
 
-    pool = multiprocessing.Pool(multiprocessing.cpu_count())
-    pool.map_async(start_simulation, parameters[int(start):int(end)])
-    pool.close()
-    pool.join()
+    # pool = multiprocessing.Pool(multiprocessing.cpu_count())
+    # pool.map_async(start_simulation, parameters[int(start):int(end)])
+    # pool.close()
+    # pool.join()
+    start_simulation(parameters[0])
     end_time = time.time()
 
     print("Time needed: {}".format(end_time - start_time))

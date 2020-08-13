@@ -35,13 +35,14 @@ def setup_argument_parser():
     # read general parameters
     parser.add_argument('--max_agents', help='max number of pedestrians', type=restricted_int, default=100)
     parser.add_argument('--init_agents', help='number of pedestrians at start of simulation', type=restricted_int,
-                        default=50)
+                        default=0)
     parser.add_argument('--standing_agents', help='number of pedestrian which will not move during simulation, '
                                                   'only applies to init_agents', type=restricted_int, default=0)
 
-    parser.add_argument('--steps', help='number of simulation steps', type=restricted_int, default=50)
+    parser.add_argument('--steps', help='number of simulation steps', type=restricted_int, default=500)
     # parser.add_argument('--file', help='geometry used for simulation', default='./geometries/simplified.xml')
-    parser.add_argument('--file', help='geometry used for simulation', default='./geometries/platform.xml')
+    # parser.add_argument('--file', help='geometry used for simulation', default='./geometries/platform.xml')
+    parser.add_argument('--file', help='geometry used for simulation', default='./geometries/platform-sbb.xml')
     # parser.add_argument('--file', help='geometry used for simulation', default='./geometries/platform-smaller.xml')
 
     parser.add_argument('--seed', help='used random seed (default 124)', type=restricted_int, default=124)
@@ -56,8 +57,8 @@ def setup_argument_parser():
     parser.add_argument('--door_b', help='sigmoid parameter for door b (default 1)', type=restricted_float, default=1)
     parser.add_argument('--door_c', help='sigmoid parameter for door c (default 1)', type=restricted_float, default=1)
 
-    parser.add_argument('--exit_b', help='sigmoid parameter for exit b (default 1)', type=restricted_float, default=3)
-    parser.add_argument('--exit_c', help='sigmoid parameter for exit c (default 1)', type=restricted_float, default=0.5)
+    parser.add_argument('--exit_b', help='sigmoid parameter for exit b (default 1)', type=restricted_float, default=5)
+    parser.add_argument('--exit_c', help='sigmoid parameter for exit c (default 1)', type=restricted_float, default=0.3)
 
     parser.add_argument('--wall_b', help='sigmoid parameter for wall b (default 1)', type=restricted_float, default=1)
     parser.add_argument('--wall_c', help='sigmoid parameter for wall c (default 1)', type=restricted_float, default=1)
@@ -80,7 +81,7 @@ def setup_argument_parser():
     parser.add_argument('--plot', help='plot the static ff, and peds in each step', type=restricted_bool,
                         default=False)
 
-    parser.add_argument('--output_path', help='directory where the results are stored', default='results/traj-test')
+    parser.add_argument('--output_path', help='directory where the results are stored', default='results/sigmoid-test')
 
     return parser
 

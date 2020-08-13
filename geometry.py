@@ -148,6 +148,12 @@ class Geometry:
     def visible_area(self, x: float, y: float):
         vs = sg.RotationalSweepVisibility(self.arr)
         q = sg.Point2(x, y)
+
+        if x == -132000 and y == 2000:
+            for he in self.arr.halfedges:
+                sg.draw.draw(he.curve(), visible_point=False)
+            sg.draw.draw(q, color='magenta')
+            plt.show()
         face = self.arr.find(q)
         vx = vs.compute_visibility(q, face)
         points = []

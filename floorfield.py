@@ -30,7 +30,8 @@ def normalize_dict(field):
 
 
 def distance_to_prob_inc(distance_field, b, c):
-    return np.exp(-b * np.exp(-c * (distance_field / 1000)))
+    # return np.exp(-b * np.exp(-c * (distance_field / 1000)))
+    return 1 / (1 + np.exp(-c * ((distance_field / 1000)-b)))
 
 
 def distance_to_prob_dec(distance_field, b, c):
@@ -39,9 +40,9 @@ def distance_to_prob_dec(distance_field, b, c):
 
 def compute_static_ff(geometry: Geometry, grid: Grid, simulation_parameters: SimulationParameters):
     # compute door probability: further is better
-    # door_distance = compute_entrance_distance(geometry, grid)
+    door_distance = compute_entrance_distance(geometry, grid)
     # plot_prob_field(geometry, grid, door_distance, "entrance distance")
-    # door_prob = distance_to_prob_inc(door_distance, simulation_parameters.door_b, simulation_parameters.door_c)
+    door_prob = distance_to_prob_inc(door_distance, simulation_parameters.door_b, simulation_parameters.door_c)
     # plot_prob_field(geometry, grid, door_prob, "entrance prob")
 
     # compute wall probability: closer is better
@@ -71,14 +72,14 @@ def compute_static_ff(geometry: Geometry, grid: Grid, simulation_parameters: Sim
                                                    simulation_parameters.attraction_mounted_c)
     # plot_prob_field(geometry, grid, attraction_mounted_prob, "attraction mounted prob")
 
-    attraction = np.maximum(attraction_ground_prob, attraction_mounted_prob)
+    attraction = attraction_ground_prob #np.maximum(1.2*attraction_ground_prob, attraction_mounted_prob)
     # plot_prob_field(geometry, grid, attraction, "attraction prob")
 
     # sum everything up for static FF
     static = simulation_parameters.w_wall * wall_prob \
              + simulation_parameters.w_exit * exit_prob \
              + simulation_parameters.w_attraction * attraction
-
+    static = static * door_prob
     if simulation_parameters.plot:
         plot_prob_field(geometry, grid, static, "static")
 
@@ -100,7 +101,7 @@ def compute_individual_ff(geometry: Geometry, grid: Grid, ped: Pedestrian, simul
 
 
 def compute_overall_ff(geometry: Geometry, grid: Grid, static_ff, individual_ff):
-    combined = static_ff * 5 * individual_ff
+    combined = static_ff * individual_ff
     # plot_prob_field(geometry, grid, static_ff)
     # plot_prob_field(geometry, grid, individual_ff)
     # plot_prob_field(geometry, grid, combined, "overall")
@@ -127,9 +128,11 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
     weights = np.zeros_like(grid.gridX)
 
     weight_distance = compute_point_distance(geometry, grid, [ped.i(), ped.j()])
-    weight_prob = distance_to_prob_dec(weight_distance, 10, 0.1)
+    weight_prob = distance_to_prob_dec(weight_distance, 40, 0.01)
+    # plot_prob_field(geometry, grid, weight_prob, "weight_prob")
 
     weighted_floorfield = weight_prob * floorfield
+    # plot_prob_field(geometry, grid, weighted_floorfield, "weighted_floorfield")
 
     # sum up every cell in neighbor polygon to neighbor cell
     # sum is weighted by distance, closer = more important
@@ -175,12 +178,12 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
     # plt.show()
 
     # weight cells by moving direction
-    weights = {}
-    for key, p in prob.items():
-        weights[key] = weighted_neighbors[ped.direction][key]
-    weights = normalize_dict(weights)
-    for key, p in prob.items():
-        prob[key] = p * weights[key]
+    # weights = {}
+    # for key, p in prob.items():
+    #     weights[key] = weighted_neighbors[ped.direction][key]
+    # weights = normalize_dict(weights)
+    # for key, p in prob.items():
+    #     prob[key] = p * weights[key]
 
     prob = normalize_dict(prob)
     return prob

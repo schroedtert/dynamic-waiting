@@ -23,24 +23,26 @@ def compute_distance_fmm(geometry: Geometry, grid: Grid, start, mask, speed=None
 
 def compute_entrance_distance(geometry: Geometry, grid: Grid):
     entrances = grid.entrance_cells
-
+    # plot_prob_field(geometry, grid, entrances)
     outside = grid.outside_cells
     mask = np.logical_and(outside == 1, entrances != 1)
 
-    speed = 0.5 * np.ones_like(grid.gridX)
+    # plot_prob_field(geometry, grid, np.ma.MaskedArray(entrances, mask))
 
-    for entrance in geometry.entrances.values():
-        y_min = entrance.bbox().ymin()
-        y_max = entrance.bbox().ymax()
+    # speed = 0.5 * np.ones_like(grid.gridX)
 
-        x_min = entrance.bbox().xmin()
+    # for entrance in geometry.entrances.values():
+    #     y_min = entrance.bbox().ymin()
+    #     y_max = entrance.bbox().ymax()
+    #
+    #     x_min = entrance.bbox().xmin()
+    #
+    #     speed_mask_y = np.logical_and(grid.gridY >= y_min + 1000, grid.gridY <= y_max - 1000)
+    #     speed_mask_x = np.logical_and(grid.gridX >= x_min - 5000, grid.gridX <= x_min + 5000)
+    #     speed_mask = np.logical_and(speed_mask_x, speed_mask_y)
+    #     speed[speed_mask] = 5
 
-        speed_mask_y = np.logical_and(grid.gridY >= y_min + 1000, grid.gridY <= y_max - 1000)
-        speed_mask_x = np.logical_and(grid.gridX >= x_min - 5000, grid.gridX <= x_min + 5000)
-        speed_mask = np.logical_and(speed_mask_x, speed_mask_y)
-        speed[speed_mask] = 5
-
-    return compute_distance_fmm(geometry, grid, entrances, mask, speed)
+    return compute_distance_fmm(geometry, grid, entrances, mask)
 
 
 def compute_exit_distance(geometry: Geometry, grid: Grid):
