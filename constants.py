@@ -22,10 +22,10 @@ class Direction(Enum):
 
 
 weighted_direction = {
-    Direction.stay: 0.2,
-    Direction.left: 0.15,
-    Direction.forward: 0.45,
-    Direction.right: 0.15,
+    Direction.stay: 0.25,
+    Direction.left: 0.10,
+    Direction.forward: 0.50,
+    Direction.right: 0.10,
     Direction.back: 0.05
 }
 
