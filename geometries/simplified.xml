@@ -1,70 +1,70 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
 <geometry version="0.8">
-	<rooms>
-		<room id="0" caption="hall">
-			<subroom id="0" closed="0" class="subroom">
-				<polygon caption="wall">
-					<vertex px="-10.0" py="-5.0"/>
-					<vertex px="-10.0" py="5.0"/>
-					<vertex px="10.0" py="5.0"/>
-					<vertex px="10.0" py="-5.0"/>
-				</polygon>
-				<edges>
-					<edge>
-						<vertex px="-10.0" py="-5.0"/>
-						<vertex px="10.0" py="-5.0"/>
-					</edge>
-					<edge>
-						<vertex px="10.0" py="5.0"/>
-						<vertex px="-10.0" py="5.0"/>
-					</edge>
-				</edges>
-			</subroom>
-		</room>
-	</rooms>
+    <rooms>
+        <room id="0" caption="hall">
+            <subroom id="0" closed="0" class="subroom">
+                <polygon caption="wall">
+                    <vertex px="-10.0" py="-5.0"/>
+                    <vertex px="10.0" py="-5.0"/>
+                    <vertex px="10.0" py="5.0"/>
+                    <vertex px="-10.0" py="5.0"/>
+                </polygon>
+                <edges>
+                    <edge>
+                        <vertex px="-10.0" py="-5.0"/>
+                        <vertex px="10.0" py="-5.0"/>
+                    </edge>
+                    <edge>
+                        <vertex px="10.0" py="5.0"/>
+                        <vertex px="-10.0" py="5.0"/>
+                    </edge>
+                </edges>
+            </subroom>
+        </room>
+    </rooms>
 
-	<entrances>
-		<entrance id="0" frequency="2" number="1">
-			<vertex px="10.0" py="-2.0"/>
-			<vertex px="10.0" py="2.0"/>
-		</entrance>
-	</entrances>
+    <entrances>
+        <entrance id="0" frequency="2" number="1">
+            <vertex px="10.0" py="-2.0"/>
+            <vertex px="10.0" py="2.0"/>
+        </entrance>
+    </entrances>
 
-	<exits>
-		<exit id="0">
-			<vertex px="-10.0" py="-5.0"/>
-			<vertex px="10.0" py="-5.0"/>
-		</exit>
-	</exits>
+    <exits>
+        <exit id="0">
+            <vertex px="-10.0" py="-5.0"/>
+            <vertex px="10.0" py="-5.0"/>
+        </exit>
+    </exits>
 
-	<obstacles>
-		<obstacle id="0">
-			<polygon>
-				<vertex px="-1" py="-1"/>
-				<vertex px="1" py="-1"/>
-				<vertex px="1" py="1"/>
-				<vertex px="-1" py="1"/>
-			</polygon>
-		</obstacle>
-	</obstacles>
+    <obstacles>
+        <obstacle id="0">
+            <polygon>
+                <vertex px="-1" py="-1"/>
+                <vertex px="-1" py="1"/>
+                <vertex px="1" py="1"/>
+                <vertex px="1" py="-1"/>
+            </polygon>
+        </obstacle>
+    </obstacles>
 
-	<attractions>
-		<attraction id="0" mounted="true" exit_id="0">
-			<polygon>
-				<vertex px="-0.25" py="-3.75"/>
-				<vertex px="0.25" py="-2.25"/>
-				<vertex px="0.25" py="-3.75"/>
-				<vertex px="-0.25" py="-2.25"/>
-			</polygon>
-		</attraction>
-		<attraction id="1" high="false">
-			<polygon>
-				<vertex px="-8" py="-0.25"/>
-				<vertex px="-7" py="-0.25"/>
-				<vertex px="-7" py="0.25"/>
-				<vertex px="-8" py="0.25"/>
-			</polygon>
-		</attraction>
-	</attractions>
+    <attractions>
+        <attraction id="0" mounted="true" exit_id="0">
+            <polygon>
+                <vertex px="-0.25" py="-3.75"/>
+                <vertex px="0.25" py="-2.25"/>
+                <vertex px="0.25" py="-3.75"/>
+                <vertex px="-0.25" py="-2.25"/>
+            </polygon>
+        </attraction>
+        <attraction id="1" high="false">
+            <polygon>
+                <vertex px="-8" py="-0.25"/>
+                <vertex px="-8" py="0.25"/>
+                <vertex px="-7" py="0.25"/>
+                <vertex px="-7" py="-0.25"/>
+            </polygon>
+        </attraction>
+    </attractions>
 </geometry>

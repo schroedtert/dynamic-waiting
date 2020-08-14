@@ -15,15 +15,15 @@
 	</rooms>
 
 	<entrances>
-		<entrance id="0" frequency="3" number="1">
+		<entrance id="0" frequency="15" number="1">
 			<vertex px="-60.0" py="-1.5"/>
 			<vertex px="-60.0" py="1.5"/>
 		</entrance>
-		<entrance id="1" frequency="3" number="1">
+		<entrance id="1" frequency="15" number="1">
 			<vertex px="60.0" py="-1.5"/>
 			<vertex px="60.0" py="1.5"/>
 		</entrance>
-		<entrance id="2" frequency="50" number="2">
+		<entrance id="2" frequency="180" number="3">
 			<vertex px="-2.0" py="-1.5"/>
 			<vertex px="-2.0" py="1.5"/>
 		</entrance>

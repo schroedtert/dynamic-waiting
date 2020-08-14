@@ -18,19 +18,20 @@ import time
 def setup_simulation(agents):
     num_repetitions = 1
     max_agents = np.asarray([agents])
-    init_agents = np.asarray([0., 0.5])
-    standing_agents = np.asarray([0., 0.25, 0.5, 0.75, 1])
-    steps = np.asarray([500])
-    seeds = np.asarray([124, 4356, 234])
-    w_exits = np.arange(1, 2.1, 1)
-    w_walls = np.arange(1, 2.1, 1)
-    w_attractions = np.arange(1, 2.1, 1)
+    init_agents = np.asarray([0.1])
+    standing_agents = np.asarray([0.])
+    steps = np.asarray([400])
+    seeds = np.asarray([1224, 4356, 234, 4561, 8147, 56351])
+    w_exits = np.arange(1, 2.1, 7)
+    w_walls = np.arange(1, 2.1, 2)
+    w_attractions = np.arange(1, 2.1, 2)
 
     all = [max_agents, init_agents, standing_agents,
            steps, seeds, w_exits, w_walls, w_attractions]
 
     # file = 'geometries/simplified.xml'
-    file = 'geometries/platform-smaller.xml'
+    # file = 'geometries/platform-smaller.xml'
+    file = 'geometries/platform-sbb.xml'
 
     parameters = []
 
@@ -44,10 +45,11 @@ def setup_simulation(agents):
             w_exit = combination[5]
             w_wall = combination[6]
             w_attraction = combination[7]
-            suffix = "max-agents={}_init-agents={}_standing-agents={}_steps={}_seed={}" \
-                     "_w-exit={:0.2f}_w-wall={:0.2f}_w-attraction={:0.2f}_rep={}".format(
+            suffix = "max-agents={:04d}_init-agents={:04d}_standing-agents={:04d}_steps={:04d}_seed={:08d}" \
+                     "_w-exit={:0.2f}_w-wall={:0.2f}_w-attraction={:0.2f}_rep={:02d}".format(
                 max_agent, init_agent, standing_agent, step, seed, w_exit, w_wall, w_attraction, rep)
-            output_path = os.path.join('/p/project/jias72/tobias/2020-femtc/2020-08-11_results/', suffix)
+            # output_path = os.path.join('results-change-weight', suffix)
+            output_path = os.path.join('results/sbb-train-stations-2', suffix)
 
             para = SimulationParameters()
             para.max_agents = max_agent
@@ -69,16 +71,6 @@ def setup_simulation(agents):
     return parameters
 
 
-def Repeat(x):
-    _size = len(x)
-    repeated = []
-    for i in range(_size):
-        k = i + 1
-        for j in range(k, _size):
-            if x[i] == x[j] and x[i] not in repeated:
-                repeated.append(x[i])
-    return repeated
-
 def start_simulation(sim_parameters):
     run_simulation(sim_parameters)
     return 0
@@ -90,14 +82,14 @@ if __name__ == '__main__':
     end = int(sys.argv[3])
 
     parameters = setup_simulation(num_agents)
-
-    print('run {} simulations with {} processes'.format(end-start, multiprocessing.cpu_count()))
+    print('run {} simulations with {} processes'.format(end - start, multiprocessing.cpu_count()))
     start_time = time.time()
 
     pool = multiprocessing.Pool(multiprocessing.cpu_count())
     pool.map_async(start_simulation, parameters[int(start):int(end)])
     pool.close()
     pool.join()
+    # start_simulation(parameters[0])
     end_time = time.time()
 
     print("Time needed: {}".format(end_time - start_time))

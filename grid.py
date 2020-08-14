@@ -2,8 +2,7 @@ import random
 from dataclasses import dataclass
 
 import numpy as np
-import skgeom as sg
-
+from shapely.geometry import LineString, Point, Polygon
 from geometry import Geometry
 from constants import *
 from pedestrian import Pedestrian
@@ -65,7 +64,6 @@ class Grid:
             for j in range(self.dimY):
                 if self.inside_cells[i][j] == 0:
                     outside[i][j] = 1
-
         return outside
 
     def __get_inside_cells(self, geometry: Geometry):
@@ -85,8 +83,8 @@ class Grid:
             for j in range(self.dimY):
                 for key, door in geometry.entrances.items():
                     x, y = self.get_coordinates(i, j)
-                    p = sg.Point2(x, y)
-                    if sg.squared_distance(door, p) < THRESHOLD ** 2:
+                    p = Point((x, y))
+                    if door.distance(p) < THRESHOLD:
                         entrances[i][j] = 1
 
         return entrances
@@ -98,54 +96,31 @@ class Grid:
             for i in range(self.dimX):
                 for j in range(self.dimY):
                     x, y = self.get_coordinates(i, j)
-                    p = sg.Point2(x, y)
-                    if sg.squared_distance(door, p) < THRESHOLD ** 2:
+                    p = Point((x, y))
+                    if door.distance(p) < THRESHOLD:
                         entrances[i][j] = 1
             doors[key] = entrances
+
         return doors
 
     def get_ped_cells(self, geometry: Geometry, ped: Pedestrian = None):
         peds = np.zeros_like(self.gridX)
 
-        pedPositions = []
         for key, pped in geometry.pedestrians.items():
             if ped is not None and ped.id != pped.id:
                 peds[ped.i()][ped.j()] = 1
-                # x, y = self.get_coordinates(pped.i(), pped.j())
-                #
-                # pedPositions.append(sg.Point2(x, y))
-
-        # for i in range(self.dimX):
-        #     for j in range(self.dimY):
-        #         x, y = self.get_coordinates(i, j)
-        #         p = sg.Point2(x, y)
-        #
-        #         for pos in pedPositions:
-        #             if sg.squared_distance(pos, p) < THRESHOLD ** 2:
-        #                 peds[i][j] = 1
 
         return peds
 
     def get_wall_cells(self, geometry: Geometry):
         walls = np.zeros_like(self.gridX)
-        wallSegments = []
-
-        for hole in geometry.obstacles.values():
-            for i in range(len(hole.coords)):
-                next_coordinate = (i + 1) % len(hole.coords)
-                p1 = sg.Point2(hole.coords[i][0],
-                               hole.coords[i][1])
-                p2 = sg.Point2(hole.coords[next_coordinate][0],
-                               hole.coords[next_coordinate][1])
-                wall = sg.Segment2(p1, p2)
-                wallSegments.append(wall)
 
         for i in range(self.dimX):
             for j in range(self.dimY):
-                for wall in wallSegments:
-                    x, y = self.get_coordinates(i, j)
-                    p = sg.Point2(x, y)
-                    if sg.squared_distance(wall, p) < THRESHOLD ** 2:
+                x, y = self.get_coordinates(i, j)
+                p = Point((x, y))
+                for hole in geometry.obstacles.values():
+                    if hole.distance(p) < THRESHOLD:
                         walls[i][j] = 1
 
         return walls - self.__get_entrance_cells(geometry)
@@ -156,8 +131,8 @@ class Grid:
             for j in range(self.dimY):
                 for edge in geometry.edges:
                     x, y = self.get_coordinates(i, j)
-                    p = sg.Point2(x, y)
-                    if sg.squared_distance(edge, p) < THRESHOLD ** 2:
+                    p = Point((x, y))
+                    if edge.distance(p) < THRESHOLD:
                         edges[i][j] = 1
 
         return edges
@@ -168,8 +143,8 @@ class Grid:
             for j in range(self.dimY):
                 for key, door in geometry.exits.items():
                     x, y = self.get_coordinates(i, j)
-                    p = sg.Point2(x, y)
-                    if sg.squared_distance(door, p) < THRESHOLD ** 2:
+                    p = Point((x, y))
+                    if door.distance(p) < THRESHOLD:
                         exits[i][j] = 1
 
         return exits
@@ -180,9 +155,9 @@ class Grid:
         for i in range(self.dimX):
             for j in range(self.dimY):
                 x, y = self.get_coordinates(i, j)
-                p = sg.Point2(x, y)
+                p = Point((x, y))
                 for hole in geometry.attraction_ground.values():
-                    if hole.oriented_side(p) != sg.Sign.NEGATIVE:
+                    if hole.distance(p) < THRESHOLD:
                         attraction_ground[i][j] = 1
 
         return attraction_ground
@@ -193,9 +168,9 @@ class Grid:
         for i in range(self.dimX):
             for j in range(self.dimY):
                 x, y = self.get_coordinates(i, j)
-                p = sg.Point2(x, y)
+                p = Point((x, y))
                 for hole in geometry.attraction_mounted.values():
-                    if hole.oriented_side(p) != sg.Sign.NEGATIVE:
+                    if hole.distance(p) < THRESHOLD:
                         attraction_mounted[i][j] = 1
 
         return attraction_mounted
@@ -229,13 +204,16 @@ class Grid:
         # not shuffling significantly alters the simulation...
         return neighbors
 
-    def get_inside_polygon_cells(self, geometry: Geometry, polygon: sg.Polygon, point: sg.Point2):
+    def get_inside_polygon_cells(self, geometry: Geometry, points):
         inside = np.zeros_like(self.inside_cells)
 
         verts = []
-        for coord in polygon.coords:
+        for coord in points:
             verts.append((coord[0], coord[1]))
 
+        # print(points)
+        # print(verts)
+        # print('-----------------------------')
         p = Path(verts, closed=True)
 
         points = np.vstack((self.gridX.flatten(), self.gridY.flatten())).T
@@ -247,18 +225,3 @@ class Grid:
         inside[mask] = 1
 
         return inside
-
-    def get_nearby_cells(self, geometry: Geometry, cell: [int, int], cutoff: float):
-        px, py = self.get_coordinates(cell[0], cell[1])
-        reference = sg.Point2(px, py)
-
-        nearby = np.zeros_like(self.gridX)
-        for i in range(self.dimX):
-            for j in range(self.dimY):
-                x, y = self.get_coordinates(i, j)
-                p = sg.Point2(x, y)
-                if sg.squared_distance(reference, p) < cutoff ** 2:
-                    nearby[i][j] = 1
-
-        return nearby
-
