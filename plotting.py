@@ -55,7 +55,7 @@ def plot_prob_field(geometry: Geometry, grid: Grid, prob_field, title="", ped=No
         y = grid.gridY[ped.i()][ped.j()]
         # plt.scatter(x, y, color='black')
 
-    plt.pcolor(grid.gridX / MTOMM, grid.gridY / MTOMM, prob_field, cmap=cm.coolwarm, shading='auto')
+    plt.pcolor(grid.gridX / MTOMM, grid.gridY / MTOMM, prob_field, cmap=cm.coolwarm)
 
     plt.axis('equal')
     plt.xlabel('x/m')
@@ -125,7 +125,7 @@ def plot_space_usage(geometry: Geometry, grid: Grid, trajectory: Trajectory, num
     outside = grid.outside_cells
     space_usage = np.ma.MaskedArray(space_usage, outside == 1)
 
-    plt.pcolor(grid.gridX / MTOMM, grid.gridY / MTOMM, space_usage, cmap=cm.coolwarm, shading='auto')
+    plt.pcolor(grid.gridX / MTOMM, grid.gridY / MTOMM, space_usage, cmap=cm.coolwarm)
 
     plt.axis('equal')
     plt.gca().set_adjustable("box")

@@ -15,11 +15,11 @@
     </rooms>
 
     <entrances>
-        <entrance id="0" frequency="15" number="1">
+        <entrance id="0" frequency="30" number="1">
             <vertex px="-94.0" py="-1.5"/>
             <vertex px="-94.0" py="1.5"/>
         </entrance>
-        <entrance id="1" frequency="15" number="1">
+        <entrance id="1" frequency="20" number="1">
             <vertex px="-62.0" py="-1.5"/>
             <vertex px="-62.0" py="1.5"/>
         </entrance>
@@ -28,11 +28,11 @@
             <vertex px="56.0" py="-1.5"/>
             <vertex px="56.0" py="1.5"/>
         </entrance>
-        <entrance id="3" frequency="180" number="3">
+        <entrance id="3" frequency="20" number="1">
             <vertex px="64.0" py="-1.5"/>
             <vertex px="64.0" py="1.5"/>
         </entrance>
-        <entrance id="4" frequency="180" number="3">
+        <entrance id="4" frequency="15" number="1">
             <vertex px="92.0" py="-1.5"/>
             <vertex px="92.0" py="1.5"/>
         </entrance>
@@ -46,6 +46,10 @@
         <exit id="0">
             <vertex px="-150.0" py="-4.0"/>
             <vertex px="150.0" py="-4.0"/>
+        </exit>
+        <exit id="1">
+            <vertex px="-150.0" py="4.0"/>
+            <vertex px="150.0" py="4.0"/>
         </exit>
     </exits>
 
@@ -152,14 +156,14 @@
         <!--				<vertex px="90" py="0.25"/>-->
         <!--			</polygon>-->
         <!--		</attraction>-->
-        <attraction id="12" mounted="false">
-            <polygon>
-                <vertex px="-125" py="-0.5"/>
-                <vertex px="-125" py="0.5"/>
-                <vertex px="-120" py="0.5"/>
-                <vertex px="-120" py="-0.5"/>
-            </polygon>
-        </attraction>
+        <!--        <attraction id="12" mounted="false">-->
+        <!--            <polygon>-->
+        <!--                <vertex px="-125" py="-0.5"/>-->
+        <!--                <vertex px="-125" py="0.5"/>-->
+        <!--                <vertex px="-120" py="0.5"/>-->
+        <!--                <vertex px="-120" py="-0.5"/>-->
+        <!--            </polygon>-->
+        <!--        </attraction>-->
         <attraction id="13" mounted="false">
             <polygon>
                 <vertex px="-42" py="-0.5"/>
@@ -194,39 +198,39 @@
                 <vertex px="79" py="-0.25"/>
             </polygon>
         </attraction>
-        <attraction id="24" mounted="false">
-            <polygon>
-                <vertex px="120" py="-0.25"/>
-                <vertex px="120" py="0.25"/>
-                <vertex px="125" py="0.25"/>
-                <vertex px="125" py="-0.25"/>
-            </polygon>
-        </attraction>
+        <!--        <attraction id="24" mounted="false">-->
+        <!--            <polygon>-->
+        <!--                <vertex px="120" py="-0.25"/>-->
+        <!--                <vertex px="120" py="0.25"/>-->
+        <!--                <vertex px="125" py="0.25"/>-->
+        <!--                <vertex px="125" py="-0.25"/>-->
+        <!--            </polygon>-->
+        <!--        </attraction>-->
 
-        <attraction id="97" mounted="false">
-            <polygon>
-                <vertex px="-5" py="-0.25"/>
-                <vertex px="-5" py="0.25"/>
-                <vertex px="-1" py="0.25"/>
-                <vertex px="-1" py="-0.25"/>
-            </polygon>
-        </attraction>
-        <attraction id="98" mounted="false">
-            <polygon>
-                <vertex px="0" py="-0.25"/>
-                <vertex px="0" py="0.25"/>
-                <vertex px="4" py="0.25"/>
-                <vertex px="4" py="-0.25"/>
-            </polygon>
-        </attraction>
-        <attraction id="99" mounted="false">
-            <polygon>
-                <vertex px="5" py="-0.25"/>
-                <vertex px="5" py="0.25"/>
-                <vertex px="9" py="0.25"/>
-                <vertex px="9" py="-0.25"/>
-            </polygon>
-        </attraction>
+        <!--        <attraction id="97" mounted="false">-->
+        <!--            <polygon>-->
+        <!--                <vertex px="-5" py="-0.25"/>-->
+        <!--                <vertex px="-5" py="0.25"/>-->
+        <!--                <vertex px="-1" py="0.25"/>-->
+        <!--                <vertex px="-1" py="-0.25"/>-->
+        <!--            </polygon>-->
+        <!--        </attraction>-->
+        <!--        <attraction id="98" mounted="false">-->
+        <!--            <polygon>-->
+        <!--                <vertex px="0" py="-0.25"/>-->
+        <!--                <vertex px="0" py="0.25"/>-->
+        <!--                <vertex px="4" py="0.25"/>-->
+        <!--                <vertex px="4" py="-0.25"/>-->
+        <!--            </polygon>-->
+        <!--        </attraction>-->
+        <!--        <attraction id="99" mounted="false">-->
+        <!--            <polygon>-->
+        <!--                <vertex px="5" py="-0.25"/>-->
+        <!--                <vertex px="5" py="0.25"/>-->
+        <!--                <vertex px="9" py="0.25"/>-->
+        <!--                <vertex px="9" py="-0.25"/>-->
+        <!--            </polygon>-->
+        <!--        </attraction>-->
 
     </attractions>
 </geometry>

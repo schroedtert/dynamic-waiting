@@ -18,11 +18,11 @@ import time
 def setup_simulation(agents):
     num_repetitions = 1
     max_agents = np.asarray([agents])
-    init_agents = np.asarray([0.25])
+    init_agents = np.asarray([0.1])
     standing_agents = np.asarray([0.])
-    steps = np.asarray([500])
+    steps = np.asarray([400])
     seeds = np.asarray([1224, 4356, 234, 4561, 8147, 56351])
-    w_exits = np.arange(1, 2.1, 2)
+    w_exits = np.arange(1, 2.1, 7)
     w_walls = np.arange(1, 2.1, 2)
     w_attractions = np.arange(1, 2.1, 2)
 
@@ -49,7 +49,7 @@ def setup_simulation(agents):
                      "_w-exit={:0.2f}_w-wall={:0.2f}_w-attraction={:0.2f}_rep={:02d}".format(
                 max_agent, init_agent, standing_agent, step, seed, w_exit, w_wall, w_attraction, rep)
             # output_path = os.path.join('results-change-weight', suffix)
-            output_path = os.path.join('results/sbb-train-stations', suffix)
+            output_path = os.path.join('results/sbb-train-stations-2', suffix)
 
             para = SimulationParameters()
             para.max_agents = max_agent
@@ -82,14 +82,14 @@ if __name__ == '__main__':
     end = int(sys.argv[3])
 
     parameters = setup_simulation(num_agents)
-    print('run {} simulations with {} processes'.format(end-start, multiprocessing.cpu_count()))
+    print('run {} simulations with {} processes'.format(end - start, multiprocessing.cpu_count()))
     start_time = time.time()
 
-    # pool = multiprocessing.Pool(multiprocessing.cpu_count())
-    # pool.map_async(start_simulation, parameters[int(start):int(end)])
-    # pool.close()
-    # pool.join()
-    start_simulation(parameters[0])
+    pool = multiprocessing.Pool(multiprocessing.cpu_count())
+    pool.map_async(start_simulation, parameters[int(start):int(end)])
+    pool.close()
+    pool.join()
+    # start_simulation(parameters[0])
     end_time = time.time()
 
     print("Time needed: {}".format(end_time - start_time))

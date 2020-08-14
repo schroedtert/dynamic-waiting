@@ -18,16 +18,16 @@ class SimulationParameters:
     wall_c: float = 1
 
     # for ped distance
-    ped_b: float = 3
+    ped_b: float = 1
     ped_c: float = 1
 
     # for door distance (flow avoidance)
-    door_b: float = 10
+    door_b: float = 2
     door_c: float = 0.5
 
     # for exit distance
-    exit_b: float = 5
-    exit_c: float = 0.3
+    exit_b: float = 0.5
+    exit_c: float = 0.75
 
     # for attraction prob ground
     attraction_ground_b: float = 2

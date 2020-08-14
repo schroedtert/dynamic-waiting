@@ -3,9 +3,8 @@ from pprint import pprint
 
 import matplotlib.pyplot as plt
 import numpy as np
-import skgeom as sg
-from skgeom import boolean_set
 from simulation_parameters import SimulationParameters
+
 from distanceCalculator import *
 from geometry import Geometry
 from grid import Grid
@@ -14,12 +13,8 @@ from constants import *
 from scipy.spatial import Voronoi, voronoi_plot_2d
 
 from plotting import plot_prob_field
-from shapely.geometry import Polygon
-
-
-def nth(iterable, n, default=None):
-    """Returns the nth item or a default value"""
-    return next(islice(iterable, n, None), default)
+from shapely.geometry import Polygon, Point
+from descartes.patch import PolygonPatch
 
 
 def normalize_dict(field):
@@ -54,8 +49,8 @@ def compute_static_ff(geometry: Geometry, grid: Grid, simulation_parameters: Sim
     # compute distance to exits: closer is better
     exit_distance = compute_exit_distance(geometry, grid)
     # plot_prob_field(geometry, grid, exit_distance, "exit distance")
-    exit_prob = distance_to_prob_dec(exit_distance, simulation_parameters.exit_b, simulation_parameters.exit_c)
-    # plot_prob_field(geometry, grid, exit_prob, "exit prob")
+    exit_prob = distance_to_prob_inc(exit_distance, simulation_parameters.exit_b, simulation_parameters.exit_c)
+    plot_prob_field(geometry, grid, exit_prob, "exit prob")
 
     # compute distance to ground attraction points: closer is better
     attraction_ground_distance = compute_attraction_ground_distance(geometry, grid)
@@ -72,7 +67,9 @@ def compute_static_ff(geometry: Geometry, grid: Grid, simulation_parameters: Sim
                                                    simulation_parameters.attraction_mounted_c)
     # plot_prob_field(geometry, grid, attraction_mounted_prob, "attraction mounted prob")
 
-    attraction = attraction_ground_prob #np.maximum(1.2*attraction_ground_prob, attraction_mounted_prob)
+    attraction = attraction_ground_prob
+    # attraction = np.maximum(1.2*attraction_ground_prob, attraction_mounted_prob)
+    # attraction = np.maximum(1.2*attraction_ground_prob, attraction_mounted_prob)
     # plot_prob_field(geometry, grid, attraction, "attraction prob")
 
     # sum everything up for static FF
@@ -83,7 +80,7 @@ def compute_static_ff(geometry: Geometry, grid: Grid, simulation_parameters: Sim
     if simulation_parameters.plot:
         plot_prob_field(geometry, grid, static, "static")
 
-    # plot_prob_field(geometry, grid, static, "static")
+    plot_prob_field(geometry, grid, static, "static")
 
     return static
 
@@ -101,7 +98,7 @@ def compute_individual_ff(geometry: Geometry, grid: Grid, ped: Pedestrian, simul
 
 
 def compute_overall_ff(geometry: Geometry, grid: Grid, static_ff, individual_ff):
-    combined = static_ff * individual_ff
+    combined = 2 * static_ff * individual_ff
     # plot_prob_field(geometry, grid, static_ff)
     # plot_prob_field(geometry, grid, individual_ff)
     # plot_prob_field(geometry, grid, combined, "overall")
@@ -118,8 +115,7 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
 
     # compute visible area
     x, y = grid.get_coordinates(ped.i(), ped.j())
-    visible_area = geometry.visible_area(x, y)
-    vis = Polygon(visible_area.coords)
+    vis = geometry.visible_area(x, y)
 
     # compute voronoi polygons of neighbors
     neighbor_voronoi_polygons = compute_voronoi_neighbors(geometry, grid, ped)
@@ -154,22 +150,50 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
 
             p = Polygon(polygon.coords)
             inter = p.intersection(vis)
+            # fig, ax = plt.subplots()
+            #
+            # patch = PolygonPatch(inter, facecolor='blue', edgecolor='black',
+            #                      alpha=0.5, zorder=2)
+            # ax.add_patch(patch)
+            # # plt.plot(*self.floor.interiors.xy)
+            # plt.axis('equal')
+            # plt.gca().set_adjustable("box")
+            #
+            # plt.show()
 
-            if inter.geom_type == 'GeometryCollection':
+            points = []
+            if inter.geom_type == 'Polygon':
+                points = inter.exterior.coords
+            elif inter.geom_type == 'LinearRing':
+                inter.coords
+            elif inter.geom_type == 'GeometryCollection':
+                for i in inter.geoms:
+                    if i.geom_type == 'Polygon':
+                        for ppp in i.exterior.coords:
+                            points.append([ppp[0], ppp[1]])
+            elif inter.geom_type == 'MultiPolygon':
                 for i in inter.geoms:
                     if i.geom_type == 'Polygon':
                         for ppp in i.exterior.coords:
                             points.append([ppp[0], ppp[1]])
             else:
-                points = []
-                for ppp in inter.exterior.coords:
-                    points.append([ppp[0], ppp[1]])
+                print(inter)
 
-            intersection = sg.Polygon(points)
+            # if inter.geom_type == 'GeometryCollection':
+            #     for i in inter.geoms:
+            #         if i.geom_type == 'Polygon':
+            #             for ppp in i.exterior.coords:
+            #                 points.append([ppp[0], ppp[1]])
+            # else:
+            #     points = []
+            #     for ppp in inter.exterior.coords:
+            #         points.append([ppp[0], ppp[1]])
+
+            # intersection = sg.Polygon(points)
             # intersections.append(intersection)
 
-            inside_cells = grid.get_inside_polygon_cells(geometry, intersection, sg.Point2(x, y))
-            plot_prob_field(geometry, grid, inside_cells)
+            inside_cells = grid.get_inside_polygon_cells(geometry, points)
+            # plot_prob_field(geometry, grid, inside_cells)
             combination = inside_cells * weighted_floorfield
 
             prob[key] = np.ma.max(combination, fill_value=0)

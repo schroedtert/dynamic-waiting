@@ -62,7 +62,6 @@ def compute_wall_distance(geometry: Geometry, grid: Grid):
     wall = grid.get_wall_cells(geometry)
     entrances = grid.entrance_cells
     edges = grid.get_edge_cells(geometry)
-
     wall[edges == 1] = 0
     wall[entrances == 1] = 0
 
@@ -99,8 +98,8 @@ def compute_attraction_mounted_distance(geometry: Geometry, grid: Grid):
     speed = 0.2 * np.ones_like(grid.gridX)
 
     for attraction in geometry.attraction_mounted.values():
-        y_min = attraction.bbox().ymin()
-        y_max = attraction.bbox().ymax()
+        y_min = attraction.bounds[1]
+        y_max = attraction.bounds[3]
 
         speed_mask = np.logical_and(grid.gridY >= y_min, grid.gridY <= y_max)
         speed[speed_mask] = 2
