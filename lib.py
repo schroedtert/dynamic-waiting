@@ -30,15 +30,16 @@ def create_peds(num_peds: int, standing_peds: int, geometry: Geometry, grid: Gri
             i = random.randint(0, grid.gridX.shape[0] - 1)
             j = random.randint(0, grid.gridY.shape[1] - 1)
 
-            occupied = False
-            for ped in geometry.pedestrians.values():
-                if ped.i() == i and ped.j() == j:
-                    occupied = True
-                    break
+            if grid.inside_cells[i][j] == 1:
+                occupied = False
+                for ped in geometry.pedestrians.values():
+                    if ped.i() == i and ped.j() == j:
+                        occupied = True
+                        break
 
-            if not occupied and grid.inside_cells[i][j] == 1:
-                geometry.pedestrians[index] = Pedestrian([i, j], Neighbors.left, index, False)
-                break
+                if not occupied:
+                    geometry.pedestrians[index] = Pedestrian([i, j], Neighbors.left, index, False)
+                    break
 
     keys = random.sample(list(geometry.pedestrians), standing_peds)
     for key in keys:

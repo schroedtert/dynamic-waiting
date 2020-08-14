@@ -1,233 +1,232 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
 <geometry version="0.8">
-	<rooms>
-		<room id="0" caption="hall">
-			<subroom id="0" closed="0" class="subroom">
-				<polygon caption="wall">
-					<vertex px="-150.0" py="-4.0"/>
-					<vertex px="-150.0" py="4.0"/>
-					<vertex px="150.0" py="4.0"/>
-					<vertex px="150.0" py="-4.0"/>
-				</polygon>
-			</subroom>
-		</room>
-	</rooms>
+    <rooms>
+        <room id="0" caption="hall">
+            <subroom id="0" closed="0" class="subroom">
+                <polygon caption="wall">
+                    <vertex px="-150.0" py="-4.0"/>
+                    <vertex px="150.0" py="-4.0"/>
+                    <vertex px="150.0" py="4.0"/>
+                    <vertex px="-150.0" py="4.0"/>
+                </polygon>
+            </subroom>
+        </room>
+    </rooms>
 
-	<entrances>
-		<entrance id="0" frequency="15" number="1">
-			<vertex px="-94.0" py="-1.5"/>
-			<vertex px="-94.0" py="1.5"/>
-		</entrance>
-		<entrance id="1" frequency="15" number="1">
-			<vertex px="-62.0" py="-1.5"/>
-			<vertex px="-62.0" py="1.5"/>
-		</entrance>
+    <entrances>
+        <entrance id="0" frequency="15" number="1">
+            <vertex px="-94.0" py="-1.5"/>
+            <vertex px="-94.0" py="1.5"/>
+        </entrance>
+        <entrance id="1" frequency="15" number="1">
+            <vertex px="-62.0" py="-1.5"/>
+            <vertex px="-62.0" py="1.5"/>
+        </entrance>
 
-		<entrance id="2" frequency="180" number="3">
-			<vertex px="56.0" py="-1.5"/>
-			<vertex px="56.0" py="1.5"/>
-		</entrance>
-		<entrance id="3" frequency="180" number="3">
-			<vertex px="64.0" py="-1.5"/>
-			<vertex px="64.0" py="1.5"/>
-		</entrance>
-		<entrance id="4" frequency="180" number="3">
-			<vertex px="92.0" py="-1.5"/>
-			<vertex px="92.0" py="1.5"/>
-		</entrance>
-		<entrance id="5" frequency="180" number="3">
-			<vertex px="100.0" py="-1.5"/>
-			<vertex px="100.0" py="1.5"/>
-		</entrance>
-	</entrances>
+        <entrance id="2" frequency="180" number="3">
+            <vertex px="56.0" py="-1.5"/>
+            <vertex px="56.0" py="1.5"/>
+        </entrance>
+        <entrance id="3" frequency="180" number="3">
+            <vertex px="64.0" py="-1.5"/>
+            <vertex px="64.0" py="1.5"/>
+        </entrance>
+        <entrance id="4" frequency="180" number="3">
+            <vertex px="92.0" py="-1.5"/>
+            <vertex px="92.0" py="1.5"/>
+        </entrance>
+        <entrance id="5" frequency="180" number="3">
+            <vertex px="100.0" py="-1.5"/>
+            <vertex px="100.0" py="1.5"/>
+        </entrance>
+    </entrances>
 
-	<exits>
-		<exit id="0">
-			<vertex px="-150.0" py="-4.0"/>
-			<vertex px="150.0" py="-4.0"/>
-		</exit>
-	</exits>
+    <exits>
+        <exit id="0">
+            <vertex px="-150.0" py="-4.0"/>
+            <vertex px="150.0" py="-4.0"/>
+        </exit>
+    </exits>
 
-	<obstacles>
-		<obstacle id="0">
-			<polygon>
-				<vertex px="-100" py="-2"/>
-				<vertex px="-94" py="-2"/>
-				<vertex px="-94" py="2"/>
-				<vertex px="-100" py="2"/>
-			</polygon>
-		</obstacle>
-		<obstacle id="1">
-			<polygon>
-				<vertex px="-90" py="-2"/>
-				<vertex px="-62" py="-2"/>
-				<vertex px="-62" py="2"/>
-				<vertex px="-90" py="2"/>
-			</polygon>
-		</obstacle>
+    <obstacles>
+        <obstacle id="0">
+            <polygon>
+                <vertex px="-100" py="-2"/>
+                <vertex px="-100" py="2"/>
+                <vertex px="-94" py="2"/>
+                <vertex px="-94" py="-2"/>
+            </polygon>
+        </obstacle>
+        <obstacle id="1">
+            <polygon>
+                <vertex px="-90" py="-2"/>
+                <vertex px="-90" py="2"/>
+                <vertex px="-62" py="2"/>
+                <vertex px="-62" py="-2"/>
+            </polygon>
+        </obstacle>
 
-		<obstacle id="2">
-			<polygon>
-				<vertex px="56" py="-2"/>
-				<vertex px="59" py="-2"/>
-				<vertex px="59" py="2"/>
-				<vertex px="56" py="2"/>
-			</polygon>
-		</obstacle>
-		<obstacle id="3">
-			<polygon>
-				<vertex px="64" py="-2"/>
-				<vertex px="73" py="-2"/>
-				<vertex px="73" py="2"/>
-				<vertex px="64" py="2"/>
-			</polygon>
-		</obstacle>
-		<obstacle id="4">
-			<polygon>
-				<vertex px="83" py="-2"/>
-				<vertex px="92" py="-2"/>
-				<vertex px="92" py="2"/>
-				<vertex px="83" py="2"/>
-			</polygon>
-		</obstacle>
-		<obstacle id="5">
-			<polygon>
-				<vertex px="97" py="-2"/>
-				<vertex px="100" py="-2"/>
-				<vertex px="100" py="2"/>
-				<vertex px="97" py="2"/>
-			</polygon>
-		</obstacle>
+        <obstacle id="2">
+            <polygon>
+                <vertex px="56" py="-2"/>
+                <vertex px="56" py="2"/>
+                <vertex px="59" py="2"/>
+                <vertex px="59" py="-2"/>
+            </polygon>
+        </obstacle>
+        <obstacle id="3">
+            <polygon>
+                <vertex px="64" py="-2"/>
+                <vertex px="64" py="2"/>
+                <vertex px="73" py="2"/>
+                <vertex px="73" py="-2"/>
+            </polygon>
+        </obstacle>
+        <obstacle id="4">
+            <polygon>
+                <vertex px="83" py="-2"/>
+                <vertex px="83" py="2"/>
+                <vertex px="92" py="2"/>
+                <vertex px="92" py="-2"/>
+            </polygon>
+        </obstacle>
+        <obstacle id="5">
+            <polygon>
+                <vertex px="97" py="-2"/>
+                <vertex px="97" py="2"/>
+                <vertex px="100" py="2"/>
+                <vertex px="100" py="-2"/>
+            </polygon>
+        </obstacle>
+    </obstacles>
 
-	</obstacles>
-
-	<attractions>
-		<attraction id="0" mounted="true" exit_id="0">
-			<polygon>
-				<vertex px="-60.5" py="-3.5"/>
-				<vertex px="-60" py="-3.5"/>
-				<vertex px="-60" py="-1.5"/>
-				<vertex px="-60.5" py="-1.5"/>
-			</polygon>
-		</attraction>
-<!--		<attraction id="2" mounted="true" exit_id="0">-->
-<!--			<polygon>-->
-<!--				<vertex px="60" py="-3.5"/>-->
-<!--				<vertex px="65.5" py="-3.5"/>-->
-<!--				<vertex px="65.5" py="-1.5"/>-->
-<!--				<vertex px="65" py="-1.5"/>-->
-<!--			</polygon>-->
-<!--		</attraction>-->
-
-
-<!--		<attraction id="10" mounted="false">-->
-<!--			<polygon>-->
-<!--				<vertex px="-85" py="-0.25"/>-->
-<!--				<vertex px="-80" py="-0.25"/>-->
-<!--				<vertex px="-80" py="0.25"/>-->
-<!--				<vertex px="-85" py="0.25"/>-->
-<!--			</polygon>-->
-<!--		</attraction>-->
-<!--		<attraction id="11" mounted="false">-->
-<!--			<polygon>-->
-<!--				<vertex px="-95" py="-0.25"/>-->
-<!--				<vertex px="-90" py="-0.25"/>-->
-<!--				<vertex px="-90" py="0.25"/>-->
-<!--				<vertex px="-95" py="0.25"/>-->
-<!--			</polygon>-->
-<!--		</attraction>-->
-<!--		<attraction id="12" mounted="false">-->
-<!--			<polygon>-->
-<!--				<vertex px="80" py="-0.25"/>-->
-<!--				<vertex px="85" py="-0.25"/>-->
-<!--				<vertex px="85" py="0.25"/>-->
-<!--				<vertex px="80" py="0.25"/>-->
-<!--			</polygon>-->
-<!--		</attraction>-->
-<!--		<attraction id="13" mounted="false">-->
-<!--			<polygon>-->
-<!--				<vertex px="90" py="-0.25"/>-->
-<!--				<vertex px="95" py="-0.25"/>-->
-<!--				<vertex px="95" py="0.25"/>-->
-<!--				<vertex px="90" py="0.25"/>-->
-<!--			</polygon>-->
-<!--		</attraction>-->
-		<attraction id="12" mounted="false">
-			<polygon>
-				<vertex px="-125" py="-0.5"/>
-				<vertex px="-120" py="-0.5"/>
-				<vertex px="-120" py="0.5"/>
-				<vertex px="-125" py="0.5"/>
-			</polygon>
-		</attraction>
-		<attraction id="13" mounted="false">
-			<polygon>
-				<vertex px="-42" py="-0.5"/>
-				<vertex px="-41" py="-0.5"/>
-				<vertex px="-41" py="0.5"/>
-				<vertex px="-42" py="0.5"/>
-			</polygon>
-		</attraction>
-		<attraction id="14" mounted="false">
-			<polygon>
-				<vertex px="-40" py="-0.5"/>
-				<vertex px="-39" py="-0.5"/>
-				<vertex px="-39" py="0.5"/>
-				<vertex px="-40" py="0.5"/>
-			</polygon>
-		</attraction>
-		<attraction id="15" mounted="false">
-			<polygon>
-				<vertex px="-38" py="-0.5"/>
-				<vertex px="-37" py="-0.5"/>
-				<vertex px="-37" py="0.5"/>
-				<vertex px="-38" py="0.5"/>
-			</polygon>
-		</attraction>
+    <attractions>
+        <attraction id="0" mounted="true" exit_id="0">
+            <polygon>
+                <vertex px="-60.5" py="-3.5"/>
+                <vertex px="-60" py="-3.5"/>
+                <vertex px="-60" py="-1.5"/>
+                <vertex px="-60.5" py="-1.5"/>
+            </polygon>
+        </attraction>
+        <!--		<attraction id="2" mounted="true" exit_id="0">-->
+        <!--			<polygon>-->
+        <!--				<vertex px="60" py="-3.5"/>-->
+        <!--				<vertex px="65.5" py="-3.5"/>-->
+        <!--				<vertex px="65.5" py="-1.5"/>-->
+        <!--				<vertex px="65" py="-1.5"/>-->
+        <!--			</polygon>-->
+        <!--		</attraction>-->
 
 
-		<attraction id="24" mounted="false">
-			<polygon>
-				<vertex px="77" py="-0.25"/>
-				<vertex px="79" py="-0.25"/>
-				<vertex px="77" py="0.25"/>
-				<vertex px="79" py="0.25"/>
-			</polygon>
-		</attraction>
-		<attraction id="24" mounted="false">
-			<polygon>
-				<vertex px="120" py="-0.25"/>
-				<vertex px="125" py="-0.25"/>
-				<vertex px="125" py="0.25"/>
-				<vertex px="120" py="0.25"/>
-			</polygon>
-		</attraction>
+        <!--		<attraction id="10" mounted="false">-->
+        <!--			<polygon>-->
+        <!--				<vertex px="-85" py="-0.25"/>-->
+        <!--				<vertex px="-80" py="-0.25"/>-->
+        <!--				<vertex px="-80" py="0.25"/>-->
+        <!--				<vertex px="-85" py="0.25"/>-->
+        <!--			</polygon>-->
+        <!--		</attraction>-->
+        <!--		<attraction id="11" mounted="false">-->
+        <!--			<polygon>-->
+        <!--				<vertex px="-95" py="-0.25"/>-->
+        <!--				<vertex px="-90" py="-0.25"/>-->
+        <!--				<vertex px="-90" py="0.25"/>-->
+        <!--				<vertex px="-95" py="0.25"/>-->
+        <!--			</polygon>-->
+        <!--		</attraction>-->
+        <!--		<attraction id="12" mounted="false">-->
+        <!--			<polygon>-->
+        <!--				<vertex px="80" py="-0.25"/>-->
+        <!--				<vertex px="85" py="-0.25"/>-->
+        <!--				<vertex px="85" py="0.25"/>-->
+        <!--				<vertex px="80" py="0.25"/>-->
+        <!--			</polygon>-->
+        <!--		</attraction>-->
+        <!--		<attraction id="13" mounted="false">-->
+        <!--			<polygon>-->
+        <!--				<vertex px="90" py="-0.25"/>-->
+        <!--				<vertex px="95" py="-0.25"/>-->
+        <!--				<vertex px="95" py="0.25"/>-->
+        <!--				<vertex px="90" py="0.25"/>-->
+        <!--			</polygon>-->
+        <!--		</attraction>-->
+        <attraction id="12" mounted="false">
+            <polygon>
+                <vertex px="-125" py="-0.5"/>
+                <vertex px="-125" py="0.5"/>
+                <vertex px="-120" py="0.5"/>
+                <vertex px="-120" py="-0.5"/>
+            </polygon>
+        </attraction>
+        <attraction id="13" mounted="false">
+            <polygon>
+                <vertex px="-42" py="-0.5"/>
+                <vertex px="-42" py="0.5"/>
+                <vertex px="-41" py="0.5"/>
+                <vertex px="-41" py="-0.5"/>
+            </polygon>
+        </attraction>
+        <attraction id="14" mounted="false">
+            <polygon>
+                <vertex px="-40" py="-0.5"/>
+                <vertex px="-40" py="0.5"/>
+                <vertex px="-39" py="0.5"/>
+                <vertex px="-39" py="-0.5"/>
+            </polygon>
+        </attraction>
+        <attraction id="15" mounted="false">
+            <polygon>
+                <vertex px="-38" py="-0.5"/>
+                <vertex px="-38" py="0.5"/>
+                <vertex px="-37" py="0.5"/>
+                <vertex px="-37" py="-0.5"/>
+            </polygon>
+        </attraction>
 
-		<attraction id="97" mounted="false">
-			<polygon>
-				<vertex px="-5" py="-0.25"/>
-				<vertex px="-1" py="-0.25"/>
-				<vertex px="-1" py="0.25"/>
-				<vertex px="-5" py="0.25"/>
-			</polygon>
-		</attraction>
-		<attraction id="98" mounted="false">
-			<polygon>
-				<vertex px="0" py="-0.25"/>
-				<vertex px="4" py="-0.25"/>
-				<vertex px="4" py="0.25"/>
-				<vertex px="0" py="0.25"/>
-			</polygon>
-		</attraction>
-		<attraction id="99" mounted="false">
-			<polygon>
-				<vertex px="5" py="-0.25"/>
-				<vertex px="9" py="-0.25"/>
-				<vertex px="9" py="0.25"/>
-				<vertex px="5" py="0.25"/>
-			</polygon>
-		</attraction>
 
-	</attractions>
+        <attraction id="24" mounted="false">
+            <polygon>
+                <vertex px="77" py="-0.25"/>
+                <vertex px="77" py="0.25"/>
+                <vertex px="79" py="0.25"/>
+                <vertex px="79" py="-0.25"/>
+            </polygon>
+        </attraction>
+        <attraction id="24" mounted="false">
+            <polygon>
+                <vertex px="120" py="-0.25"/>
+                <vertex px="120" py="0.25"/>
+                <vertex px="125" py="0.25"/>
+                <vertex px="125" py="-0.25"/>
+            </polygon>
+        </attraction>
+
+        <attraction id="97" mounted="false">
+            <polygon>
+                <vertex px="-5" py="-0.25"/>
+                <vertex px="-5" py="0.25"/>
+                <vertex px="-1" py="0.25"/>
+                <vertex px="-1" py="-0.25"/>
+            </polygon>
+        </attraction>
+        <attraction id="98" mounted="false">
+            <polygon>
+                <vertex px="0" py="-0.25"/>
+                <vertex px="0" py="0.25"/>
+                <vertex px="4" py="0.25"/>
+                <vertex px="4" py="-0.25"/>
+            </polygon>
+        </attraction>
+        <attraction id="99" mounted="false">
+            <polygon>
+                <vertex px="5" py="-0.25"/>
+                <vertex px="5" py="0.25"/>
+                <vertex px="9" py="0.25"/>
+                <vertex px="9" py="-0.25"/>
+            </polygon>
+        </attraction>
+
+    </attractions>
 </geometry>

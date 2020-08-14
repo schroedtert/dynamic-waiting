@@ -21,7 +21,7 @@ def setup_simulation(agents):
     init_agents = np.asarray([0.25])
     standing_agents = np.asarray([0.])
     steps = np.asarray([500])
-    seeds = np.asarray([124, 4356, 234, 4561, 8147, 56351])
+    seeds = np.asarray([1224, 4356, 234, 4561, 8147, 56351])
     w_exits = np.arange(1, 2.1, 2)
     w_walls = np.arange(1, 2.1, 2)
     w_attractions = np.arange(1, 2.1, 2)

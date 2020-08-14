@@ -169,7 +169,9 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
             # intersections.append(intersection)
 
             inside_cells = grid.get_inside_polygon_cells(geometry, intersection, sg.Point2(x, y))
+            plot_prob_field(geometry, grid, inside_cells)
             combination = inside_cells * weighted_floorfield
+
             prob[key] = np.ma.max(combination, fill_value=0)
 
     # for intersection in intersections:
