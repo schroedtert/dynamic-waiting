@@ -47,10 +47,10 @@
             <vertex px="-150.0" py="-4.0"/>
             <vertex px="150.0" py="-4.0"/>
         </exit>
-        <!--        <exit id="1">-->
-        <!--            <vertex px="-150.0" py="4.0"/>-->
-        <!--            <vertex px="150.0" py="4.0"/>-->
-        <!--        </exit>-->
+        <exit id="1">
+            <vertex px="-150.0" py="4.0"/>
+            <vertex px="150.0" py="4.0"/>
+        </exit>
     </exits>
 
     <obstacles>

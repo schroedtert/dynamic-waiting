@@ -34,6 +34,7 @@ def distance_to_prob_dec(distance_field, b, c):
 
 
 def compute_static_ff(geometry: Geometry, grid: Grid, simulation_parameters: SimulationParameters):
+    static = {}
     # compute door probability: further is better
     door_distance = compute_entrance_distance(geometry, grid)
     # plot_prob_field(geometry, grid, door_distance, "entrance distance")
@@ -46,12 +47,6 @@ def compute_static_ff(geometry: Geometry, grid: Grid, simulation_parameters: Sim
     wall_prob = distance_to_prob_dec(wall_distance, simulation_parameters.wall_b, simulation_parameters.wall_c)
     # plot_prob_field(geometry, grid, wall_prob, "wall prob")
 
-    # compute distance to exits: closer is better
-    exit_distance = compute_exit_distance(geometry, grid)
-    # plot_prob_field(geometry, grid, exit_distance, "exit distance")
-    exit_prob = distance_to_prob_inc(exit_distance, simulation_parameters.exit_b, simulation_parameters.exit_c)
-    # plot_prob_field(geometry, grid, exit_prob, "exit prob")
-
     # compute distance to ground attraction points: closer is better
     attraction_ground_distance = compute_attraction_ground_distance(geometry, grid)
     # plot_prob_field(geometry, grid, attraction_ground_distance, "attraction ground distance")
@@ -59,30 +54,36 @@ def compute_static_ff(geometry: Geometry, grid: Grid, simulation_parameters: Sim
                                                   simulation_parameters.attraction_ground_c)
     # plot_prob_field(geometry, grid, attraction_ground_prob, "attraction ground prob")
 
-    # compute distance to ground attraction points: closer is better
-    attraction_mounted_distance = compute_attraction_mounted_distance(geometry, grid)
-    # plot_prob_field(geometry, grid, attraction_mounted_distance, "attraction mounted distance")
-    attraction_mounted_prob = distance_to_prob_dec(attraction_mounted_distance,
-                                                   simulation_parameters.attraction_mounted_b,
-                                                   simulation_parameters.attraction_mounted_c)
-    # plot_prob_field(geometry, grid, attraction_mounted_prob, "attraction mounted prob")
+    for exit_id in geometry.exits.keys():
+        # compute distance to exits: closer is better
+        exit_distance = compute_exit_distance(geometry, grid, exit_id)
+        # plot_prob_field(geometry, grid, exit_distance, "exit distance")
+        exit_prob = distance_to_prob_dec(exit_distance, simulation_parameters.exit_b, simulation_parameters.exit_c)
+        # plot_prob_field(geometry, grid, exit_prob, "exit prob")
 
-    attraction = attraction_ground_prob
-    # attraction = np.maximum(1.2*attraction_ground_prob, attraction_mounted_prob)
-    # attraction = np.maximum(1.2*attraction_ground_prob, attraction_mounted_prob)
-    # plot_prob_field(geometry, grid, attraction, "attraction prob")
+        attraction = attraction_ground_prob
 
-    # sum everything up for static FF
-    static = simulation_parameters.w_door * door_prob \
+        # sum everything up for static FF
+        ff = simulation_parameters.w_door * door_prob \
              * (simulation_parameters.w_wall * wall_prob
                 + simulation_parameters.w_exit * exit_prob
                 + simulation_parameters.w_attraction * attraction)
-    # static = static * door_prob
-    if simulation_parameters.plot:
-        plot_prob_field(geometry, grid, static, "static")
+        # static = static * door_prob
+        if simulation_parameters.plot:
+            plot_prob_field(geometry, grid, static, "static")
 
-    # plot_prob_field(geometry, grid, static, "static")
+        static[exit_id] = ff
 
+    # # compute distance to ground attraction points: closer is better
+    # attraction_mounted_distance = compute_attraction_mounted_distance(geometry, grid)
+    # # plot_prob_field(geometry, grid, attraction_mounted_distance, "attraction mounted distance")
+    # attraction_mounted_prob = distance_to_prob_dec(attraction_mounted_distance,
+    #                                                simulation_parameters.attraction_mounted_b,
+    #                                                simulation_parameters.attraction_mounted_c)
+    # # plot_prob_field(geometry, grid, attraction_mounted_prob, "attraction mounted prob")
+    # attraction = np.maximum(1.2*attraction_ground_prob, attraction_mounted_prob)
+    # attraction = np.maximum(1.2*attraction_ground_prob, attraction_mounted_prob)
+    # plot_prob_field(geometry, grid, attraction, "attraction prob")
     return static
 
 
@@ -205,12 +206,12 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
     # plt.show()
 
     # weight cells by moving direction
-    # weights = {}
-    # for key, p in prob.items():
-    #     weights[key] = weighted_neighbors[ped.direction][key]
-    # weights = normalize_dict(weights)
-    # for key, p in prob.items():
-    #     prob[key] = p * weights[key]
+    weights = {}
+    for key, p in prob.items():
+        weights[key] = weighted_neighbors[ped.direction][key]
+    weights = normalize_dict(weights)
+    for key, p in prob.items():
+        prob[key] = p * weights[key]
 
     prob = normalize_dict(prob)
     return prob

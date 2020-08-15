@@ -26,8 +26,8 @@ class SimulationParameters:
     door_c: float = 0.5
 
     # for exit distance
-    exit_b: float = 0.5
-    exit_c: float = 0.75
+    exit_b: float = 3.0
+    exit_c: float = 0.25
 
     # for attraction prob ground
     attraction_ground_b: float = 2
@@ -44,6 +44,7 @@ class SimulationParameters:
 
     plot: bool = False
 
+    exit_prob = [0.5, 0.5]
     output_path = 'results'
 
     def __init__(self, *args, **kwargs):
@@ -104,6 +105,7 @@ class SimulationParameters:
                            'max_agents': [self.max_agents],
                            'init_agents': [self.init_agents],
                            'standing_agents': [self.standing_agents],
+                           'exit_prob': [self.exit_prob],
                            'w_exit': [self.w_exit],
                            'w_wall': [self.w_wall],
                            'w_attraction': [self.w_attraction],

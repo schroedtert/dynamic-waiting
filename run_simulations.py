@@ -49,7 +49,7 @@ def setup_simulation(agents):
                      "_w-exit={:0.2f}_w-wall={:0.2f}_w-attraction={:0.2f}_rep={:02d}".format(
                 max_agent, init_agent, standing_agent, step, seed, w_exit, w_wall, w_attraction, rep)
             # output_path = os.path.join('results-change-weight', suffix)
-            output_path = os.path.join('results/sbb-train-stations-7', suffix)
+            output_path = os.path.join('results/sbb-train-stations-9', suffix)
 
             para = SimulationParameters()
             para.max_agents = max_agent
@@ -72,11 +72,12 @@ def setup_simulation(agents):
 
 
 def start_simulation(sim_parameters):
-    try:
-        return (None, run_simulation(sim_parameters))
-    except Exception as e:
-        print(e)
-        return (e, None)
+    run_simulation(sim_parameters)
+    # try:
+    #     return (None, run_simulation(sim_parameters))
+    # except Exception as e:
+    #     print(e)
+    #     return (e, None)
 
 
 if __name__ == '__main__':
@@ -88,11 +89,11 @@ if __name__ == '__main__':
     print('run {} simulations with {} processes'.format(end - start, multiprocessing.cpu_count()))
     start_time = time.time()
 
-    pool = multiprocessing.Pool(multiprocessing.cpu_count())
-    pool.map_async(start_simulation, parameters[int(start):int(end)])
-    pool.close()
-    pool.join()
-    # start_simulation(parameters[0])
+    # pool = multiprocessing.Pool(multiprocessing.cpu_count())
+    # pool.map_async(start_simulation, parameters[int(start):int(end)])
+    # pool.close()
+    # pool.join()
+    start_simulation(parameters[0])
     end_time = time.time()
 
     print("Time needed: {}".format(end_time - start_time))

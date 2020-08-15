@@ -45,8 +45,8 @@ def compute_entrance_distance(geometry: Geometry, grid: Grid):
     return compute_distance_fmm(geometry, grid, entrances, mask)
 
 
-def compute_exit_distance(geometry: Geometry, grid: Grid):
-    exits = grid.get_exit_cells(geometry)
+def compute_exit_distance(geometry: Geometry, grid: Grid, exit_id: int):
+    exits = grid.exit_cells[exit_id]
     wall = grid.get_wall_cells(geometry)
 
     exits[wall == 1] = 0
