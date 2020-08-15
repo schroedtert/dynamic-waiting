@@ -14,7 +14,7 @@ class SimulationParameters:
     file = ''
 
     # for wall distance
-    wall_b: float = 1
+    wall_b: float = 2
     wall_c: float = 1
 
     # for ped distance
@@ -37,6 +37,7 @@ class SimulationParameters:
     attraction_mounted_c: float = 0.1
 
     # weights
+    w_door: float = 1
     w_exit: float = 1
     w_attraction: float = 1
     w_wall: float = 1

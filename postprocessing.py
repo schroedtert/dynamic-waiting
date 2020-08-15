@@ -119,7 +119,7 @@ def plot_space_usage(traj, geometry, grid, filename=None):
 file = open('geometries/platform-sbb.xml', 'r')
 geometry, grid = init(file)
 
-directory = r'results/sbb-train-stations-2'
+directory = r'results/sbb-train-stations-6'
 output_path = r'results/sbb-train-stations-plots'
 
 # if not os.path.exists(os.path.join(output_path, 'traj')):

@@ -20,10 +20,10 @@ def setup_simulation(agents):
     max_agents = np.asarray([agents])
     init_agents = np.asarray([0.1])
     standing_agents = np.asarray([0.])
-    steps = np.asarray([400])
+    steps = np.asarray([300])
     seeds = np.asarray([1224, 4356, 234, 4561, 8147, 56351])
     w_exits = np.arange(1, 2.1, 7)
-    w_walls = np.arange(1, 2.1, 2)
+    w_walls = np.arange(1.5, 2.7, 2)
     w_attractions = np.arange(1, 2.1, 2)
 
     all = [max_agents, init_agents, standing_agents,
@@ -49,7 +49,7 @@ def setup_simulation(agents):
                      "_w-exit={:0.2f}_w-wall={:0.2f}_w-attraction={:0.2f}_rep={:02d}".format(
                 max_agent, init_agent, standing_agent, step, seed, w_exit, w_wall, w_attraction, rep)
             # output_path = os.path.join('results-change-weight', suffix)
-            output_path = os.path.join('results/sbb-train-stations-2', suffix)
+            output_path = os.path.join('results/sbb-train-stations-7', suffix)
 
             para = SimulationParameters()
             para.max_agents = max_agent
@@ -57,7 +57,7 @@ def setup_simulation(agents):
             para.standing_agents = standing_agent
             para.steps = step
             para.seed = seed
-            para.w_door = 0
+            para.w_door = 1
             para.w_exit = w_exit
             para.w_wall = w_wall
             para.w_attraction = w_attraction
@@ -72,8 +72,11 @@ def setup_simulation(agents):
 
 
 def start_simulation(sim_parameters):
-    run_simulation(sim_parameters)
-    return 0
+    try:
+        return (None, run_simulation(sim_parameters))
+    except Exception as e:
+        print(e)
+        return (e, None)
 
 
 if __name__ == '__main__':

@@ -68,7 +68,8 @@ def compute_wall_distance(geometry: Geometry, grid: Grid):
     outside = grid.outside_cells
     mask = np.logical_and(outside == 1, wall != 1)
 
-    return compute_distance_fmm(geometry, grid, wall, mask)
+    distance = compute_distance_fmm(geometry, grid, wall, mask)
+    return np.ma.MaskedArray(distance, outside == 1)
 
 
 def compute_ped_distance(geometry: Geometry, grid: Grid, ped: Pedestrian = None):

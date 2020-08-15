@@ -26,7 +26,7 @@ def normalize_dict(field):
 
 def distance_to_prob_inc(distance_field, b, c):
     # return np.exp(-b * np.exp(-c * (distance_field / 1000)))
-    return 1 / (1 + np.exp(-c * ((distance_field / 1000)-b)))
+    return 1 / (1 + np.exp(-c * ((distance_field / 1000) - b)))
 
 
 def distance_to_prob_dec(distance_field, b, c):
@@ -50,7 +50,7 @@ def compute_static_ff(geometry: Geometry, grid: Grid, simulation_parameters: Sim
     exit_distance = compute_exit_distance(geometry, grid)
     # plot_prob_field(geometry, grid, exit_distance, "exit distance")
     exit_prob = distance_to_prob_inc(exit_distance, simulation_parameters.exit_b, simulation_parameters.exit_c)
-    plot_prob_field(geometry, grid, exit_prob, "exit prob")
+    # plot_prob_field(geometry, grid, exit_prob, "exit prob")
 
     # compute distance to ground attraction points: closer is better
     attraction_ground_distance = compute_attraction_ground_distance(geometry, grid)
@@ -73,14 +73,15 @@ def compute_static_ff(geometry: Geometry, grid: Grid, simulation_parameters: Sim
     # plot_prob_field(geometry, grid, attraction, "attraction prob")
 
     # sum everything up for static FF
-    static = simulation_parameters.w_wall * wall_prob \
-             + simulation_parameters.w_exit * exit_prob \
-             + simulation_parameters.w_attraction * attraction
-    static = static * door_prob
+    static = simulation_parameters.w_door * door_prob \
+             * (simulation_parameters.w_wall * wall_prob
+                + simulation_parameters.w_exit * exit_prob
+                + simulation_parameters.w_attraction * attraction)
+    # static = static * door_prob
     if simulation_parameters.plot:
         plot_prob_field(geometry, grid, static, "static")
 
-    plot_prob_field(geometry, grid, static, "static")
+    # plot_prob_field(geometry, grid, static, "static")
 
     return static
 
@@ -124,7 +125,7 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
     weights = np.zeros_like(grid.gridX)
 
     weight_distance = compute_point_distance(geometry, grid, [ped.i(), ped.j()])
-    weight_prob = distance_to_prob_dec(weight_distance, 40, 0.01)
+    weight_prob = distance_to_prob_dec(weight_distance, 40, 0.02)
     # plot_prob_field(geometry, grid, weight_prob, "weight_prob")
 
     weighted_floorfield = weight_prob * floorfield
