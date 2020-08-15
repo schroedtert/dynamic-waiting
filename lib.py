@@ -1,18 +1,16 @@
 import logging
-
-from simulation_parameters import SimulationParameters
-from CA import CA
-from geometry import Geometry
-from grid import Grid
-from pedestrian import Pedestrian
-from plotting import *
-from trajectory import Trajectory
-from constants import *
-from IO import create_output_directory, save_floor_field
-
 import os
 import random
 import time
+
+from CA import CA
+from IO import create_output_directory
+from constants import *
+from plotting import *
+from simulation_parameters import SimulationParameters
+from trajectory import Trajectory
+import random
+import numpy as np
 
 logfile = 'log.dat'
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -24,8 +22,8 @@ def init(file):
     return geometry, grid
 
 
-def create_peds(num_peds: int, standing_peds: int, geometry: Geometry, grid: Grid):
-    for index in range(num_peds):
+def create_peds(simulation_parameters: SimulationParameters, geometry: Geometry, grid: Grid):
+    for index in range(simulation_parameters.init_agents):
         while True:
             i = random.randint(0, grid.gridX.shape[0] - 1)
             j = random.randint(0, grid.gridY.shape[1] - 1)
@@ -38,15 +36,18 @@ def create_peds(num_peds: int, standing_peds: int, geometry: Geometry, grid: Gri
                         break
 
                 if not occupied:
-                    geometry.pedestrians[index] = Pedestrian([i, j], Neighbors.left, index, False)
+                    exits = [0, 1]
+                    exit_id = np.random.choice(exits, 1, p=simulation_parameters.exit_prob)[0]
+
+                    geometry.pedestrians[index] = Pedestrian([i, j], Neighbors.left, index, False, exit_id)
                     break
 
-    keys = random.sample(list(geometry.pedestrians), standing_peds)
+    keys = random.sample(list(geometry.pedestrians), simulation_parameters.standing_agents)
     for key in keys:
         geometry.pedestrians[key].standing = True
 
 
-def add_pedestrian(geometry: Geometry, grid: Grid, step: int):
+def add_pedestrian(simulation_parameters: SimulationParameters, geometry: Geometry, grid: Grid, step: int):
     for key in geometry.entrances.keys():
         entrance_properties = geometry.entrances_properties[key]
         if step % entrance_properties[0] == 0:
@@ -71,7 +72,10 @@ def add_pedestrian(geometry: Geometry, grid: Grid, step: int):
                     max_id = max(geometry.pedestrians) + 1
 
                 id = max_id
-                geometry.pedestrians[id] = Pedestrian([cell[0], cell[1]], Neighbors.left, id, False)
+                exits = [0, 1]
+                exit_id = np.random.choice(exits, 1, p=simulation_parameters.exit_prob)[0]
+
+                geometry.pedestrians[id] = Pedestrian([cell[0], cell[1]], Neighbors.left, id, False, exit_id)
 
 
 def run_simulation(simulation_parameters: SimulationParameters):
@@ -81,9 +85,7 @@ def run_simulation(simulation_parameters: SimulationParameters):
 
     geometry, grid = init(file)
 
-    create_peds(simulation_parameters.init_agents,
-                simulation_parameters.standing_agents,
-                geometry, grid)
+    create_peds(simulation_parameters, geometry, grid)
 
     if simulation_parameters.plot:
         plot_geometry_peds(geometry, grid, geometry.pedestrians)
@@ -99,12 +101,13 @@ def run_simulation(simulation_parameters: SimulationParameters):
     for step in range(simulation_parameters.steps):
         start_time = time.time()
         if len(geometry.pedestrians.values()) < simulation_parameters.max_agents:
-            add_pedestrian(geometry, grid, step)
+            add_pedestrian(simulation_parameters, geometry, grid, step)
 
         ca.compute_step(geometry, grid)
         traj.add_step(step, grid, geometry.pedestrians, simulation_parameters.output_path)
         end_time = time.time()
-        print("{} finished step {:3d}/{:3d} in {:4.5f}s".format(os.getpid(), step+1, simulation_parameters.steps, end_time - start_time))
+        print("{} finished step {:3d}/{:3d} in {:4.5f}s".format(os.getpid(), step + 1, simulation_parameters.steps,
+                                                                end_time - start_time))
         # if simulation_parameters.plot:
         #     plot_geometry_peds(geometry, grid, geometry.pedestrians)
     #        else:

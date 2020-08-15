@@ -119,7 +119,7 @@ def plot_space_usage(traj, geometry, grid, filename=None):
 file = open('geometries/platform-sbb.xml', 'r')
 geometry, grid = init(file)
 
-directory = r'results/sbb-train-stations-2'
+directory = r'results/sbb-train-stations-8'
 output_path = r'results/sbb-train-stations-plots'
 
 # if not os.path.exists(os.path.join(output_path, 'traj')):
@@ -154,14 +154,14 @@ for subdir in os.scandir(directory):
             traj = traj.loc[traj.step < 200]
             suffix = subdir.name
 
-            # traj_filename = 'traj/traj_{}.pdf'.format(suffix)
-            # traj_outputpath = os.path.join(output_path, traj_filename)
-            # plot_trajectories(traj, geometry)
+            traj_filename = 'traj/traj_{}.pdf'.format(suffix)
+            traj_outputpath = os.path.join(output_path, traj_filename)
+            plot_trajectories(traj, geometry)
             # plot_trajectories(traj, geometry, traj_outputpath)
 
-            # hist_filename = 'hist/hist_{}.pdf'.format(suffix)
-            # hist_outputpath = os.path.join(output_path, hist_filename)
-            # plot_histogram(traj, geometry)
+            hist_filename = 'hist/hist_{}.pdf'.format(suffix)
+            hist_outputpath = os.path.join(output_path, hist_filename)
+            plot_histogram(traj, geometry)
             # plot_histogram(traj, geometry, hist_outputpath)
 
             spus_filename = 'spus/spus_{}.pdf'.format(suffix)

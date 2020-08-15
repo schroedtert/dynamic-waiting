@@ -45,8 +45,8 @@ def compute_entrance_distance(geometry: Geometry, grid: Grid):
     return compute_distance_fmm(geometry, grid, entrances, mask)
 
 
-def compute_exit_distance(geometry: Geometry, grid: Grid):
-    exits = grid.get_exit_cells(geometry)
+def compute_exit_distance(geometry: Geometry, grid: Grid, exit_id: int):
+    exits = grid.exit_cells[exit_id]
     wall = grid.get_wall_cells(geometry)
 
     exits[wall == 1] = 0
@@ -68,7 +68,8 @@ def compute_wall_distance(geometry: Geometry, grid: Grid):
     outside = grid.outside_cells
     mask = np.logical_and(outside == 1, wall != 1)
 
-    return compute_distance_fmm(geometry, grid, wall, mask)
+    distance = compute_distance_fmm(geometry, grid, wall, mask)
+    return np.ma.MaskedArray(distance, outside == 1)
 
 
 def compute_ped_distance(geometry: Geometry, grid: Grid, ped: Pedestrian = None):

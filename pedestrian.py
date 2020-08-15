@@ -9,6 +9,7 @@ class Pedestrian:
     direction: Neighbors
     id: int
     standing: bool
+    exit_id: int
     not_moving: int = 1
 
     def i(self):

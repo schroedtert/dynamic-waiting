@@ -20,7 +20,7 @@ class CA:
                 next_step[ped_id] = [Neighbors.self]
             else:
                 individual_ff = compute_individual_ff(geometry, grid, ped, self.simulation_parameters)
-                combined = compute_overall_ff(geometry, grid, self.static_ff, individual_ff)
+                combined = compute_overall_ff(geometry, grid, self.static_ff[ped.exit_id], individual_ff)
 
                 prob_neighbor = compute_prob_neighbors(geometry, grid, ped, combined)
                 step = self.compute_next_step(prob_neighbor)
@@ -85,4 +85,5 @@ class CA:
         return conflicts
 
     def save(self, output_path):
-        save_floor_field(self.static_ff, output_path, 'static_ff.txt')
+        for id, ff in self.static_ff.items():
+            save_floor_field(ff, output_path, 'static_ff_{}.txt'.format(id))

@@ -18,22 +18,24 @@ import time
 def setup_simulation(agents):
     num_repetitions = 1
     max_agents = np.asarray([agents])
-    init_agents = np.asarray([0.1])
-    standing_agents = np.asarray([0.])
-    steps = np.asarray([400])
-    seeds = np.asarray([1224, 4356, 234, 4561, 8147, 56351])
-    w_exits = np.arange(1, 2.1, 7)
-    w_walls = np.arange(1, 2.1, 2)
-    w_attractions = np.arange(1, 2.1, 2)
+    init_agents = np.asarray([0.25, 0.5])
+    standing_agents = np.asarray([0., 0.25])
+    steps = np.asarray([540, 900, 1800])
+    seeds = np.asarray([1224, 4356, 234])
+    w_exits = np.arange(1, 2.1, 1)
+    w_walls = np.arange(1, 2.1, 1)
+    w_attractions = np.arange(1, 2.1, 1)
 
+    exit_prob_0 = np.asarray([0, 25, 0.5, 0.75])
     all = [max_agents, init_agents, standing_agents,
-           steps, seeds, w_exits, w_walls, w_attractions]
+           steps, seeds, w_exits, w_walls, w_attractions, exit_prob_0]
 
     # file = 'geometries/simplified.xml'
     # file = 'geometries/platform-smaller.xml'
     file = 'geometries/platform-sbb.xml'
 
     parameters = []
+    suffixes = []
 
     for combination in itertools.product(*all):
         for rep in range(num_repetitions):
@@ -45,11 +47,21 @@ def setup_simulation(agents):
             w_exit = combination[5]
             w_wall = combination[6]
             w_attraction = combination[7]
+
+            exit_prob = (combination[8], 1 - combination[8])
+
             suffix = "max-agents={:04d}_init-agents={:04d}_standing-agents={:04d}_steps={:04d}_seed={:08d}" \
-                     "_w-exit={:0.2f}_w-wall={:0.2f}_w-attraction={:0.2f}_rep={:02d}".format(
-                max_agent, init_agent, standing_agent, step, seed, w_exit, w_wall, w_attraction, rep)
+                     "_w-exit={:0.2f}_w-wall={:0.2f}_w-attraction={:0.2f}_exit-prob={:0.2f}-{:0.2f}".format(
+                max_agent, init_agent, standing_agent, step, seed, w_exit, w_wall, w_attraction, exit_prob[0],
+                exit_prob[1])
+
+            if not suffix in suffixes:
+                suffixes.append(suffix)
+            else:
+                continue
+
             # output_path = os.path.join('results-change-weight', suffix)
-            output_path = os.path.join('results/sbb-train-stations-2', suffix)
+            output_path = os.path.join('/p/project/jias72/tobias/2020-femtc/2020-08-15_sbb', suffix)
 
             para = SimulationParameters()
             para.max_agents = max_agent
@@ -57,23 +69,27 @@ def setup_simulation(agents):
             para.standing_agents = standing_agent
             para.steps = step
             para.seed = seed
-            para.w_door = 0
+            para.w_door = 1
             para.w_exit = w_exit
             para.w_wall = w_wall
             para.w_attraction = w_attraction
             para.output_path = output_path
+            para.exit_prob = exit_prob
             para.plot = False
             para.file = file
 
-            if not para in parameters:
-                parameters.append(para)
+            parameters.append(para)
 
     return parameters
 
 
 def start_simulation(sim_parameters):
     run_simulation(sim_parameters)
-    return 0
+    # try:
+    #     return (None, run_simulation(sim_parameters))
+    # except Exception as e:
+    #     print(e)
+    #     return (e, None)
 
 
 if __name__ == '__main__':
@@ -85,11 +101,11 @@ if __name__ == '__main__':
     print('run {} simulations with {} processes'.format(end - start, multiprocessing.cpu_count()))
     start_time = time.time()
 
-    pool = multiprocessing.Pool(multiprocessing.cpu_count())
-    pool.map_async(start_simulation, parameters[int(start):int(end)])
-    pool.close()
-    pool.join()
-    # start_simulation(parameters[0])
+    # pool = multiprocessing.Pool(multiprocessing.cpu_count())
+    # pool.map_async(start_simulation, parameters[int(start):int(end)])
+    # pool.close()
+    # pool.join()
+    start_simulation(parameters[0])
     end_time = time.time()
 
     print("Time needed: {}".format(end_time - start_time))

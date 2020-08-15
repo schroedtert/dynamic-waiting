@@ -7,9 +7,10 @@ from grid import Grid
 import numpy as np
 import os
 
+
 @dataclass
 class Trajectory:
-    traj = pd.DataFrame(columns=['step', 'id', 'x', 'y'])
+    traj = pd.DataFrame(columns=['step', 'id', 'x', 'y', 'exit'])
     space_usage = None
 
     def __init__(self, grid: Grid, num_steps: int):
@@ -17,11 +18,11 @@ class Trajectory:
         self.space_usage = np.zeros(shape)
 
     def add_step(self, step: int, grid: Grid, peds: Dict[int, Pedestrian], output_path):
-        step_frame = pd.DataFrame(columns=['step', 'id', 'x', 'y'])
+        step_frame = pd.DataFrame(columns=['step', 'id', 'x', 'y', 'exit'])
         for key, ped in peds.items():
             # add trajectory
             x, y = grid.get_coordinates(ped.pos[0], ped.pos[1])
-            step_frame_ped = {'step': step, 'id': key, 'x': x, 'y': y}
+            step_frame_ped = {'step': step, 'id': key, 'x': x, 'y': y, 'exit': ped.exit_id}
             step_frame = step_frame.append(step_frame_ped, ignore_index=True)
 
             # update space usage

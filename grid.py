@@ -36,6 +36,7 @@ class Grid:
     outside_cells: np.ndarray
     entrance_cells: np.ndarray
     door_cells: Dict[int, np.ndarray]
+    exit_cells: Dict[int, np.ndarray]
 
     def __init__(self, geometry: Geometry):
         minx, miny, maxx, maxy = geometry.get_bounding_box()
@@ -57,6 +58,7 @@ class Grid:
         self.outside_cells = self.__get_outside_cells(geometry)
         self.door_cells = self.__get_door_cells(geometry)
         self.entrance_cells = self.__get_entrance_cells(geometry)
+        self.exit_cells = self.__get_exit_cells(geometry)
 
     def __get_outside_cells(self, geometry: Geometry):
         outside = np.zeros_like(self.gridX)
@@ -102,6 +104,19 @@ class Grid:
             doors[key] = entrances
 
         return doors
+
+    def __get_exit_cells(self, geometry: Geometry):
+        exits = {}
+        for id, exit in geometry.exits.items():
+            exit_cells = np.zeros_like(self.gridX)
+            for i in range(self.dimX):
+                for j in range(self.dimY):
+                    x, y = self.get_coordinates(i, j)
+                    p = Point((x, y))
+                    if exit.distance(p) < THRESHOLD:
+                        exit_cells[i][j] = 1
+            exits[id] = exit_cells
+        return exits
 
     def get_ped_cells(self, geometry: Geometry, ped: Pedestrian = None):
         peds = np.zeros_like(self.gridX)
