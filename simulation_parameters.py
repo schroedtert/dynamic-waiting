@@ -14,7 +14,7 @@ class SimulationParameters:
     file = ''
 
     # for wall distance
-    wall_b: float = 2
+    wall_b: float = 1.5
     wall_c: float = 1
 
     # for ped distance
@@ -22,7 +22,7 @@ class SimulationParameters:
     ped_c: float = 1
 
     # for door distance (flow avoidance)
-    door_b: float = 2
+    door_b: float = 1
     door_c: float = 0.5
 
     # for exit distance
@@ -41,6 +41,8 @@ class SimulationParameters:
     w_exit: float = 1
     w_attraction: float = 1
     w_wall: float = 1
+
+    w_direction: bool = False
 
     plot: bool = False
 

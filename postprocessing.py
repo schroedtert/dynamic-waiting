@@ -83,7 +83,7 @@ def plot_histogram(traj, geo, filename=None):
 
 
 def plot_space_usage(traj, geometry, grid, filename=None):
-    space_usage = np.ones_like(grid.gridX)
+    space_usage = np.zeros_like(grid.gridX)
 
     steps = int(traj.step.max())
 
@@ -95,19 +95,22 @@ def plot_space_usage(traj, geometry, grid, filename=None):
             df_step = df.loc[df.step == step]
             x = df_step['x'].values[0]
             y = df_step['y'].values[0]
-            indices = np.argwhere((grid.gridX == x) & (grid.gridY == y))[0]
+            indices = grid.get_indices(x, y)
             space_usage[indices[0], indices[1]] = space_usage[indices[0], indices[1]] + 1
 
     space_usage = space_usage / steps
     outside = grid.outside_cells
-    space_usage = np.ma.MaskedArray(space_usage, outside == 1)
+    space_usage[outside == 1] = 0
+    # space_usage = np.ma.MaskedArray(space_usage, outside == 1)
 
     plt.figure(figsize=(10, 3), dpi=300)
-    plt.pcolor(grid.gridX / MTOMM, grid.gridY / MTOMM, space_usage, cmap=cm.jet)
+    plt.pcolor(grid.gridX / MTOMM, grid.gridY / MTOMM, space_usage * 100, cmap=cm.jet, vmin=0, vmax=20)
 
     plt.axis('equal')
     plt.gca().set_adjustable("box")
     plt.colorbar(orientation="horizontal")
+
+    plt.gca().set_xlim([-56, 8])
 
     if filename is None:
         plt.show()
@@ -116,10 +119,10 @@ def plot_space_usage(traj, geometry, grid, filename=None):
     plt.close()
 
 
-file = open('geometries/platform-sbb.xml', 'r')
+file = open('geometries/Bern_geo.xml', 'r')
 geometry, grid = init(file)
 
-directory = r'results/sbb-train-stations-8'
+directory = r'results/real-bern'
 output_path = r'results/sbb-train-stations-plots'
 
 # if not os.path.exists(os.path.join(output_path, 'traj')):
@@ -151,18 +154,18 @@ for subdir in os.scandir(directory):
         print('processing: {}'.format(os.path.join(subdir, 'traj.csv')))
         if os.path.exists(os.path.join(subdir, 'traj.csv')):
             traj = pd.read_csv(os.path.join(subdir, 'traj.csv'))
-            traj = traj.loc[traj.step < 200]
+            # traj = traj.loc[traj.step < 200]
             suffix = subdir.name
 
-            traj_filename = 'traj/traj_{}.pdf'.format(suffix)
-            traj_outputpath = os.path.join(output_path, traj_filename)
-            plot_trajectories(traj, geometry)
-            # plot_trajectories(traj, geometry, traj_outputpath)
-
-            hist_filename = 'hist/hist_{}.pdf'.format(suffix)
-            hist_outputpath = os.path.join(output_path, hist_filename)
-            plot_histogram(traj, geometry)
-            # plot_histogram(traj, geometry, hist_outputpath)
+            # traj_filename = 'traj/traj_{}.pdf'.format(suffix)
+            # traj_outputpath = os.path.join(output_path, traj_filename)
+            # plot_trajectories(traj, geometry)
+            # # plot_trajectories(traj, geometry, traj_outputpath)
+            #
+            # hist_filename = 'hist/hist_{}.pdf'.format(suffix)
+            # hist_outputpath = os.path.join(output_path, hist_filename)
+            # plot_histogram(traj, geometry)
+            # # plot_histogram(traj, geometry, hist_outputpath)
 
             spus_filename = 'spus/spus_{}.pdf'.format(suffix)
             spus_outputpath = os.path.join(output_path, spus_filename)

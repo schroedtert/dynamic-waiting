@@ -226,9 +226,6 @@ class Grid:
         for coord in points:
             verts.append((coord[0], coord[1]))
 
-        # print(points)
-        # print(verts)
-        # print('-----------------------------')
         p = Path(verts, closed=True)
 
         points = np.vstack((self.gridX.flatten(), self.gridY.flatten())).T
@@ -240,3 +237,6 @@ class Grid:
         inside[mask] = 1
 
         return inside
+
+    def get_indices(self, x, y):
+        return np.argwhere((abs(self.gridX - x) < THRESHOLD) & (abs(self.gridY - y) < THRESHOLD))[0]

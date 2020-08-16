@@ -48,11 +48,12 @@ def compute_static_ff(geometry: Geometry, grid: Grid, simulation_parameters: Sim
     # plot_prob_field(geometry, grid, wall_prob, "wall prob")
 
     # compute distance to ground attraction points: closer is better
-    attraction_ground_distance = compute_attraction_ground_distance(geometry, grid)
-    # plot_prob_field(geometry, grid, attraction_ground_distance, "attraction ground distance")
-    attraction_ground_prob = distance_to_prob_dec(attraction_ground_distance, simulation_parameters.attraction_ground_b,
-                                                  simulation_parameters.attraction_ground_c)
-    # plot_prob_field(geometry, grid, attraction_ground_prob, "attraction ground prob")
+    attraction_ground_prob = np.zeros_like(grid.gridX)
+    # attraction_ground_distance = compute_attraction_ground_distance(geometry, grid)
+    # # plot_prob_field(geometry, grid, attraction_ground_distance, "attraction ground distance")
+    # attraction_ground_prob = distance_to_prob_dec(attraction_ground_distance, simulation_parameters.attraction_ground_b,
+    #                                               simulation_parameters.attraction_ground_c)
+    # # plot_prob_field(geometry, grid, attraction_ground_prob, "attraction ground prob")
 
     for exit_id in geometry.exits.keys():
         # compute distance to exits: closer is better
@@ -62,15 +63,19 @@ def compute_static_ff(geometry: Geometry, grid: Grid, simulation_parameters: Sim
         # plot_prob_field(geometry, grid, exit_prob, "exit prob")
 
         attraction = attraction_ground_prob
-
+        if simulation_parameters.w_door == 0:
+            door_filter = np.ones_like(grid.gridX)
+        else:
+            door_filter = simulation_parameters.w_door * door_prob
         # sum everything up for static FF
-        ff = simulation_parameters.w_door * door_prob \
+        ff = door_filter \
              * (simulation_parameters.w_wall * wall_prob
                 + simulation_parameters.w_exit * exit_prob
                 + simulation_parameters.w_attraction * attraction)
-        # static = static * door_prob
         if simulation_parameters.plot:
             plot_prob_field(geometry, grid, static, "static")
+
+        # plot_prob_field(geometry, grid, ff, "static")
 
         static[exit_id] = ff
 
@@ -112,7 +117,7 @@ def init_dynamic_ff():
     return
 
 
-def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floorfield):
+def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floorfield, weight_direction: bool):
     prob = {}
 
     # compute visible area
@@ -148,20 +153,8 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
             prob[key] = floorfield.filled(0)[ped.i()][ped.j()]
 
         elif polygon is not None:
-            points = []
-
             p = Polygon(polygon.coords)
             inter = p.intersection(vis)
-            # fig, ax = plt.subplots()
-            #
-            # patch = PolygonPatch(inter, facecolor='blue', edgecolor='black',
-            #                      alpha=0.5, zorder=2)
-            # ax.add_patch(patch)
-            # # plt.plot(*self.floor.interiors.xy)
-            # plt.axis('equal')
-            # plt.gca().set_adjustable("box")
-            #
-            # plt.show()
 
             points = []
             if inter.geom_type == 'Polygon':
@@ -181,24 +174,17 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
             else:
                 print(inter)
 
-            # if inter.geom_type == 'GeometryCollection':
-            #     for i in inter.geoms:
-            #         if i.geom_type == 'Polygon':
-            #             for ppp in i.exterior.coords:
-            #                 points.append([ppp[0], ppp[1]])
-            # else:
-            #     points = []
-            #     for ppp in inter.exterior.coords:
-            #         points.append([ppp[0], ppp[1]])
+            if len(points) == 0:
+                prob[key] = 0
+            else:
+                # intersection = sg.Polygon(points)
+                # intersections.append(intersection)
 
-            # intersection = sg.Polygon(points)
-            # intersections.append(intersection)
+                inside_cells = grid.get_inside_polygon_cells(geometry, points)
+                # plot_prob_field(geometry, grid, inside_cells)
+                combination = inside_cells * weighted_floorfield
 
-            inside_cells = grid.get_inside_polygon_cells(geometry, points)
-            # plot_prob_field(geometry, grid, inside_cells)
-            combination = inside_cells * weighted_floorfield
-
-            prob[key] = np.ma.max(combination, fill_value=0)
+                prob[key] = np.ma.max(combination, fill_value=0)
 
     # for intersection in intersections:
     #     sg.draw.draw(intersection)
@@ -206,12 +192,13 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
     # plt.show()
 
     # weight cells by moving direction
-    weights = {}
-    for key, p in prob.items():
-        weights[key] = weighted_neighbors[ped.direction][key]
-    weights = normalize_dict(weights)
-    for key, p in prob.items():
-        prob[key] = p * weights[key]
+    if weight_direction:
+        weights = {}
+        for key, p in prob.items():
+            weights[key] = weighted_neighbors[ped.direction][key]
+        weights = normalize_dict(weights)
+        for key, p in prob.items():
+            prob[key] = p * weights[key]
 
     prob = normalize_dict(prob)
     return prob

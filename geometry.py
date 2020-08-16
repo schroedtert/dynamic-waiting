@@ -10,6 +10,7 @@ from constants import *
 
 from shapely.geometry import LineString, Point, Polygon
 import visilibity as vis
+from shapely.ops import cascaded_union
 
 @dataclass
 class Geometry:
@@ -61,9 +62,10 @@ class Geometry:
             self.entrances[key] = LineString([p1, p2])
         #
         for key, door in exits.items():
-            p1 = Point(door[0][0], door[0][1])
-            p2 = Point(door[1][0], door[1][1])
-            self.exits[key] = LineString([p1, p2])
+            line_points = []
+            for point in door:
+                line_points.append(Point(point[0], point[1]))
+            self.exits[key] = LineString(line_points)
 
         holes = []
         holes_vis = []
@@ -74,9 +76,9 @@ class Geometry:
                 hole_points.append((point[0], point[1]))
                 hole_points_vis.append(vis.Point(point[0], point[1]))
 
-            hole_points.append(hole_points[0])
-            hole_poly = Polygon(hole_points)
-            holes.append(hole_points)
+            # hole_points.append(hole_points[0])
+            hole_poly = Polygon(hole_points[::-1])
+            holes.append(hole_poly)
 
             hole_vis = vis.Polygon(hole_points_vis)
             holes_vis.append(hole_vis)
@@ -91,7 +93,7 @@ class Geometry:
                 hole_points.append((point[0], point[1]))
                 hole_points_vis.append(vis.Point(point[0], point[1]))
 
-            hole_points.append(hole_points[0])
+            # hole_points.append(hole_points[0])
             hole_poly = Polygon(hole_points)
             holes.append(hole_points)
 
@@ -107,8 +109,21 @@ class Geometry:
             self.attraction_mounted[key] = Polygon(hole_points)
 
         # create polygon
-        # holes = [(-100000.0, -2000.0), (-100000.0, 2000.0), (-94000.0, 2000.0), (-94000.0, -2000.0), (-100000.0, -2000.0)]
-        self.floor = Polygon(points, holes)
+        holes_poly = cascaded_union(holes)
+        hole_points = []
+        holes_vis = []
+        for i in holes_poly:
+            coords = i.exterior.coords[::-1]
+            hole_points.append(coords)
+
+            hole_points_vis = []
+            for coord in coords[:-1]:
+                hole_points_vis.append(vis.Point(coord[0], coord[1]))
+            hole_vis = vis.Polygon(hole_points_vis[::-1])
+            hole_vis.enforce_standard_form()
+            holes_vis.append(hole_vis)
+
+        self.floor = Polygon(points, hole_points)
 
         # fig, ax = plt.subplots()
         #
@@ -127,7 +142,7 @@ class Geometry:
         # plt.gca().set_adjustable("box")
         #
         # plt.show()
-        self.env = vis.Environment([vis.Polygon(points_vis), *holes_vis])
+        self.env = vis.Environment([vis.Polygon(points_vis[::-1]), *holes_vis])
         if not self.env.is_valid(self.epsilon):
             raise ValueError('Check geometry!')
         return
