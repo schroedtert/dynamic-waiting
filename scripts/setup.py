@@ -7,21 +7,17 @@ import numpy as np
 import re
 import math
 
-max_agents = [50, 100, 200, 300, 400, 500, 1000]
-wall_time = {50: '00:10:00',
-             100: '00:30:00',
-             200: '00:45:00',
+max_agents = [200, 300, 500]
+wall_time = {200: '00:30:00',
              300: '01:00:00',
-             400: '01:15:00',
-             500: '02:00:00',
-             1000: '05:00:00'}
+             500: '01:30:00'}
 template_loader = FileSystemLoader(searchpath="./")
 template_env = Environment(loader=template_loader)
 
 template_file = 'template_jureca.sh'
 template = template_env.get_template(template_file)
                              
-num_simulations = 144  # 8748
+num_simulations = 1152  # 8748
 num_processors_per_node = 48
 num_task_per_processor = 1
 
