@@ -66,7 +66,7 @@ def setup_simulation(agents):
 
             # output_path = os.path.join('results-change-weight', suffix)
             # output_path = os.path.join('/p/project/jias72/tobias/2020-femtc/2020-08-15_sbb', suffix)
-            output_path = os.path.join('/p/project/jias72/tobias/2020-femtc/2020-08-15_real-bern', suffix)
+            output_path = os.path.join('/p/project/jias72/tobias/2020-femtc/2020-08-16_real-bern', suffix)
 
             para = SimulationParameters()
             para.max_agents = max_agent
