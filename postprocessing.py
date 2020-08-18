@@ -308,25 +308,43 @@ def process_trajectories():
 file = open('geometries/Bern_geo.xml', 'r')
 geometry, grid = init(file)
 
-# directory = r'/run/media/tobias/Ohne Name/2020-femtc/2020-08-17_real-bern-less-people-stair'
-# output_path = r'/run/media/tobias/Ohne Name/2020-femtc/2020-08-17_real-bern-plots/traj'
+directory = r'/run/media/tobias/Ohne Name/2020-femtc/2020-08-18_real-bern-exit-fix-bug'
+output_path = r'/run/media/tobias/Ohne Name/2020-femtc/2020-08-18_real-bern-exit-fix-bug-raw'
 # directory = r'/home/tobias/data/2020-08-17_real-bern-less-people-stair'
 # output_path = r'/home/tobias/data/2020-08-17_real-bern-plots/traj'
-directory = r'/home/tobias/data/2020-08-17_real-bern-less-people-stair-plots/spus_raw'
-output_path = r'/home/tobias/data/2020-08-17_real-bern-less-people-stair-plots/occupation'
+# directory = r'/home/tobias/data/2020-08-17_real-bern-less-people-stair/'
+# output_path = r'/home/tobias/data/2020-08-17_real-bern-less-people-stair-plots/occupation'
 
 if not os.path.exists(output_path):
     os.makedirs(output_path)
 
-# process_trajectories()
-w_exits = np.asarray([2])
-w_walls = np.asarray([1])
-w_doors = np.asarray([1])
-w_directions = np.asarray([False])
-all = [w_exits, w_walls, w_doors, w_directions]
-combinations = list(itertools.product(*all))
-for combination in combinations:
-    process_space_usage(combination)
+combinations = []
+for subdir in os.scandir(directory):
+    if os.path.isdir(subdir):
+        traj_file = os.path.join(subdir, 'traj.csv')
+        out_file = '{}.txt'.format(subdir.name)
+        out = os.path.join(output_path, out_file)
+        if os.path.exists(traj_file):
+            combinations.append((traj_file, out))
+        else:
+            print('trajectory does not exist')
+
+pool = multiprocessing.Pool(multiprocessing.cpu_count())
+pool.save_space_usage(process, combinations[:])
+pool.close()
+pool.join()
+# if not os.path.exists(output_path):
+#     os.makedirs(output_path)
+#
+# # process_trajectories()
+# w_exits = np.asarray([2])
+# w_walls = np.asarray([1])
+# w_doors = np.asarray([1])
+# w_directions = np.asarray([False])
+# all = [w_exits, w_walls, w_doors, w_directions]
+# combinations = list(itertools.product(*all))
+# for combination in combinations:
+#     process_space_usage(combination)
 
 # a = 1
 #
