@@ -15,39 +15,56 @@ from scipy import ndimage
 import numpy as np
 
 from constants import MTOMM
+from descartes.patch import PolygonPatch
+from matplotlib.ticker import FuncFormatter
 
 
 def plot_geometry_peds(geometry: Geometry, grid: Grid, peds: Dict[int, Pedestrian], highlight=None, filename=None):
-    draw(geometry.floor, alpha=0.5)
+    fig, ax = plt.subplots(dpi=300)
 
-    for key, door in geometry.entrances.items():
-        draw(door, color='red', visible_point=False)
+    patch = PolygonPatch(geometry.floor, facecolor='gray', edgecolor='black',
+                         alpha=0.5, zorder=2)
+    ax.add_patch(patch)
+    # plt.plot(*self.floor.interiors.xy)
+    for entrance in geometry.entrances.values():
+        ex, ey = entrance.xy
+        ax.plot(ex, ey, color='red')
+    for exit in geometry.exits.values():
+        ex, ey = exit.xy
+        ax.plot(ex, ey, color='green')
+    #
+    # for key, ped in peds.items():
+    #     x = grid.gridX[ped.i()][ped.j()]
+    #     y = grid.gridY[ped.i()][ped.j()]
+    #
+    #     if ped == highlight:
+    #         ax.scatter(x, y, s=5, color='red')
+    #     elif not ped.standing:
+    #         ax.scatter(x, y, s=5,  color='black')
+    #     else:
+    #         ax.scatter(x, y, s=5, color='green')
 
-    for key, door in geometry.exits.items():
-        draw(door, color='blue', visible_point=False)
+    ax.set_ylim([-5000, 8000])
+    ax.set_xlim([-56000, 10000])
 
-    for key, ped in peds.items():
-        x = grid.gridX[ped.i()][ped.j()]
-        y = grid.gridY[ped.i()][ped.j()]
-        point = sg.Point2(x, y)
-
-        if ped == highlight:
-            draw(point, color='red')
-        elif not ped.standing:
-            draw(point, color='black')
-        else:
-            draw(point, color='green')
+    ax.get_xaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x / 1000), ',')))
+    ax.get_yaxis().set_major_formatter(FuncFormatter(lambda y, p: format(int(y / 1000), ',')))
+    ax.set_xlabel('x [m]')
+    ax.set_ylabel('y [m]')
+    ax.set_aspect(1.)
+    plt.gca().set_adjustable("box")
+    # plt.axis('equal')
 
     if filename is None:
         plt.show()
     else:
-        plt.savefig(filename, dpi=300, format='pdf')
+        plt.savefig(filename, dpi=300, format='png', bbox_inches='tight')
 
 
 def plot_prob_field(geometry: Geometry, grid: Grid, prob_field, title="", ped=None, vmin=None, vmax=None,
                     filename=None):
-    plt.figure()
-    plt.title(title)
+    plt.figure(dpi=300)
+    # plt.title(title)
 
     # plt.contourf(grid.gridX, grid.gridY, prob_field)
     if not ped is None:
@@ -55,18 +72,23 @@ def plot_prob_field(geometry: Geometry, grid: Grid, prob_field, title="", ped=No
         y = grid.gridY[ped.i()][ped.j()]
         # plt.scatter(x, y, color='black')
 
-    plt.pcolor(grid.gridX / MTOMM, grid.gridY / MTOMM, prob_field, cmap=cm.coolwarm)
+    pc = plt.pcolor(grid.gridX / MTOMM, grid.gridY / MTOMM, prob_field, cmap=cm.jet, vmin=0, vmax=2)
+    # plt.pcolor(grid.gridX / MTOMM, grid.gridY / MTOMM, prob_field, cmap=cm.coolwarm, vmin=0, vmax=2)
 
     plt.axis('equal')
     plt.xlabel('x/m')
     plt.ylabel('y/m')
     plt.gca().set_adjustable("box")
-    plt.colorbar(orientation="horizontal")
+    # plt.colorbar(orientation="horizontal")
+    plt.xlabel('x [m]')
+    plt.ylabel('y [m]')
+    plt.ylim([-5, 8])
+    plt.xlim([-56, 10])
 
     if filename is None:
         plt.show()
     else:
-        plt.savefig(filename, dpi=300, format='pdf')
+        plt.savefig(filename, dpi=300, format='png', bbox_inches='tight')
 
 
 def plot_voronoi_peds(geometry, grid, peds, filename=None):

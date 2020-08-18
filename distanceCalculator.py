@@ -74,7 +74,6 @@ def compute_wall_distance(geometry: Geometry, grid: Grid):
 
 def compute_ped_distance(geometry: Geometry, grid: Grid, ped: Pedestrian = None):
     peds = grid.get_ped_cells(geometry, ped)
-
     outside = grid.outside_cells
     mask = outside == 1
 

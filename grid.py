@@ -123,8 +123,7 @@ class Grid:
 
         for key, pped in geometry.pedestrians.items():
             if ped is not None and ped.id != pped.id:
-                peds[ped.i()][ped.j()] = 1
-
+                peds[pped.i()][pped.j()] = 1
         return peds
 
     def get_wall_cells(self, geometry: Geometry):

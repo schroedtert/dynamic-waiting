@@ -128,10 +128,10 @@ def compute_space_usage(traj, grid):
 
 
 def plot_space_usage(space_usage, grid, filename=None, title=None):
-    plt.figure(figsize=(10, 2), dpi=300)
+    fig = plt.figure(figsize=(10, 2), dpi=300)
 
-    if title is not None:
-        plt.title(title)
+    # if title is not None:
+    #     plt.title(title)
 
     # plt.pcolor(grid.gridX / MTOMM, grid.gridY / MTOMM, space_usage * 100, cmap=cm.jet, vmin=0, vmax=10)
 
@@ -142,12 +142,12 @@ def plot_space_usage(space_usage, grid, filename=None, title=None):
         x, y = exit.xy
         plt.plot(x, y, color='white')
 
-    plt.pcolor(grid.gridX / MTOMM, grid.gridY / MTOMM, space_usage * 100, cmap=cm.jet, vmin=0, vmax=10)
+    pc = plt.pcolor(grid.gridX / MTOMM, grid.gridY / MTOMM, space_usage * 100, cmap=cm.jet, vmin=0, vmax=10)
 
     plt.axis('equal')
     plt.gca().set_adjustable("box")
     # # plt.colorbar(orientation="horizontal")
-    cbar = plt.colorbar()
+    cbar = fig.colorbar(pc, aspect=5, pad=0.005)
     cbar.set_label('occupation [%]', rotation=90)
     #
     # # plt.get_xaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x/1000), ',')))
@@ -160,7 +160,7 @@ def plot_space_usage(space_usage, grid, filename=None, title=None):
     if filename is None:
         plt.show()
     else:
-        plt.savefig(filename, dpi=300, format='pdf')
+        plt.savefig(filename, dpi=300, format='png')
     plt.close()
 
 
@@ -235,16 +235,14 @@ def process_space_usage(combination):
     space_usage_all = np.zeros_like(grid.gridX)
     number = 0
     for file in os.listdir(directory):
-        if number == 10:
-            break
         if re.match(regex, file):
             # print(file)
             number = number + 1
             space_usage = np.loadtxt(os.path.join(directory, file))
             space_usage_all = space_usage_all + space_usage
     space_usage_all = space_usage_all / number
-    # plot_space_usage(space_usage_all, grid, filename=os.path.join(output_path, reg_string))
-    plot_space_usage(space_usage_all, grid, title=reg_string)
+    plot_space_usage(space_usage_all, grid, filename=os.path.join(output_path, 'foo.png'))
+    # plot_space_usage(space_usage_all, grid, title=reg_string)
     a = 1
 
 
@@ -321,9 +319,9 @@ if not os.path.exists(output_path):
     os.makedirs(output_path)
 
 # process_trajectories()
-w_exits = np.asarray([1, 2])
-w_walls = np.asarray([1, 2])
-w_doors = np.asarray([1, 0])
+w_exits = np.asarray([2])
+w_walls = np.asarray([1])
+w_doors = np.asarray([1])
 w_directions = np.asarray([False])
 all = [w_exits, w_walls, w_doors, w_directions]
 combinations = list(itertools.product(*all))

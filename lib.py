@@ -28,6 +28,9 @@ def create_peds(simulation_parameters: SimulationParameters, geometry: Geometry,
             i = random.randint(0, grid.gridX.shape[0] - 1)
             j = random.randint(0, grid.gridY.shape[1] - 1)
 
+            if index == 0:
+                i, j = grid.get_indices(-5, 2
+                                        )
             if grid.inside_cells[i][j] == 1:
                 occupied = False
                 for ped in geometry.pedestrians.values():
@@ -98,6 +101,8 @@ def run_simulation(simulation_parameters: SimulationParameters):
 
     traj = Trajectory(grid, simulation_parameters.steps)
 
+    plot_geometry_peds(geometry, grid, geometry.pedestrians, highlight=geometry.pedestrians[0],
+                       filename=os.path.join('plots', 'geometry.png'))
     for step in range(simulation_parameters.steps):
         start_time = time.time()
         if len(geometry.pedestrians.values()) < simulation_parameters.max_agents:

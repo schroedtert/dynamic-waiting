@@ -17,17 +17,17 @@ import time
 
 def setup_simulation(agents):
     num_repetitions = 1
-    max_agents = np.asarray([agents])
-    init_agents = np.asarray([0.25, 0.5])
+    max_agents = np.asarray([100])
+    init_agents = np.asarray([0.25])
     standing_agents = np.asarray([0.])
-    steps = np.asarray([540, 900, 1800])
-    seeds = np.asarray([1224, 4356, 234])
-    w_exits = np.arange(1, 2.1, 1)
-    w_walls = np.arange(1, 2.1, 1)
-    w_doors = np.arange(0, 1.1, 1)
-    w_directions = np.asarray([False, True])
+    steps = np.asarray([540])
+    seeds = np.asarray([43123])
+    w_exits = np.asarray([1])
+    w_walls = np.asarray([1])
+    w_doors = np.asarray([1])
+    w_directions = np.asarray([False])
 
-    exit_prob_0 = np.asarray([0, 0.25, 0.5, 0.75])
+    exit_prob_0 = np.asarray([0.5])
     all = [max_agents, init_agents, standing_agents,
            steps, seeds, w_exits, w_walls, w_doors, w_directions, exit_prob_0]
 
@@ -66,7 +66,8 @@ def setup_simulation(agents):
 
             # output_path = os.path.join('results-change-weight', suffix)
             # output_path = os.path.join('/p/project/jias72/tobias/2020-femtc/2020-08-15_sbb', suffix)
-            output_path = os.path.join('/p/project/jias72/tobias/2020-femtc/2020-08-16_real-bern', suffix)
+            # output_path = os.path.join('/p/project/jias72/tobias/2020-femtc/2020-08-16_real-bern', suffix)
+            output_path = os.path.join('results-ff', suffix)
 
             para = SimulationParameters()
             para.max_agents = max_agent
