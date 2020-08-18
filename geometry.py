@@ -125,23 +125,23 @@ class Geometry:
 
         self.floor = Polygon(points, hole_points)
 
-        # fig, ax = plt.subplots()
-        #
-        # patch = PolygonPatch(self.floor, facecolor='blue', edgecolor='black',
-        #                      alpha=0.5, zorder=2)
-        # ax.add_patch(patch)
-        # # plt.plot(*self.floor.interiors.xy)
-        # for entrance in self.entrances.values():
-        #     x,y = entrance.xy
-        #     plt.plot(x,y, color='red')
-        # for exit in self.exits.values():
-        #     x,y = exit.xy
-        #     plt.plot(x,y, color='green')
-        #
-        # plt.axis('equal')
-        # plt.gca().set_adjustable("box")
-        #
-        # plt.show()
+        fig, ax = plt.subplots()
+
+        patch = PolygonPatch(self.floor, facecolor='blue', edgecolor='black',
+                             alpha=0.5, zorder=2)
+        ax.add_patch(patch)
+        # plt.plot(*self.floor.interiors.xy)
+        for entrance in self.entrances.values():
+            x,y = entrance.xy
+            plt.plot(x,y, color='red')
+        for exit in self.exits.values():
+            x,y = exit.xy
+            plt.plot(x,y, color='green')
+
+        plt.axis('equal')
+        plt.gca().set_adjustable("box")
+        plt.gca().set_xlim([-56000, 8000])
+        plt.show()
         self.env = vis.Environment([vis.Polygon(points_vis[::-1]), *holes_vis])
         if not self.env.is_valid(self.epsilon):
             raise ValueError('Check geometry!')
