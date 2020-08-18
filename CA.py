@@ -1,7 +1,6 @@
 from numpy.random import choice
 
 from floorfield import *
-from floorfield import compute_prob_neighbors
 from plotting import *
 from IO import save_floor_field
 
@@ -23,8 +22,7 @@ class CA:
                 individual_ff = compute_individual_ff(geometry, grid, ped, self.simulation_parameters)
                 combined = compute_overall_ff(geometry, grid, self.static_ff[ped.exit_id], individual_ff)
 
-                prob_neighbor = compute_prob_neighbors(geometry, grid, ped, combined,
-                                                       self.simulation_parameters.w_direction)
+                prob_neighbor = compute_prob_neighbors(geometry, grid, ped, combined, self.simulation_parameters.w_direction)
                 step = self.compute_next_step(prob_neighbor)
 
                 next_step[ped_id] = step
