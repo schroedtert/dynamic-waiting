@@ -21,7 +21,8 @@ def setup_simulation(agents):
     init_agents = np.asarray([0.25])
     standing_agents = np.asarray([0.])
     steps = np.asarray([540])
-    seeds = np.asarray([43123])
+    # seeds = np.asarray([1224])
+    seeds = np.asarray([23412])
     w_exits = np.asarray([1])
     w_walls = np.asarray([1])
     w_doors = np.asarray([1])
@@ -34,7 +35,7 @@ def setup_simulation(agents):
     # file = 'geometries/simplified.xml'
     # file = 'geometries/platform-smaller.xml'
     # file = 'geometries/platform-sbb.xml'
-    file = 'geometries/Bern_geo.xml'
+    file = 'geometries/Bern_geo-small.xml'
 
     parameters = []
     suffixes = []
@@ -90,12 +91,12 @@ def setup_simulation(agents):
 
 
 def start_simulation(sim_parameters):
-    # run_simulation(sim_parameters)
-    try:
-        return (None, run_simulation(sim_parameters))
-    except Exception as e:
-        print(e)
-        return (e, None)
+    run_simulation(sim_parameters)
+    # try:
+    #     return (None, run_simulation(sim_parameters))
+    # except Exception as e:
+    #     print(e)
+    #     return (e, None)
 
 
 if __name__ == '__main__':
@@ -107,11 +108,11 @@ if __name__ == '__main__':
     print('run {} simulations with {} processes'.format(end - start, multiprocessing.cpu_count()))
     start_time = time.time()
 
-    pool = multiprocessing.Pool(multiprocessing.cpu_count())
-    pool.map_async(start_simulation, parameters[int(start):int(end)])
-    pool.close()
-    pool.join()
-    # start_simulation(parameters[0])
+    # pool = multiprocessing.Pool(multiprocessing.cpu_count())
+    # pool.map_async(start_simulation, parameters[int(start):int(end)])
+    # pool.close()
+    # pool.join()
+    start_simulation(parameters[0])
     end_time = time.time()
 
     print("Time needed: {}".format(end_time - start_time))

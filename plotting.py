@@ -32,17 +32,17 @@ def plot_geometry_peds(geometry: Geometry, grid: Grid, peds: Dict[int, Pedestria
     for exit in geometry.exits.values():
         ex, ey = exit.xy
         ax.plot(ex, ey, color='green')
-    #
-    # for key, ped in peds.items():
-    #     x = grid.gridX[ped.i()][ped.j()]
-    #     y = grid.gridY[ped.i()][ped.j()]
-    #
-    #     if ped == highlight:
-    #         ax.scatter(x, y, s=5, color='red')
-    #     elif not ped.standing:
-    #         ax.scatter(x, y, s=5,  color='black')
-    #     else:
-    #         ax.scatter(x, y, s=5, color='green')
+
+    for key, ped in peds.items():
+        x = grid.gridX[ped.i()][ped.j()]
+        y = grid.gridY[ped.i()][ped.j()]
+
+        if ped == highlight:
+            ax.scatter(x, y, s=5, color='red')
+        elif not ped.standing:
+            ax.scatter(x, y, s=5, color='black')
+        else:
+            ax.scatter(x, y, s=5, color='green')
 
     ax.set_ylim([-5000, 8000])
     ax.set_xlim([-56000, 10000])

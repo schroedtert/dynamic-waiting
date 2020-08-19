@@ -126,10 +126,42 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
     x, y = grid.get_coordinates(ped.i(), ped.j())
     vis = geometry.visible_area(x, y)
 
+    fig, ax = plt.subplots()
+    patch = PolygonPatch(geometry.floor, facecolor='gray', edgecolor='black',
+                         alpha=0.1, zorder=2)
+
+    ax.add_patch(patch)
+
+    patch = PolygonPatch(vis, facecolor='blue', edgecolor='black',
+                         alpha=0.5, zorder=2)
+    ax.add_patch(patch)
+
+    ax.scatter(x, y, s=5, color='black')
+    # plt.plot(*self.floor.interiors.xy)
+    for entrance in geometry.entrances.values():
+        ex, ey = entrance.xy
+        ax.plot(ex, ey, color='red')
+
+    for exit in geometry.exits.values():
+        ex, ey = exit.xy
+        ax.plot(ex, ey, color='green')
+
+    # ax.set_ylim([-5000, 6000])
+    # ax.set_xlim([-25000, 8000])
+
+    ax.get_xaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x / 1000), ',')))
+    ax.get_yaxis().set_major_formatter(FuncFormatter(lambda y, p: format(int(y / 1000), ',')))
+    ax.set_xlabel('x [m]')
+    ax.set_ylabel('y [m]')
+    ax.set_aspect(1.)
+    plt.gca().set_adjustable("box")
+
+    plt.savefig(os.path.join('plots', 'visible.png'), dpi=300, format='png', bbox_inches='tight')
+
     # compute voronoi polygons of neighbors
     neighbor_voronoi_polygons = compute_voronoi_neighbors(geometry, grid, ped)
 
-    intersections = []
+    intersections = {}
     weights = np.zeros_like(grid.gridX)
 
     weight_distance = compute_point_distance(geometry, grid, [ped.i(), ped.j()])
@@ -143,7 +175,8 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
     plot_prob_field(geometry, grid, weighted_floorfield, filename=os.path.join('plots', 'WSR.png'))
 
     inside = grid.get_inside_polygon_cells(geometry, vis.exterior.coords)
-    plot_prob_field(geometry, grid, weighted_floorfield * inside, filename=os.path.join('plots', 'VWSR.png'))
+    plot_prob_field(geometry, grid, np.ma.MaskedArray(weighted_floorfield, inside != 1),
+                    filename=os.path.join('plots', 'VWSR.png'))
 
     # plot_prob_field(geometry, grid, weighted_floorfield, "weighted_floorfield")
 
@@ -160,7 +193,7 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
             # foo = nearby * floorfield
             # plot_prob_field(geometry, grid, foo)
             # prob[key] = np.max(foo)
-            intersections.append(polygon)
+            intersections[key] = polygon
 
             prob[key] = floorfield.filled(0)[ped.i()][ped.j()]
 
@@ -190,11 +223,14 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
                 prob[key] = 0
             else:
                 intersection = sg.Polygon(points)
-                intersections.append(intersection)
+                intersections[key] = intersection
 
                 inside_cells = grid.get_inside_polygon_cells(geometry, points)
                 # plot_prob_field(geometry, grid, inside_cells)
                 combination = inside_cells * weighted_floorfield
+
+                plot_prob_field(geometry, grid, np.ma.MaskedArray(combination, inside_cells != 1),
+                                filename=os.path.join('plots', 'VWSR_{}.png'.format(key)))
 
                 prob[key] = np.ma.max(combination, fill_value=0)
 
@@ -203,33 +239,76 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
     # sg.draw.draw(geometry.floor, alpha=0.2)
     # plt.show()
 
-    fig, ax = plt.subplots()
-    patch = PolygonPatch(geometry.floor, facecolor='gray', edgecolor='black',
-                         alpha=0.1, zorder=2)
-    ax.add_patch(patch)
-    # plt.plot(*self.floor.interiors.xy)
-    for entrance in geometry.entrances.values():
-        ex, ey = entrance.xy
-        ax.plot(ex, ey, color='red')
-    for exit in geometry.exits.values():
-        ex, ey = exit.xy
-        ax.plot(ex, ey, color='green')
-
     # ax.scatter(x, y, s=3, color='black')
 
     cmap = plt.cm.get_cmap('tab10')
     color = [0.3, 0.0, 0.1, 0.2, 0.5]
-    index = 0
-    for i in intersections:
-        p = Polygon(i.coords)
+    for key in neighbor_voronoi_polygons.keys():
+        index = 0
+        fig, ax = plt.subplots()
+        patch = PolygonPatch(geometry.floor, facecolor='gray', edgecolor='black',
+                             alpha=0.1, zorder=2)
+        ax.add_patch(patch)
+        # plt.plot(*self.floor.interiors.xy)
+        for entrance in geometry.entrances.values():
+            ex, ey = entrance.xy
+            ax.plot(ex, ey, color='red')
 
-        patch = PolygonPatch(p, facecolor=None, edgecolor='black',
-                             alpha=0.75, zorder=2, color=cmap(color[index]))
-        print(cmap(color[index]))
+        for exit in geometry.exits.values():
+            ex, ey = exit.xy
+            ax.plot(ex, ey, color='green')
+
+        for k, poly in intersections.items():
+            p = Polygon(poly.coords)
+
+            if k == key:
+                patch = PolygonPatch(p, facecolor=cmap(color[index]), edgecolor='black',
+                                     alpha=0.75, zorder=2)
+            else:
+                patch = PolygonPatch(p, facecolor=cmap(color[index]), edgecolor='black',
+                                     alpha=0.15, zorder=2)
+
+            ax.add_patch(patch)
+            index = index + 1
+
+        # ax.set_ylim([-5000, 6000])
+        # ax.set_xlim([-25000, 8000])
+
+        ax.get_xaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x / 1000), ',')))
+        ax.get_yaxis().set_major_formatter(FuncFormatter(lambda y, p: format(int(y / 1000), ',')))
+        ax.set_xlabel('x [m]')
+        ax.set_ylabel('y [m]')
+        ax.set_aspect(1.)
+        plt.gca().set_adjustable("box")
+
+        plt.savefig(os.path.join('plots', 'voronoi_{}.png'.format(key)), dpi=300, format='png', bbox_inches='tight')
+
+    index = 0
+    fig, ax = plt.subplots()
+    patch = PolygonPatch(geometry.floor, facecolor='gray', edgecolor='black',
+                         alpha=0.1, zorder=2)
+    ax.add_patch(patch)
+
+    for entrance in geometry.entrances.values():
+        ex, ey = entrance.xy
+        ax.plot(ex, ey, color='red')
+
+    for exit in geometry.exits.values():
+        ex, ey = exit.xy
+        ax.plot(ex, ey, color='green')
+
+    for poly in neighbor_voronoi_polygons.values():
+        p = Polygon(poly.coords)
+        inter = p.intersection(geometry.floor)
+
+        patch = PolygonPatch(inter, facecolor=cmap(color[index]), edgecolor='black',
+                             alpha=0.75, zorder=2)
+
         ax.add_patch(patch)
         index = index + 1
-    ax.set_ylim([-5000, 6000])
-    ax.set_xlim([-25000, 8000])
+
+        # ax.set_ylim([-5000, 6000])
+        # ax.set_xlim([-25000, 8000])
 
     ax.get_xaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x / 1000), ',')))
     ax.get_yaxis().set_major_formatter(FuncFormatter(lambda y, p: format(int(y / 1000), ',')))
@@ -238,7 +317,7 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
     ax.set_aspect(1.)
     plt.gca().set_adjustable("box")
 
-    plt.savefig(os.path.join('plots', 'voronoi.png'), dpi=300, format='png', bbox_inches='tight')()
+    plt.savefig(os.path.join('plots', 'voronoi.png'), dpi=300, format='png', bbox_inches='tight')
 
     # weight cells by moving direction
     if weight_direction:
@@ -249,7 +328,10 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
         for key, p in prob.items():
             prob[key] = p * weights[key]
 
+    print(prob)
     prob = normalize_dict(prob)
+    print(prob)
+
     return prob
 
 
