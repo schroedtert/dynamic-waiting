@@ -54,19 +54,17 @@ def setup_argument_parser():
     # read general parameters
     parser.add_argument('--max_agents', help='max number of pedestrians', type=restricted_int, default=100)
     parser.add_argument('--init_agents', help='number of pedestrians at start of simulation', type=restricted_int,
-                        default=0)
+                        default=20)
     parser.add_argument('--standing_agents', help='number of pedestrian which will not move during simulation, '
                                                   'only applies to init_agents', type=restricted_int, default=0)
 
-    parser.add_argument('--steps', help='number of simulation steps', type=restricted_int, default=5)
+    parser.add_argument('--steps', help='number of simulation steps', type=restricted_int, default=180)
     parser.add_argument('--file', help='geometry used for simulation', default='./geometries/simplified.xml')
     parser.add_argument('--seed', help='used random seed (default 124)', type=restricted_int, default=124)
 
     # read weights from arguments
     parser.add_argument('--w_exit', help='weight of exit potential (default 1)', type=restricted_float, default=1)
     parser.add_argument('--w_wall', help='weight of wall potential (default 1)', type=restricted_float, default=1)
-    parser.add_argument('--w_attraction', help='weight of attraction potential (default 1)',
-                        type=restricted_float, default=1)
 
     # read sigmoid parameters
     parser.add_argument('--door_b', help='sigmoid parameter for door b (default 1)', type=restricted_float, default=1)

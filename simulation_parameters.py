@@ -78,7 +78,6 @@ class SimulationParameters:
 
         self.w_exit = args.w_exit
         self.w_wall = args.w_wall
-        self.w_attraction = args.w_attraction
 
         self.door_b = args.door_b
         self.door_c = args.door_c

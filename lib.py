@@ -36,9 +36,6 @@ def create_peds(simulation_parameters: SimulationParameters, geometry: Geometry,
             i = random.randint(0, grid.gridX.shape[0] - 1)
             j = random.randint(0, grid.gridY.shape[1] - 1)
 
-            if index == 0:
-                i, j = grid.get_indices(-5, 2
-                                        )
             if grid.inside_cells[i][j] == 1:
                 occupied = False
                 for ped in geometry.pedestrians.values():
