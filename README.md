@@ -2,6 +2,22 @@
 
 Trying to model waiting behaviour of pedestrians on train station platforms via Cellular Automata.
 
+## Requirements
+Python 3.6 with following packages is required:
+- descartes
+- matplotlib
+- numpy
+- pandas
+- scikit-fmm
+- scipy
+- Shapely
+- VisiLibity
+ 
+ They can by installed by:
+```bash
+pip -r requirements.txt
+
+```
 ## Usage
 ```bash
  waiting_ca.py <optional arguments>
