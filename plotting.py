@@ -25,24 +25,12 @@ def plot_geometry_peds(geometry: Geometry, grid: Grid, peds: Dict[int, Pedestria
     patch = PolygonPatch(geometry.floor, facecolor='gray', edgecolor='black',
                          alpha=0.5, zorder=2)
     ax.add_patch(patch)
-    # plt.plot(*self.floor.interiors.xy)
     for entrance in geometry.entrances.values():
         ex, ey = entrance.xy
         ax.plot(ex, ey, color='red')
     for exit in geometry.exits.values():
         ex, ey = exit.xy
         ax.plot(ex, ey, color='green')
-    #
-    # for key, ped in peds.items():
-    #     x = grid.gridX[ped.i()][ped.j()]
-    #     y = grid.gridY[ped.i()][ped.j()]
-    #
-    #     if ped == highlight:
-    #         ax.scatter(x, y, s=5, color='red')
-    #     elif not ped.standing:
-    #         ax.scatter(x, y, s=5,  color='black')
-    #     else:
-    #         ax.scatter(x, y, s=5, color='green')
 
     ax.set_ylim([-5000, 8000])
     ax.set_xlim([-56000, 10000])
@@ -53,7 +41,6 @@ def plot_geometry_peds(geometry: Geometry, grid: Grid, peds: Dict[int, Pedestria
     ax.set_ylabel('y [m]')
     ax.set_aspect(1.)
     plt.gca().set_adjustable("box")
-    # plt.axis('equal')
 
     if filename is None:
         plt.show()
@@ -64,22 +51,17 @@ def plot_geometry_peds(geometry: Geometry, grid: Grid, peds: Dict[int, Pedestria
 def plot_prob_field(geometry: Geometry, grid: Grid, prob_field, title="", ped=None, vmin=None, vmax=None,
                     filename=None):
     plt.figure(dpi=300)
-    # plt.title(title)
-
-    # plt.contourf(grid.gridX, grid.gridY, prob_field)
     if not ped is None:
         x = grid.gridX[ped.i()][ped.j()]
         y = grid.gridY[ped.i()][ped.j()]
         # plt.scatter(x, y, color='black')
 
     pc = plt.pcolor(grid.gridX / MTOMM, grid.gridY / MTOMM, prob_field, cmap=cm.jet, vmin=0, vmax=2)
-    # plt.pcolor(grid.gridX / MTOMM, grid.gridY / MTOMM, prob_field, cmap=cm.coolwarm, vmin=0, vmax=2)
 
     plt.axis('equal')
     plt.xlabel('x/m')
     plt.ylabel('y/m')
     plt.gca().set_adjustable("box")
-    # plt.colorbar(orientation="horizontal")
     plt.xlabel('x [m]')
     plt.ylabel('y [m]')
     plt.ylim([-5, 8])
@@ -116,18 +98,11 @@ def plot_trajectories(geometry: Geometry, grid: Grid, trajectory: Trajectory, pe
                       filename=None):
     plt.figure()
 
-    # for key, ped in peds.items():
-    #     x = grid.gridX[ped.i()][ped.j()]
-    #     y = grid.gridY[ped.i()][ped.j()]
-    #     point = sg.Point2(x, y)
-    #     draw(point, color='black')
-
     # plot trajectories
     for ped_id in trajectory.traj.id.unique():
         df = trajectory.traj.loc[trajectory.traj['id'] == ped_id]
         df = df.sort_values('step')
         plt.plot(df.x, df.y)
-        # df.plot(x='x', y='y')
 
     # plot floor
     draw(geometry.floor, alpha=0.1, linewidth=0.01)

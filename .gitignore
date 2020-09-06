@@ -215,5 +215,4 @@ pip-selfcheck.json
 
 data/*
 results/*
-foo.py
 outs/*

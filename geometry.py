@@ -172,7 +172,6 @@ class Geometry:
 
         return poly
 
-
     @staticmethod
     def save_print(polygon):
         end_pos_x = []
@@ -185,4 +184,3 @@ class Geometry:
             end_pos_y.append(y)
 
         return end_pos_x, end_pos_y
-

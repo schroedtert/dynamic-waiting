@@ -5,6 +5,7 @@ from simulation_parameters import SimulationParameters
 
 import time
 
+
 def restricted_float(x):
     try:
         x = float(x)
