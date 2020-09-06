@@ -33,8 +33,11 @@ class Geometry:
     entrances_properties: Dict[int, Tuple[int, int]]
     env: vis.Environment
 
-    # parameterized constructor
     def __init__(self, filename):
+        """
+        Constructor of geometry, reads the given xml file (filename) and extracts geometrical features
+        :param filename: File with geometry information
+        """
         self.walls = []
         self.floor = None
         self.entrances = {}
@@ -44,8 +47,7 @@ class Geometry:
         self.obstacles = {}
         self.attraction_ground = {}
         self.attraction_mounted = {}
-        walls, obstacles, entrances, entrances_properties, exits, edges, attractions_mounted, attractions_ground = read_geometry(
-            filename)
+        walls, obstacles, entrances, entrances_properties, exits, edges = read_geometry(filename)
 
         self.entrances_properties = entrances_properties
 
@@ -79,7 +81,6 @@ class Geometry:
                 hole_points.append((point[0], point[1]))
                 hole_points_vis.append(vis.Point(point[0], point[1]))
 
-            # hole_points.append(hole_points[0])
             hole_poly = Polygon(hole_points[::-1])
             holes.append(hole_poly)
 
@@ -88,35 +89,13 @@ class Geometry:
 
             self.obstacles[key] = hole_poly
 
-        for key, attraction in attractions_ground.items():
-            hole_points = []
-            hole_points_vis = []
-
-            for point in attraction:
-                hole_points.append((point[0], point[1]))
-                hole_points_vis.append(vis.Point(point[0], point[1]))
-
-            # hole_points.append(hole_points[0])
-            hole_poly = Polygon(hole_points)
-            holes.append(hole_points)
-
-            hole_vis = vis.Polygon(hole_points_vis)
-            holes_vis.append(hole_vis)
-
-            self.attraction_ground[key] = hole_poly
-
-        for key, attraction in attractions_mounted.items():
-            hole_points = []
-            for point in attraction:
-                hole_points.append((point[0], point[1]))
-            self.attraction_mounted[key] = Polygon(hole_points)
-
         # create polygon
         holes_poly = cascaded_union(holes)
         hole_points = []
         holes_vis = []
-        for i in holes_poly:
-            coords = i.exterior.coords[::-1]
+
+        if holes_poly.geom_type == 'Polygon':
+            coords = holes_poly.exterior.coords[::-1]
             hole_points.append(coords)
 
             hole_points_vis = []
@@ -126,6 +105,18 @@ class Geometry:
             hole_vis.enforce_standard_form()
             holes_vis.append(hole_vis)
 
+        else:
+            for i in holes_poly:
+                coords = i.exterior.coords[::-1]
+                hole_points.append(coords)
+
+                hole_points_vis = []
+                for coord in coords[:-1]:
+                    hole_points_vis.append(vis.Point(coord[0], coord[1]))
+                hole_vis = vis.Polygon(hole_points_vis[::-1])
+                hole_vis.enforce_standard_form()
+                holes_vis.append(hole_vis)
+
         self.floor = Polygon(points, hole_points)
 
         self.env = vis.Environment([vis.Polygon(points_vis[::-1]), *holes_vis])
@@ -134,25 +125,28 @@ class Geometry:
         return
 
     def is_in_geometry(self, x: float, y: float) -> bool:
-        # check if on floor
-        # point = sg.Point2(x, y)
-        # if self.floor.outer_boundary().oriented_side(point) == sg.Sign.NEGATIVE:
-        #     # check if in any of hole
-        #     for hole in self.floor.holes:
-        #         if hole.oriented_side(point) == sg.Sign.POSITIVE:
-        #             return False
-        #         for edge in hole.edges:
-        #             if sg.squared_distance(edge, point) < THRESHOLD ** 2:
-        #                 return False
-        #     return True
-        # return False
+        """
+        Checks whether a given point (x,y) is inside the simulation geometry
+        :param x: x coordinate of the point
+        :param y: y coordinate of the point
+        :return: (x,y) is inside simulation geometry
+        """
         p = Point(x, y)
         return p.within(self.floor)
 
     def get_bounding_box(self):
+        """
+        :return: Bounding box of the geometry
+        """
         return self.floor.bounds
 
     def visible_area(self, x: float, y: float):
+        """
+        Computes the visible area from point (x,y)
+        :param x: x coordinate of view point
+        :param y: y coordinate of view point
+        :return: Visibile area from (x,y)
+        """
         # Define the point of the "observer"
         observer = vis.Point(x, y)
 
@@ -171,16 +165,3 @@ class Geometry:
         poly = Polygon(points)
 
         return poly
-
-    @staticmethod
-    def save_print(polygon):
-        end_pos_x = []
-        end_pos_y = []
-        for i in range(polygon.n()):
-            x = polygon[i].x()
-            y = polygon[i].y()
-
-            end_pos_x.append(x)
-            end_pos_y.append(y)
-
-        return end_pos_x, end_pos_y

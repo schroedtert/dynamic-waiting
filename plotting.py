@@ -54,7 +54,6 @@ def plot_prob_field(geometry: Geometry, grid: Grid, prob_field, title="", ped=No
     if not ped is None:
         x = grid.gridX[ped.i()][ped.j()]
         y = grid.gridY[ped.i()][ped.j()]
-        # plt.scatter(x, y, color='black')
 
     pc = plt.pcolor(grid.gridX / MTOMM, grid.gridY / MTOMM, prob_field, cmap=cm.jet, vmin=0, vmax=2)
 
@@ -64,87 +63,8 @@ def plot_prob_field(geometry: Geometry, grid: Grid, prob_field, title="", ped=No
     plt.gca().set_adjustable("box")
     plt.xlabel('x [m]')
     plt.ylabel('y [m]')
-    plt.ylim([-5, 8])
-    plt.xlim([-56, 10])
 
     if filename is None:
         plt.show()
     else:
         plt.savefig(filename, dpi=300, format='png', bbox_inches='tight')
-
-
-def plot_voronoi_peds(geometry, grid, peds, filename=None):
-    vdiag = sg.voronoi.VoronoiDiagram()
-
-    for key, ped in peds.items():
-        x = grid.gridX[ped.i()][ped.j()]
-        y = grid.gridY[ped.i()][ped.j()]
-        point = sg.Point2(x, y)
-        vdiag.insert(point)
-        plt.scatter(x, y)
-
-    plt.axis('equal')
-    plt.gca().set_adjustable("box")
-
-    draw(geometry.floor, alpha=0.1)
-
-    if filename is None:
-        plt.show()
-    else:
-        plt.savefig(filename, dpi=300, format='pdf')
-
-
-def plot_trajectories(geometry: Geometry, grid: Grid, trajectory: Trajectory, peds: Dict[int, Pedestrian],
-                      filename=None):
-    plt.figure()
-
-    # plot trajectories
-    for ped_id in trajectory.traj.id.unique():
-        df = trajectory.traj.loc[trajectory.traj['id'] == ped_id]
-        df = df.sort_values('step')
-        plt.plot(df.x, df.y)
-
-    # plot floor
-    draw(geometry.floor, alpha=0.1, linewidth=0.01)
-
-    plt.axis('equal')
-    plt.gca().set_adjustable("box")
-    if filename is None:
-        plt.show()
-    else:
-        plt.savefig(filename, dpi=300, format='pdf')
-
-
-def plot_space_usage(geometry: Geometry, grid: Grid, trajectory: Trajectory, num_steps: int, filename=None):
-    plt.figure("Space usage")
-
-    space_usage = trajectory.space_usage[num_steps - 1] / num_steps
-    outside = grid.outside_cells
-    space_usage = np.ma.MaskedArray(space_usage, outside == 1)
-
-    plt.pcolor(grid.gridX / MTOMM, grid.gridY / MTOMM, space_usage, cmap=cm.coolwarm)
-
-    plt.axis('equal')
-    plt.gca().set_adjustable("box")
-    plt.colorbar()
-
-    if filename is None:
-        plt.show()
-    else:
-        plt.savefig(filename, dpi=300, format='pdf')
-
-
-def plot_voronoi_neighbors(geometry: Geometry, grid: Grid, voronoi_regions, filename=None):
-    cmap = plt.cm.get_cmap('tab10')
-
-    plt.figure()
-    colorValue = 0
-    for voronoi_region in voronoi_regions:
-        sg.draw.draw(voronoi_region, facecolor=cmap(colorValue))
-        colorValue = colorValue + 0.1
-    draw(geometry.floor, alpha=0.1)
-
-    if filename is None:
-        plt.show()
-    else:
-        plt.savefig(filename, dpi=300, format='pdf')

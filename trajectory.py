@@ -10,14 +10,29 @@ import os
 
 @dataclass
 class Trajectory:
+    """
+    Class containing the trajectory data
+    """
     traj = pd.DataFrame(columns=['step', 'id', 'x', 'y', 'exit'])
     space_usage = None
 
     def __init__(self, grid: Grid, num_steps: int):
+        """
+        Constructor
+        :param grid: grid to use
+        :param num_steps: number of compute steps
+        """
         shape = (num_steps, grid.gridX.shape[0], grid.gridX.shape[1])
         self.space_usage = np.zeros(shape)
 
     def add_step(self, step: int, grid: Grid, peds: Dict[int, Pedestrian], output_path):
+        """
+        Append trajectory data.
+        :param step: Current time step
+        :param grid: Grid to use
+        :param peds: Pedestrians in simulation
+        :param output_path: output_path
+        """
         step_frame = pd.DataFrame(columns=['step', 'id', 'x', 'y', 'exit'])
         for key, ped in peds.items():
             # add trajectory
@@ -43,16 +58,14 @@ class Trajectory:
         self.traj = self.traj.append(step_frame, ignore_index=True)
 
     def save(self, output_path):
+        """
+        Saves the current state of the trajectory
+        :param output_path: output directory
+        """
         traj_filename = os.path.join(output_path, 'traj.csv')
         self.traj.to_csv(traj_filename)
 
-        #        for step in range(self.space_usage.shape[0]):
         step = self.space_usage.shape[0] - 1
-        # path = os.path.join(output_path, 'space_usage')
-        # try:
-        #    os.makedirs(path)
-        #except FileExistsError:
-        #    a = 1
 
         suffix = 'space_usage.txt'
         su_filename = os.path.join(output_path, suffix)

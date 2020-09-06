@@ -25,7 +25,6 @@ def normalize_dict(field):
 
 
 def distance_to_prob_inc(distance_field, b, c):
-    # return np.exp(-b * np.exp(-c * (distance_field / 1000)))
     return 1 / (1 + np.exp(-c * ((distance_field / 1000) - b)))
 
 
@@ -35,82 +34,53 @@ def distance_to_prob_dec(distance_field, b, c):
 
 def compute_static_ff(geometry: Geometry, grid: Grid, simulation_parameters: SimulationParameters):
     static = {}
+
     # compute door probability: further is better
     door_distance = compute_entrance_distance(geometry, grid)
-    # plot_prob_field(geometry, grid, door_distance, "entrance distance")
     door_prob = distance_to_prob_inc(door_distance, simulation_parameters.door_b, simulation_parameters.door_c)
-    plot_prob_field(geometry, grid, door_prob, filename=os.path.join('plots', 'E.png'))
 
     # compute wall probability: closer is better
     wall_distance = compute_wall_distance(geometry, grid)
-    # plot_prob_field(geometry, grid, wall_distance, "wall distance")
     wall_prob = distance_to_prob_dec(wall_distance, simulation_parameters.wall_b, simulation_parameters.wall_c)
-    plot_prob_field(geometry, grid, wall_prob, filename=os.path.join('plots', 'B.png'))
-
-    # compute distance to ground attraction points: closer is better
-    attraction_ground_prob = np.zeros_like(grid.gridX)
-    # attraction_ground_distance = compute_attraction_ground_distance(geometry, grid)
-    # # plot_prob_field(geometry, grid, attraction_ground_distance, "attraction ground distance")
-    # attraction_ground_prob = distance_to_prob_dec(attraction_ground_distance, simulation_parameters.attraction_ground_b,
-    #                                               simulation_parameters.attraction_ground_c)
-    # # plot_prob_field(geometry, grid, attraction_ground_prob, "attraction ground prob")
 
     for exit_id in geometry.exits.keys():
         # compute distance to exits: closer is better
         exit_distance = compute_exit_distance(geometry, grid, exit_id)
-        # plot_prob_field(geometry, grid, exit_distance, "exit distance")
         exit_prob = distance_to_prob_dec(exit_distance, simulation_parameters.exit_b, simulation_parameters.exit_c)
-        plot_prob_field(geometry, grid, exit_prob, filename=os.path.join('plots', 'T.png'))
 
-        attraction = attraction_ground_prob
         if simulation_parameters.w_door == 0:
             door_filter = np.ones_like(grid.gridX)
         else:
             door_filter = simulation_parameters.w_door * door_prob
+
         # sum everything up for static FF
         ff = door_filter \
              * (simulation_parameters.w_wall * wall_prob
-                + simulation_parameters.w_exit * exit_prob
-                + simulation_parameters.w_attraction * attraction)
-        if simulation_parameters.plot:
-            plot_prob_field(geometry, grid, static, "static")
+                + simulation_parameters.w_exit * exit_prob)
 
-        if exit_id == 0:
-            plot_prob_field(geometry, grid, ff, filename=os.path.join('plots', 'S.png'))
+        if simulation_parameters.plot:
+            plot_prob_field(geometry, grid, door_filter, "door")
+            plot_prob_field(geometry, grid, wall_prob, "wall")
+            plot_prob_field(geometry, grid, exit_prob, "exit")
+            plot_prob_field(geometry, grid, static, "static")
 
         static[exit_id] = ff
 
-    # # compute distance to ground attraction points: closer is better
-    # attraction_mounted_distance = compute_attraction_mounted_distance(geometry, grid)
-    # # plot_prob_field(geometry, grid, attraction_mounted_distance, "attraction mounted distance")
-    # attraction_mounted_prob = distance_to_prob_dec(attraction_mounted_distance,
-    #                                                simulation_parameters.attraction_mounted_b,
-    #                                                simulation_parameters.attraction_mounted_c)
-    # # plot_prob_field(geometry, grid, attraction_mounted_prob, "attraction mounted prob")
-    # attraction = np.maximum(1.2*attraction_ground_prob, attraction_mounted_prob)
-    # attraction = np.maximum(1.2*attraction_ground_prob, attraction_mounted_prob)
-    # plot_prob_field(geometry, grid, attraction, "attraction prob")
     return static
 
 
 def compute_individual_ff(geometry: Geometry, grid: Grid, ped: Pedestrian, simulation_parameters: SimulationParameters):
     if len(geometry.pedestrians.values()) > 1:
         ped_distance = compute_ped_distance(geometry, grid, ped)
-        # plot_prob_field(geometry, grid, ped_distance, "ped distance")
         ped_prob = distance_to_prob_inc(ped_distance, simulation_parameters.ped_b, simulation_parameters.ped_c)
     else:
         ped_prob = np.ones_like(grid.gridX)
 
-    plot_prob_field(geometry, grid, ped_prob, filename=os.path.join('plots', 'R.png'))
     return ped_prob
 
 
 def compute_overall_ff(geometry: Geometry, grid: Grid, static_ff, individual_ff):
     combined = static_ff * individual_ff
-    # plot_prob_field(geometry, grid, static_ff)
-    # plot_prob_field(geometry, grid, individual_ff)
-    # plot_prob_field(geometry, grid, combined, "overall")
-    plot_prob_field(geometry, grid, combined, filename=os.path.join('plots', 'SR.png'))
 
     return combined
 
@@ -130,38 +100,19 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
     neighbor_voronoi_polygons = compute_voronoi_neighbors(geometry, grid, ped)
 
     intersections = []
-    weights = np.zeros_like(grid.gridX)
 
     weight_distance = compute_point_distance(geometry, grid, [ped.i(), ped.j()])
     weight_prob = distance_to_prob_dec(weight_distance, 40, 0.15)
-    plot_prob_field(geometry, grid, weight_prob, filename=os.path.join('plots', 'W.png'))
-    plot_prob_field(geometry, grid, weight_prob)
-
-    # plot_prob_field(geometry, grid, weight_prob, "weight_prob")
 
     weighted_floorfield = weight_prob * floorfield
-    plot_prob_field(geometry, grid, weighted_floorfield, filename=os.path.join('plots', 'WSR.png'))
 
     inside = grid.get_inside_polygon_cells(geometry, vis.exterior.coords)
-    plot_prob_field(geometry, grid, weighted_floorfield * inside, filename=os.path.join('plots', 'VWSR.png'))
-
-    # plot_prob_field(geometry, grid, weighted_floorfield, "weighted_floorfield")
 
     # sum up every cell in neighbor polygon to neighbor cell
     # sum is weighted by distance, closer = more important
     for key, polygon in neighbor_voronoi_polygons.items():
         if key == Neighbors.self:
-            # all cells within a 2m? range
-            # distance = 500
-            # nearby = grid.get_nearby_cells(geometry, [ped.i(), ped.j()], distance)
-
-            # a = grid.get_weighted_distance_cells(geometry, floorfield, sg.Point2(x, y))
-            # plot_prob_field(geometry, grid, nearby*grid.get_inside_cells(geometry))
-            # foo = nearby * floorfield
-            # plot_prob_field(geometry, grid, foo)
-            # prob[key] = np.max(foo)
             intersections.append(polygon)
-
             prob[key] = floorfield.filled(0)[ped.i()][ped.j()]
 
         elif polygon is not None:
@@ -171,8 +122,6 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
             points = []
             if inter.geom_type == 'Polygon':
                 points = inter.exterior.coords
-            elif inter.geom_type == 'LinearRing':
-                inter.coords
             elif inter.geom_type == 'GeometryCollection':
                 for i in inter.geoms:
                     if i.geom_type == 'Polygon':
@@ -193,52 +142,10 @@ def compute_prob_neighbors(geometry: Geometry, grid: Grid, ped: Pedestrian, floo
                 intersections.append(intersection)
 
                 inside_cells = grid.get_inside_polygon_cells(geometry, points)
-                # plot_prob_field(geometry, grid, inside_cells)
                 combination = inside_cells * weighted_floorfield
 
                 prob[key] = np.ma.max(combination, fill_value=0)
 
-    # for intersection in intersections:
-    #     sg.draw.draw(intersection)
-    # sg.draw.draw(geometry.floor, alpha=0.2)
-    # plt.show()
-
-    fig, ax = plt.subplots()
-    patch = PolygonPatch(geometry.floor, facecolor='gray', edgecolor='black',
-                         alpha=0.1, zorder=2)
-    ax.add_patch(patch)
-    # plt.plot(*self.floor.interiors.xy)
-    for entrance in geometry.entrances.values():
-        ex, ey = entrance.xy
-        ax.plot(ex, ey, color='red')
-    for exit in geometry.exits.values():
-        ex, ey = exit.xy
-        ax.plot(ex, ey, color='green')
-
-    # ax.scatter(x, y, s=3, color='black')
-
-    cmap = plt.cm.get_cmap('tab10')
-    color = [0.3, 0.0, 0.1, 0.2, 0.5]
-    index = 0
-    for i in intersections:
-        p = Polygon(i.coords)
-
-        patch = PolygonPatch(p, facecolor=None, edgecolor='black',
-                             alpha=0.75, zorder=2, color=cmap(color[index]))
-        print(cmap(color[index]))
-        ax.add_patch(patch)
-        index = index + 1
-    ax.set_ylim([-5000, 6000])
-    ax.set_xlim([-25000, 8000])
-
-    ax.get_xaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x / 1000), ',')))
-    ax.get_yaxis().set_major_formatter(FuncFormatter(lambda y, p: format(int(y / 1000), ',')))
-    ax.set_xlabel('x [m]')
-    ax.set_ylabel('y [m]')
-    ax.set_aspect(1.)
-    plt.gca().set_adjustable("box")
-
-    plt.savefig(os.path.join('plots', 'voronoi.png'), dpi=300, format='png', bbox_inches='tight')()
 
     # weight cells by moving direction
     if weight_direction:

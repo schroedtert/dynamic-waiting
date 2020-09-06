@@ -6,17 +6,26 @@ from CA import *
 
 
 def read_geometry(filename):
+    """
+    Reads the geometry from filename
+    :param filename: file containing geometry information
+    :return: geometrical features
+    """
     root = parse(filename)
     obstacles = read_obstacle(root)
     walls = read_subroom_walls(root)
     entrances, entrances_properties = read_entrances(root)
     exits = read_exits(root)
     edges = read_subroom_edges(root)
-    attractions_mounted, attractions_ground = read_attractions(root)
-    return walls, obstacles, entrances, entrances_properties, exits, edges, attractions_mounted, attractions_ground
+    return walls, obstacles, entrances, entrances_properties, exits, edges
 
 
 def read_entrances(root):
+    """
+    Reads the entrances.
+    :param root: xml root to start parsing
+    :return: Entrances defined in xml file
+    """
     # Initialization of a dictionary with obstacles
     entrances = {}
     entrances_properties = {}
@@ -39,6 +48,11 @@ def read_entrances(root):
 
 
 def read_exits(root):
+    """
+    Reads the exits.
+    :param root: xml root to start parsing
+    :return: Exits defined in xml file
+    """
     # Initialization of a dictionary with obstacles
     exits = {}
 
@@ -58,6 +72,11 @@ def read_exits(root):
 
 
 def read_obstacle(xml_doc):
+    """
+    Reads the obstacles.
+    :param root: xml root to start parsing
+    :return: Obstacles defined in xml file
+    """
     # Initialization of a dictionary with obstacles
     obstacles = {}
     # read in obstacles and combine them into an array for polygon representation
@@ -77,6 +96,12 @@ def read_obstacle(xml_doc):
 
 
 def read_subroom_edges(xml_doc):
+    """
+    Reads the edges.
+    :param root: xml root to start parsing
+    :return: Edges defined in xml file
+    """
+
     n_wall = 0
     edge_segments = []
     for s_num, s_elem in enumerate(xml_doc.getElementsByTagName('subroom')):
@@ -95,6 +120,11 @@ def read_subroom_edges(xml_doc):
 
 
 def read_subroom_walls(xml_doc):
+    """
+    Reads the walls.
+    :param root: xml root to start parsing
+    :return: Walls defined in xml file
+    """
     n_wall = 0
     wall_points = []
     for s_num, s_elem in enumerate(xml_doc.getElementsByTagName('subroom')):
@@ -116,49 +146,11 @@ def read_subroom_walls(xml_doc):
     return wall_segments
 
 
-def read_attractions(xml_doc):
-    # Initialization of a dictionary with obstacles
-    attractions_mounted = {}
-    attractions_ground = {}
-
-    # read in obstacles and combine them into an array for polygon representation
-    for a_num, a_elem in enumerate(xml_doc.getElementsByTagName('attraction')):
-        attraction_id = int(a_elem.getAttribute('id'))
-
-        points = []
-        for p_num, p_elem in enumerate(a_elem.getElementsByTagName('polygon')):
-            for v_num, v_elem in enumerate(p_elem.getElementsByTagName('vertex')):
-                vertex_x = MTOMM * float(p_elem.getElementsByTagName('vertex')[v_num].attributes['px'].value)
-                vertex_y = MTOMM * float(p_elem.getElementsByTagName('vertex')[v_num].attributes['py'].value)
-                points.append([vertex_x, vertex_y])
-
-        if (a_elem.getAttribute('mounted') == 'true'):
-            attractions_mounted[attraction_id] = points
-        else:
-            attractions_ground[attraction_id] = points
-    return attractions_mounted, attractions_ground
-
-
-def geo_limits(geo_xml):
-    geometry_wall = read_subroom_walls(geo_xml)
-    Xmin = []
-    Ymin = []
-    Xmax = []
-    Ymax = []
-    for k in geometry_wall.keys():
-        Xmin.append(np.min(geometry_wall[k][:, 0]))
-        Ymin.append(np.min(geometry_wall[k][:, 1]))
-        Xmax.append(np.max(geometry_wall[k][:, 0]))
-        Ymax.append(np.max(geometry_wall[k][:, 1]))
-
-    geominX = np.min(Xmin)
-    geomaxX = np.max(Xmax)
-    geominY = np.min(Ymin)
-    geomaxY = np.max(Ymax)
-    return geominX, geomaxX, geominY, geomaxY
-
-
 def create_output_directory(output_path):
+    """
+    Creates the output directory
+    :param output_path: path to the output directory
+    """
     try:
         # Create target Directory
         os.makedirs(output_path)
@@ -169,5 +161,11 @@ def create_output_directory(output_path):
 
 
 def save_floor_field(floor_field, output_path, filename):
+    """
+    Save the floor field to a file.
+    :param floor_field: floor field to save
+    :param output_path: path to output directory
+    :param filename: filename to save the ff
+    """
     ff_filename = os.path.join(output_path, filename)
     np.savetxt(ff_filename, floor_field)

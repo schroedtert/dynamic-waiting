@@ -1,11 +1,19 @@
 from enum import Enum
 
 MTOMM = 1000
+"""Factor to scale from meter to millimeter."""
+
 CELLSIZE = 0.5 * MTOMM
+"""Cell size for CA."""
+
 THRESHOLD = 0.5 * CELLSIZE
+"""Threshold for checking if a cell belongs to some structure."""
 
 
 class Neighbors(Enum):
+    """
+    Neighbors of current cell and the corresponding indices.
+    """
     self = 0
     left = 1
     top = 2
@@ -14,6 +22,9 @@ class Neighbors(Enum):
 
 
 class Direction(Enum):
+    """
+    Direction the pedestrian has moved.
+    """
     stay = 0
     left = 1
     forward = 2

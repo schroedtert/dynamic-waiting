@@ -9,18 +9,8 @@ from pedestrian import Pedestrian
 from typing import Dict
 
 from matplotlib.path import Path
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 
 moore = False
-
-
-def cell_is_occupied(geometry: Geometry, cell: [int, int]):
-    for ped in geometry.pedestrians.values():
-        if cell[0] == ped.i() and cell[1] == ped.j():
-            return True
-
-    return False
 
 
 @dataclass
@@ -39,6 +29,10 @@ class Grid:
     exit_cells: Dict[int, np.ndarray]
 
     def __init__(self, geometry: Geometry):
+        """
+        Constructs the grid based on the geometry
+        :param geometry:
+        """
         minx, miny, maxx, maxy = geometry.get_bounding_box()
 
         x = np.arange(minx - CELLSIZE, maxx + 2 * CELLSIZE, CELLSIZE)
@@ -61,6 +55,10 @@ class Grid:
         self.exit_cells = self.__get_exit_cells(geometry)
 
     def __get_outside_cells(self, geometry: Geometry):
+        """
+        :param geometry: Geometry to check
+        :return: matrix with 1 for cells outside the geometry, 0 otherwise
+        """
         outside = np.zeros_like(self.gridX)
         for i in range(self.dimX):
             for j in range(self.dimY):
@@ -69,6 +67,10 @@ class Grid:
         return outside
 
     def __get_inside_cells(self, geometry: Geometry):
+        """
+        :param geometry: Geometry to check
+        :return: matrix with 1 for cells inside the geometry, 0 otherwise
+        """
         inside = np.zeros_like(self.gridX)
         for i in range(self.dimX):
             for j in range(self.dimY):
@@ -80,6 +82,10 @@ class Grid:
         return inside
 
     def __get_entrance_cells(self, geometry: Geometry):
+        """
+        :param geometry: Geometry to check
+        :return: matrix with 1 for cells containing entrance, 0 otherwise
+        """
         entrances = np.zeros_like(self.gridX)
         for i in range(self.dimX):
             for j in range(self.dimY):
@@ -92,6 +98,10 @@ class Grid:
         return entrances
 
     def __get_door_cells(self, geometry: Geometry):
+        """
+        :param geometry: Geometry to check
+        :return: matrix with 1 for cells containing door, 0 otherwise
+        """
         doors = {}
         for key, door in geometry.entrances.items():
             entrances = np.zeros_like(self.gridX)
@@ -106,6 +116,10 @@ class Grid:
         return doors
 
     def __get_exit_cells(self, geometry: Geometry):
+        """
+        :param geometry: Geometry to check
+        :return: matrix with 1 for cells containing exit, 0 otherwise
+        """
         exits = {}
         for id, exit in geometry.exits.items():
             exit_cells = np.zeros_like(self.gridX)
@@ -119,6 +133,10 @@ class Grid:
         return exits
 
     def get_ped_cells(self, geometry: Geometry, ped: Pedestrian = None):
+        """
+        :param geometry: Geometry to check
+        :return: matrix with 1 for cells containing ped, 0 otherwise
+        """
         peds = np.zeros_like(self.gridX)
 
         for key, pped in geometry.pedestrians.items():
@@ -127,6 +145,10 @@ class Grid:
         return peds
 
     def get_wall_cells(self, geometry: Geometry):
+        """
+        :param geometry: Geometry to check
+        :return: matrix with 1 for cells containing walls, 0 otherwise
+        """
         walls = np.zeros_like(self.gridX)
 
         for i in range(self.dimX):
@@ -140,6 +162,10 @@ class Grid:
         return walls - self.__get_entrance_cells(geometry)
 
     def get_edge_cells(self, geometry: Geometry):
+        """
+        :param geometry: Geometry to check
+        :return: matrix with 1 for cells containing edge, 0 otherwise
+        """
         edges = np.zeros_like(self.gridX)
         for i in range(self.dimX):
             for j in range(self.dimY):
@@ -151,45 +177,12 @@ class Grid:
 
         return edges
 
-    def get_exit_cells(self, geometry: Geometry):
-        exits = np.zeros_like(self.gridX)
-        for i in range(self.dimX):
-            for j in range(self.dimY):
-                for key, door in geometry.exits.items():
-                    x, y = self.get_coordinates(i, j)
-                    p = Point((x, y))
-                    if door.distance(p) < THRESHOLD:
-                        exits[i][j] = 1
-
-        return exits
-
-    def get_attraction_ground_cells(self, geometry: Geometry):
-        attraction_ground = np.zeros_like(self.gridX)
-
-        for i in range(self.dimX):
-            for j in range(self.dimY):
-                x, y = self.get_coordinates(i, j)
-                p = Point((x, y))
-                for hole in geometry.attraction_ground.values():
-                    if hole.distance(p) < THRESHOLD:
-                        attraction_ground[i][j] = 1
-
-        return attraction_ground
-
-    def get_attraction_mounted_cells(self, geometry: Geometry):
-        attraction_mounted = np.zeros_like(self.gridX)
-
-        for i in range(self.dimX):
-            for j in range(self.dimY):
-                x, y = self.get_coordinates(i, j)
-                p = Point((x, y))
-                for hole in geometry.attraction_mounted.values():
-                    if hole.distance(p) < THRESHOLD:
-                        attraction_mounted[i][j] = 1
-
-        return attraction_mounted
-
     def get_coordinates(self, i: int, j: int):
+        """
+        :param i: 1st dimension index of cell
+        :param j: 2nd dimension index of cell
+        :return: (x,y) of the cell (i,j)
+        """
         if 0 <= i < self.dimX and 0 <= j < self.dimY:
             return [self.gridX[i][j], self.gridY[i][j]]
 
@@ -219,6 +212,11 @@ class Grid:
         return neighbors
 
     def get_inside_polygon_cells(self, geometry: Geometry, points):
+        """
+        :param geometry: Geometry to use
+        :param points: Vertices of polygon
+        :return: Returns matrix with 1 for cell inside polygon from points, 0 otherwise
+        """
         inside = np.zeros_like(self.inside_cells)
 
         verts = []
@@ -238,4 +236,9 @@ class Grid:
         return inside
 
     def get_indices(self, x, y):
+        """
+        :param x: x coordinate
+        :param y: y coordinate
+        :return: Returns indices to point (x,y)
+        """
         return np.argwhere((abs(self.gridX - x) < THRESHOLD) & (abs(self.gridY - y) < THRESHOLD))[0]

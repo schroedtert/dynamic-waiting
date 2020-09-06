@@ -12,9 +12,6 @@ from lib import run_simulation
 import time
 
 
-# with multiprocessing.Pool(multiprocessing.cpu_count()) as p:
-#     waiting_ca.main()
-
 def setup_simulation(agents):
     num_repetitions = 1
     max_agents = np.asarray([100])
@@ -31,10 +28,7 @@ def setup_simulation(agents):
     all = [max_agents, init_agents, standing_agents,
            steps, seeds, w_exits, w_walls, w_doors, w_directions, exit_prob_0]
 
-    # file = 'geometries/simplified.xml'
-    # file = 'geometries/platform-smaller.xml'
-    # file = 'geometries/platform-sbb.xml'
-    file = 'geometries/Bern_geo.xml'
+    file = 'geometries/simplified.xml'
 
     parameters = []
     suffixes = []
@@ -64,9 +58,6 @@ def setup_simulation(agents):
             else:
                 continue
 
-            # output_path = os.path.join('results-change-weight', suffix)
-            # output_path = os.path.join('/p/project/jias72/tobias/2020-femtc/2020-08-15_sbb', suffix)
-            # output_path = os.path.join('/p/project/jias72/tobias/2020-femtc/2020-08-16_real-bern', suffix)
             output_path = os.path.join('results-ff', suffix)
 
             para = SimulationParameters()
@@ -90,12 +81,10 @@ def setup_simulation(agents):
 
 
 def start_simulation(sim_parameters):
-    # run_simulation(sim_parameters)
     try:
-        return (None, run_simulation(sim_parameters))
+        return None, run_simulation(sim_parameters)
     except Exception as e:
-        print(e)
-        return (e, None)
+        return e, None
 
 
 if __name__ == '__main__':
@@ -111,7 +100,6 @@ if __name__ == '__main__':
     pool.map_async(start_simulation, parameters[int(start):int(end)])
     pool.close()
     pool.join()
-    # start_simulation(parameters[0])
     end_time = time.time()
 
     print("Time needed: {}".format(end_time - start_time))

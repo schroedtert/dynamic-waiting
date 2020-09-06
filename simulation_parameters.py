@@ -89,12 +89,6 @@ class SimulationParameters:
         self.wall_b = args.wall_b
         self.wall_c = args.wall_b
 
-        self.attraction_ground_b = args.att_ground_b
-        self.attraction_ground_c = args.att_ground_c
-
-        self.attraction_mounted_b = args.att_mounted_b
-        self.attraction_mounted_c = args.att_mounted_c
-
         self.ped_b = args.ped_b
         self.ped_c = args.ped_c
 

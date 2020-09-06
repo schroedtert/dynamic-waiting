@@ -12,17 +12,25 @@ from trajectory import Trajectory
 import random
 import numpy as np
 
-logfile = 'log.dat'
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
 
 def init(file):
+    """
+    Inits simulation context (used for parallel computations)
+    :param file: file containing geometry
+    :return: geometry and grid for simulation
+    """
     geometry = Geometry(file)
     grid = Grid(geometry)
     return geometry, grid
 
 
 def create_peds(simulation_parameters: SimulationParameters, geometry: Geometry, grid: Grid):
+    """
+    Creates the initial pedestrians in the simulation
+    :param simulation_parameters: parameters for simulation
+    :param geometry: geometry to use
+    :param grid: grid to use
+    """
     for index in range(simulation_parameters.init_agents):
         while True:
             i = random.randint(0, grid.gridX.shape[0] - 1)
@@ -51,6 +59,13 @@ def create_peds(simulation_parameters: SimulationParameters, geometry: Geometry,
 
 
 def add_pedestrian(simulation_parameters: SimulationParameters, geometry: Geometry, grid: Grid, step: int):
+    """
+    Add pedestrian at entrances depending on flow to the simulation
+    :param simulation_parameters: parameters of simulation
+    :param geometry: geometry to use
+    :param grid: grid to use
+    :param step: current time step
+    """
     for key in geometry.entrances.keys():
         entrance_properties = geometry.entrances_properties[key]
         if step % entrance_properties[0] == 0:
@@ -82,6 +97,11 @@ def add_pedestrian(simulation_parameters: SimulationParameters, geometry: Geomet
 
 
 def run_simulation(simulation_parameters: SimulationParameters):
+    """
+    Runs the simulation with the given parameters
+    :param simulation_parameters: parameters of simulation
+    :return:
+    """
     create_output_directory(simulation_parameters.output_path)
     file = open(simulation_parameters.file, 'r')
     random.seed(simulation_parameters.seed)
@@ -101,8 +121,6 @@ def run_simulation(simulation_parameters: SimulationParameters):
 
     traj = Trajectory(grid, simulation_parameters.steps)
 
-    plot_geometry_peds(geometry, grid, geometry.pedestrians, highlight=geometry.pedestrians[0],
-                       filename=os.path.join('plots', 'geometry.png'))
     for step in range(simulation_parameters.steps):
         start_time = time.time()
         if len(geometry.pedestrians.values()) < simulation_parameters.max_agents:
@@ -111,25 +129,7 @@ def run_simulation(simulation_parameters: SimulationParameters):
         ca.compute_step(geometry, grid)
         traj.add_step(step, grid, geometry.pedestrians, simulation_parameters.output_path)
         end_time = time.time()
-        print("{} finished step {:3d}/{:3d} in {:4.5f}s".format(os.getpid(), step + 1, simulation_parameters.steps,
+        print("Process {} finished step {:3d}/{:3d} in {:4.5f}s".format(os.getpid(), step + 1, simulation_parameters.steps,
                                                                 end_time - start_time))
-        # if simulation_parameters.plot:
-        #     plot_geometry_peds(geometry, grid, geometry.pedestrians)
-    #        else:
-    #            plot_geometry_peds(geometry, grid, geometry.pedestrians,
-    #                               filename=os.path.join(simulation_parameters.output_path,
-    #                                                     'geo_peds/{:03d}.pdf'.format(step)))
-
-    # print("========================= done ======================================")
-
-    # if simulation_parameters.plot:
-    #     plot_trajectories(geometry, grid, traj, geometry.pedestrians)
-    #     plot_space_usage(geometry, grid, traj, simulation_parameters.steps)
-    # else:
-    #     plot_trajectories(geometry, grid, traj, geometry.pedestrians,
-    #                       filename=os.path.join(simulation_parameters.output_path, 'traj.pdf'))
-    #     plot_space_usage(geometry, grid, traj, simulation_parameters.steps,
-    #                      filename=os.path.join(simulation_parameters.output_path, 'space_usage.pdf'))
-
-    # traj.save(simulation_parameters.output_path)
+    traj.save(simulation_parameters.output_path)
     return

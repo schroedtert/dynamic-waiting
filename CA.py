@@ -4,15 +4,32 @@ from floorfield import *
 from plotting import *
 from IO import save_floor_field
 
+
 class CA:
+    """ Simulator for waiting pedestrians with a CA.
+
+    :param static_ff: The underlying static floor field for all pedestrians
+    :param simulation_parameters: The used simulation parameters (see class:SimulationParameters)
+    """
     static_ff = None
     simulation_parameters: SimulationParameters
 
     def __init__(self, simulation_parameters: SimulationParameters, geometry: Geometry, grid: Grid):
+        """
+        Init the CA.
+        :param simulation_parameters: simulation parameters to use
+        :param geometry: geometry to use
+        :param grid: grid to use
+        """
         self.simulation_parameters = simulation_parameters
         self.static_ff = compute_static_ff(geometry, grid, self.simulation_parameters)
 
     def compute_step(self, geometry: Geometry, grid: Grid):
+        """
+        Computes one time step of the simulations.
+        :param geometry: geometry to use
+        :param grid: grid to use
+        """
         next_step = {}
         prob_next_step = {}
         for ped_id, ped in geometry.pedestrians.items():
@@ -30,10 +47,13 @@ class CA:
 
         self.apply_step(geometry, grid, next_step, prob_next_step)
 
-        return
-
     @staticmethod
     def compute_next_step(prob):
+        """
+        Chooses the next step based on *prob*.
+        :param prob: Probabilities for the corresponding neighboring fields
+        :return: Next step
+        """
         keys = list(prob.keys())
         probs = list(prob.values())
 
@@ -41,6 +61,13 @@ class CA:
 
     @staticmethod
     def apply_step(geometry: Geometry, grid: Grid, next_step, prob_next_step):
+        """
+        Applies the current step to pedestrians and resolves occurring conflicts.
+        :param geometry: geometry to use
+        :param grid: grid to use
+        :param next_step: next steps of all pedestrians
+        :param prob_next_step: probabilities of next steps
+        """
         targets = {}
         for key, step in next_step.items():
             neighbors = grid.get_neighbors(geometry, geometry.pedestrians[key].pos)
@@ -54,6 +81,15 @@ class CA:
 
     @staticmethod
     def solve_conflicts(geometry: Geometry, targets, next_step, prob_next_step, conflicts):
+        """
+        Solves occurring conflicts by using relative probabilities
+        :param geometry: geometry to use
+        :param targets: target fields for each pedestrian
+        :param next_step: targeted field for each pedestrian
+        :param prob_next_step: probabilities of each targeted field
+        :param conflicts: conflicting targets
+        :return:
+        """
         for conflict in conflicts:
             probs = []
             for ped_id in conflict:
@@ -70,6 +106,11 @@ class CA:
 
     @staticmethod
     def find_conflicts(targets):
+        """
+        Finds conflicts the *targets*, checks if two or more pedestrians target the same cell.
+        :param targets: Targeted cells
+        :return: Conflicting target cells
+        """
         targets_list = list(targets.values())
         duplicates = []
         for key, target in targets.items():
@@ -85,5 +126,10 @@ class CA:
         return conflicts
 
     def save(self, output_path):
+        """
+        Saves the underlying static floor field.
+        :param output_path:
+        :return:
+        """
         for id, ff in self.static_ff.items():
             save_floor_field(ff, output_path, 'static_ff_{}.txt'.format(id))

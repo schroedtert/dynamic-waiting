@@ -6,9 +6,9 @@
             <subroom id="0" closed="0" class="subroom">
                 <polygon caption="wall">
                     <vertex px="-10.0" py="-5.0"/>
-                    <vertex px="10.0" py="-5.0"/>
-                    <vertex px="10.0" py="5.0"/>
                     <vertex px="-10.0" py="5.0"/>
+                    <vertex px="10.0" py="5.0"/>
+                    <vertex px="10.0" py="-5.0"/>
                 </polygon>
                 <edges>
                     <edge>
@@ -36,35 +36,21 @@
             <vertex px="-10.0" py="-5.0"/>
             <vertex px="10.0" py="-5.0"/>
         </exit>
+        <exit id="1">
+            <vertex px="-10.0" py="5.0"/>
+            <vertex px="10.0" py="5.0"/>
+        </exit>
+
     </exits>
 
     <obstacles>
         <obstacle id="0">
             <polygon>
                 <vertex px="-1" py="-1"/>
-                <vertex px="-1" py="1"/>
-                <vertex px="1" py="1"/>
                 <vertex px="1" py="-1"/>
+                <vertex px="1" py="1"/>
+                <vertex px="-1" py="1"/>
             </polygon>
         </obstacle>
     </obstacles>
-
-    <attractions>
-        <attraction id="0" mounted="true" exit_id="0">
-            <polygon>
-                <vertex px="-0.25" py="-3.75"/>
-                <vertex px="0.25" py="-2.25"/>
-                <vertex px="0.25" py="-3.75"/>
-                <vertex px="-0.25" py="-2.25"/>
-            </polygon>
-        </attraction>
-        <attraction id="1" high="false">
-            <polygon>
-                <vertex px="-8" py="-0.25"/>
-                <vertex px="-8" py="0.25"/>
-                <vertex px="-7" py="0.25"/>
-                <vertex px="-7" py="-0.25"/>
-            </polygon>
-        </attraction>
-    </attractions>
 </geometry>

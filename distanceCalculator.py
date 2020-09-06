@@ -8,6 +8,15 @@ from plotting import *
 
 
 def compute_distance_fmm(geometry: Geometry, grid: Grid, start, mask, speed=None):
+    """
+    Compute the distance to start in geometry.
+    :param geometry: Geometry to use
+    :param grid: Grid to use
+    :param start: start cells
+    :param mask: masked cells
+    :param speed: speed field
+    :return: distance to start by ffm
+    """
     inside = grid.inside_cells
 
     phi = inside - 5 * start
@@ -22,30 +31,28 @@ def compute_distance_fmm(geometry: Geometry, grid: Grid, start, mask, speed=None
 
 
 def compute_entrance_distance(geometry: Geometry, grid: Grid):
+    """
+    Compute the distance to the entrances.
+    :param geometry: Geometry to use
+    :param grid: Grid to use
+    :return: Distance field to entrance
+    """
     entrances = grid.entrance_cells
-    # plot_prob_field(geometry, grid, entrances)
     outside = grid.outside_cells
     mask = np.logical_and(outside == 1, entrances != 1)
-
-    # plot_prob_field(geometry, grid, np.ma.MaskedArray(entrances, mask))
-
-    # speed = 0.5 * np.ones_like(grid.gridX)
-
-    # for entrance in geometry.entrances.values():
-    #     y_min = entrance.bbox().ymin()
-    #     y_max = entrance.bbox().ymax()
-    #
-    #     x_min = entrance.bbox().xmin()
-    #
-    #     speed_mask_y = np.logical_and(grid.gridY >= y_min + 1000, grid.gridY <= y_max - 1000)
-    #     speed_mask_x = np.logical_and(grid.gridX >= x_min - 5000, grid.gridX <= x_min + 5000)
-    #     speed_mask = np.logical_and(speed_mask_x, speed_mask_y)
-    #     speed[speed_mask] = 5
 
     return compute_distance_fmm(geometry, grid, entrances, mask)
 
 
 def compute_exit_distance(geometry: Geometry, grid: Grid, exit_id: int):
+    """
+    Compute the distance to the exit with exit_id.
+    :param geometry: Geometry to use
+    :param grid: Grid to use
+    :param exit_id: Exit id
+    :return: Distance field to specific exit
+    """
+
     exits = grid.exit_cells[exit_id]
     wall = grid.get_wall_cells(geometry)
 
@@ -59,6 +66,13 @@ def compute_exit_distance(geometry: Geometry, grid: Grid, exit_id: int):
 
 
 def compute_wall_distance(geometry: Geometry, grid: Grid):
+    """
+    Compute the distance to the walls.
+    :param geometry: Geometry to use
+    :param grid: Grid to use
+    :return: Distance field to walls
+    """
+
     wall = grid.get_wall_cells(geometry)
     entrances = grid.entrance_cells
     edges = grid.get_edge_cells(geometry)
@@ -73,6 +87,14 @@ def compute_wall_distance(geometry: Geometry, grid: Grid):
 
 
 def compute_ped_distance(geometry: Geometry, grid: Grid, ped: Pedestrian = None):
+    """
+    Compute the distance to the pedestrians excluding ped.
+    :param geometry: Geometry to use
+    :param grid: Grid to use
+    :param ped: Pedestrian to ignorte
+    :return: Distance field to entrance
+    """
+
     peds = grid.get_ped_cells(geometry, ped)
     outside = grid.outside_cells
     mask = outside == 1
@@ -80,34 +102,14 @@ def compute_ped_distance(geometry: Geometry, grid: Grid, ped: Pedestrian = None)
     return compute_distance_fmm(geometry, grid, peds, mask)
 
 
-def compute_attraction_ground_distance(geometry: Geometry, grid: Grid):
-    attraction_ground = grid.get_attraction_ground_cells(geometry)
-
-    outside = grid.outside_cells
-    mask = np.logical_and(outside == 1, attraction_ground != 1)
-
-    return compute_distance_fmm(geometry, grid, attraction_ground, mask)
-
-
-def compute_attraction_mounted_distance(geometry: Geometry, grid: Grid):
-    attraction_mounted = grid.get_attraction_mounted_cells(geometry)
-
-    outside = grid.outside_cells
-    mask = np.logical_and(outside == 1, attraction_mounted != 1)
-
-    speed = 0.2 * np.ones_like(grid.gridX)
-
-    for attraction in geometry.attraction_mounted.values():
-        y_min = attraction.bounds[1]
-        y_max = attraction.bounds[3]
-
-        speed_mask = np.logical_and(grid.gridY >= y_min, grid.gridY <= y_max)
-        speed[speed_mask] = 2
-
-    return compute_distance_fmm(geometry, grid, attraction_mounted, mask, speed)
-
-
 def compute_point_distance(geometry: Geometry, grid: Grid, cell: [int, int]):
+    """
+    Comp
+    :param geometry:
+    :param grid:
+    :param cell:
+    :return:
+    """
     entrances = grid.entrance_cells
     outside = grid.outside_cells
     mask = np.logical_and(outside == 1, entrances != 1)
