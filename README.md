@@ -20,7 +20,7 @@ pip -r requirements.txt
 ```
 ## Usage
 ```bash
- waiting_ca.py <optional arguments>
+python waiting_ca.py <optional arguments>
 ```
 
 | option             	| default value                 	| description                                                                   	|
