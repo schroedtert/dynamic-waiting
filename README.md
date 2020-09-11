@@ -15,7 +15,7 @@ Python 3.6 with following packages is required:
  
  They can by installed by:
 ```bash
-pip -r requirements.txt
+pip install -r requirements.txt
 
 ```
 ## Usage
