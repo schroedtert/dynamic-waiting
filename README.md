@@ -1,6 +1,16 @@
 # Cellular automata for waiting pedestrians at platforms
 
-Trying to model waiting behaviour of pedestrians on train station platforms via Cellular Automata.
+Trying to model waiting behavior of pedestrians on train station platforms via Cellular Automaton.
+
+## Publications
+A more detailed explanation of the model is given in the [paper](paper.pdf) and in the [talk](https://youtu.be/-2onk8QIA2g) at the FEMTC 2020.
+
+- Paper: https://juser.fz-juelich.de/record/887683/
+- Talk: https://youtu.be/-2onk8QIA2g
+
+[![](https://img.youtube.com/vi/-2onk8QIA2g/0.jpg)](https://youtu.be/-2onk8QIA2g "Video to conference talk")
+
+The results presented there are computed with the [FEMTC2020](https://github.com/schroedtert/dynamic-waiting/releases/tag/femtc2020) release from this repository.
 
 ## Requirements
 Python 3.6 with following packages is required:
@@ -12,7 +22,7 @@ Python 3.6 with following packages is required:
 - scipy
 - Shapely
 - VisiLibity
- 
+
  They can by installed by:
 ```bash
 pip install -r requirements.txt
